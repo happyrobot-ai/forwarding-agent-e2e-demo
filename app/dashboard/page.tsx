@@ -2,7 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { usePusher } from "@/components/PusherProvider";
-import { AlertCircle, TrendingUp, Package, CheckCircle2 } from "lucide-react";
+import {
+  AlertCircle,
+  TrendingUp,
+  Package,
+  Truck,
+  ArrowUpRight,
+  Clock,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { WarRoomModal } from "@/components/WarRoomModal";
 
@@ -30,7 +37,6 @@ export default function DashboardPage() {
   const [showWarRoom, setShowWarRoom] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch initial data
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -42,20 +48,19 @@ export default function DashboardPage() {
         const ordersData = await ordersRes.json();
         const incidentsData = await incidentsRes.json();
 
-        // Handle API errors
         if (Array.isArray(ordersData)) {
           setOrders(ordersData);
-
-          // Calculate service level based on order status
           const totalOrders = ordersData.length;
           const failedOrders = ordersData.filter(
             (o: Order) => o.status === "CANCELLED"
           ).length;
-          const level = totalOrders > 0 ? ((totalOrders - failedOrders) / totalOrders) * 100 : 98;
+          const level =
+            totalOrders > 0
+              ? ((totalOrders - failedOrders) / totalOrders) * 100
+              : 98;
           setServiceLevel(Math.round(level));
         }
 
-        // Find active incident
         if (Array.isArray(incidentsData)) {
           const activeIncident = incidentsData.find(
             (inc: Incident) => inc.status === "ACTIVE"
@@ -73,7 +78,6 @@ export default function DashboardPage() {
     fetchData();
   }, []);
 
-  // Listen for Pusher events
   useEffect(() => {
     if (!pusher) return;
 
@@ -82,20 +86,23 @@ export default function DashboardPage() {
     channel.bind("demo-started", (data: { incident: Incident }) => {
       setIncident(data.incident);
       setServiceLevel(92);
-      // Refresh orders
-      fetch("/api/orders").then(res => res.json()).then(setOrders);
+      fetch("/api/orders")
+        .then((res) => res.json())
+        .then((data) => Array.isArray(data) && setOrders(data));
     });
 
     channel.bind("agent-update", () => {
-      // Refresh orders to show status changes
-      fetch("/api/orders").then(res => res.json()).then(setOrders);
+      fetch("/api/orders")
+        .then((res) => res.json())
+        .then((data) => Array.isArray(data) && setOrders(data));
     });
 
     channel.bind("demo-complete", () => {
       setIncident(null);
       setServiceLevel(98);
-      // Refresh orders
-      fetch("/api/orders").then(res => res.json()).then(setOrders);
+      fetch("/api/orders")
+        .then((res) => res.json())
+        .then((data) => Array.isArray(data) && setOrders(data));
     });
 
     return () => {
@@ -112,194 +119,318 @@ export default function DashboardPage() {
     }
   };
 
-  const statusColor = (status: string) => {
-    switch (status) {
-      case "CONFIRMED":
-        return "text-green-600 bg-green-50 dark:bg-green-900/20 dark:text-green-400";
-      case "IN_TRANSIT":
-        return "text-blue-600 bg-blue-50 dark:bg-blue-900/20 dark:text-blue-400";
-      case "CANCELLED":
-        return "text-red-600 bg-red-50 dark:bg-red-900/20 dark:text-red-400";
-      case "RECOVERING":
-        return "text-yellow-600 bg-yellow-50 dark:bg-yellow-900/20 dark:text-yellow-400";
-      default:
-        return "text-gray-600 bg-gray-50 dark:bg-gray-900/20 dark:text-gray-400";
-    }
+  const statusConfig: Record<
+    string,
+    { bg: string; text: string; dot: string }
+  > = {
+    CONFIRMED: {
+      bg: "bg-emerald-500/10 dark:bg-emerald-500/20",
+      text: "text-emerald-700 dark:text-emerald-400",
+      dot: "bg-emerald-500",
+    },
+    IN_TRANSIT: {
+      bg: "bg-blue-500/10 dark:bg-blue-500/20",
+      text: "text-blue-700 dark:text-blue-400",
+      dot: "bg-blue-500",
+    },
+    CANCELLED: {
+      bg: "bg-red-500/10 dark:bg-red-500/20",
+      text: "text-red-700 dark:text-red-400",
+      dot: "bg-red-500",
+    },
+    RECOVERING: {
+      bg: "bg-amber-500/10 dark:bg-amber-500/20",
+      text: "text-amber-700 dark:text-amber-400",
+      dot: "bg-amber-500 animate-pulse",
+    },
   };
+
+  const getStatusConfig = (status: string) =>
+    statusConfig[status] || {
+      bg: "bg-gray-500/10",
+      text: "text-gray-600 dark:text-gray-400",
+      dot: "bg-gray-500",
+    };
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <div className="text-gray-500 dark:text-gray-400">Loading dashboard...</div>
+        <div className="flex items-center gap-3 text-gray-500 dark:text-gray-400">
+          <div className="w-5 h-5 border-2 border-gray-300 dark:border-gray-600 border-t-blue-500 rounded-full animate-spin" />
+          <span>Loading dashboard...</span>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="p-8 space-y-6">
+    <div className="min-h-screen">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Supply Chain Command Center
-          </h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">
-            Real-time monitoring and AI orchestration
-          </p>
+      <header className="sticky top-0 z-30 bg-[#F8FAFC]/80 dark:bg-[#09090B]/80 backdrop-blur-xl border-b border-gray-200/60 dark:border-white/[0.08]">
+        <div className="px-8 py-5 flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold text-gray-900 dark:text-white tracking-tight">
+              Command Center
+            </h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+              Real-time supply chain monitoring
+            </p>
+          </div>
+          <button
+            onClick={handleTriggerDemo}
+            className={cn(
+              "px-5 py-2.5 rounded-lg font-medium text-sm transition-all duration-200",
+              "bg-red-500 hover:bg-red-600 text-white",
+              "shadow-lg shadow-red-500/25 hover:shadow-red-500/40",
+              "flex items-center gap-2"
+            )}
+          >
+            <AlertCircle className="h-4 w-4" />
+            Simulate Incident
+          </button>
         </div>
-        <button
-          onClick={handleTriggerDemo}
-          className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
-        >
-          Simulate Incident
-        </button>
-      </div>
+      </header>
 
-      {/* Active Incident Alert */}
-      {incident && (
-        <div
-          className="bg-red-50 dark:bg-red-900/20 border-2 border-red-600 rounded-xl p-4 cursor-pointer hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
-          onClick={() => setShowWarRoom(true)}
-        >
-          <div className="flex items-start gap-3">
-            <AlertCircle className="h-6 w-6 text-red-600 mt-0.5 animate-pulse" />
-            <div className="flex-1">
-              <h3 className="font-semibold text-red-900 dark:text-red-200">
-                CRITICAL ALERT
-              </h3>
-              <p className="text-red-700 dark:text-red-300 mt-1">
-                {incident.title}
-              </p>
-              <p className="text-sm text-red-600 dark:text-red-400 mt-2">
-                Click to view AI Agent response
-              </p>
+      <div className="p-8 space-y-6">
+        {/* Active Incident Alert */}
+        {incident && (
+          <div
+            onClick={() => setShowWarRoom(true)}
+            className={cn(
+              "relative overflow-hidden rounded-xl p-5 cursor-pointer",
+              "bg-gradient-to-r from-red-500 to-rose-600",
+              "shadow-xl shadow-red-500/20",
+              "transition-all duration-300 hover:shadow-red-500/40 hover:scale-[1.01]"
+            )}
+          >
+            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTAgMGg0MHY0MEgweiIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
+            <div className="relative flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
+                <AlertCircle className="h-6 w-6 text-white animate-pulse" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="px-2 py-0.5 bg-white/20 rounded text-xs font-semibold text-white uppercase tracking-wide">
+                    Critical
+                  </span>
+                  <span className="text-white/70 text-sm">Active Incident</span>
+                </div>
+                <p className="text-white font-medium mt-1">{incident.title}</p>
+              </div>
+              <div className="flex items-center gap-2 text-white/80">
+                <span className="text-sm">View AI Response</span>
+                <ArrowUpRight className="h-4 w-4" />
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Metrics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white dark:bg-[#1A1A1A] rounded-xl p-6 border border-gray-200 dark:border-white/10">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Service Level
-              </p>
-              <p
+        {/* Metrics Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {/* Service Level */}
+          <div
+            className={cn(
+              "rounded-xl p-6",
+              "bg-white dark:bg-[#18181B]",
+              "border border-gray-200/60 dark:border-white/[0.08]",
+              "shadow-sm"
+            )}
+          >
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                  Service Level
+                </p>
+                <p
+                  className={cn(
+                    "text-3xl font-bold mt-2 tracking-tight",
+                    serviceLevel >= 95
+                      ? "text-emerald-600 dark:text-emerald-400"
+                      : "text-red-600 dark:text-red-400"
+                  )}
+                >
+                  {serviceLevel}%
+                </p>
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                  Target: 95%
+                </p>
+              </div>
+              <div
                 className={cn(
-                  "text-3xl font-bold mt-2",
+                  "w-12 h-12 rounded-xl flex items-center justify-center",
                   serviceLevel >= 95
-                    ? "text-green-600 dark:text-green-400"
-                    : "text-red-600 dark:text-red-400"
+                    ? "bg-emerald-500/10 dark:bg-emerald-500/20"
+                    : "bg-red-500/10 dark:bg-red-500/20"
                 )}
               >
-                {serviceLevel}%
-              </p>
+                <TrendingUp
+                  className={cn(
+                    "h-6 w-6",
+                    serviceLevel >= 95
+                      ? "text-emerald-600 dark:text-emerald-400"
+                      : "text-red-600 dark:text-red-400"
+                  )}
+                />
+              </div>
             </div>
-            <TrendingUp
-              className={cn(
-                "h-12 w-12",
-                serviceLevel >= 95
-                  ? "text-green-600 dark:text-green-400"
-                  : "text-red-600 dark:text-red-400"
-              )}
-            />
+          </div>
+
+          {/* Active Orders */}
+          <div
+            className={cn(
+              "rounded-xl p-6",
+              "bg-white dark:bg-[#18181B]",
+              "border border-gray-200/60 dark:border-white/[0.08]",
+              "shadow-sm"
+            )}
+          >
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                  Active Orders
+                </p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2 tracking-tight">
+                  {orders.length}
+                </p>
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                  In pipeline
+                </p>
+              </div>
+              <div className="w-12 h-12 rounded-xl bg-blue-500/10 dark:bg-blue-500/20 flex items-center justify-center">
+                <Package className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+              </div>
+            </div>
+          </div>
+
+          {/* In Transit */}
+          <div
+            className={cn(
+              "rounded-xl p-6",
+              "bg-white dark:bg-[#18181B]",
+              "border border-gray-200/60 dark:border-white/[0.08]",
+              "shadow-sm"
+            )}
+          >
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                  In Transit
+                </p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2 tracking-tight">
+                  {orders.filter((o) => o.status === "IN_TRANSIT").length}
+                </p>
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                  On the road
+                </p>
+              </div>
+              <div className="w-12 h-12 rounded-xl bg-violet-500/10 dark:bg-violet-500/20 flex items-center justify-center">
+                <Truck className="h-6 w-6 text-violet-600 dark:text-violet-400" />
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-[#1A1A1A] rounded-xl p-6 border border-gray-200 dark:border-white/10">
-          <div className="flex items-center justify-between">
+        {/* Orders Table */}
+        <div
+          className={cn(
+            "rounded-xl overflow-hidden",
+            "bg-white dark:bg-[#18181B]",
+            "border border-gray-200/60 dark:border-white/[0.08]",
+            "shadow-sm"
+          )}
+        >
+          <div className="px-6 py-4 border-b border-gray-200/60 dark:border-white/[0.08] flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Active Orders
-              </p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">
-                {orders.length}
-              </p>
-            </div>
-            <Package className="h-12 w-12 text-blue-600 dark:text-blue-400" />
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-[#1A1A1A] rounded-xl p-6 border border-gray-200 dark:border-white/10">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Deliveries Today
-              </p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">
-                {orders.filter((o) => o.status === "IN_TRANSIT").length}
+              <h2 className="text-base font-semibold text-gray-900 dark:text-white">
+                Orders
+              </h2>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                Manhattan TMS Integration
               </p>
             </div>
-            <CheckCircle2 className="h-12 w-12 text-green-600 dark:text-green-400" />
+            <div className="flex items-center gap-2 text-xs text-gray-400 dark:text-gray-500">
+              <Clock className="h-3.5 w-3.5" />
+              <span>Live updates</span>
+            </div>
           </div>
-        </div>
-      </div>
 
-      {/* Orders Table */}
-      <div className="bg-white dark:bg-[#1A1A1A] rounded-xl border border-gray-200 dark:border-white/10 overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-white/10">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Orders - Manhattan TMS
-          </h2>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 dark:bg-white/5">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Order ID
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Item
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Carrier
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-white/10">
-              {orders.map((order) => (
-                <tr
-                  key={order.id}
-                  className="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
-                >
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                    #{order.id}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
-                    {order.itemName}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={cn(
-                        "px-3 py-1 rounded-full text-xs font-medium",
-                        statusColor(order.status)
-                      )}
-                    >
-                      {order.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300">
-                    {order.carrier}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          {orders.length === 0 ? (
+            <div className="px-6 py-12 text-center">
+              <Package className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+              <p className="text-gray-500 dark:text-gray-400">No orders yet</p>
+              <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
+                Click &quot;Simulate Incident&quot; to create test data
+              </p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-gray-50/50 dark:bg-white/[0.02]">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Order
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Item
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Carrier
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100 dark:divide-white/[0.04]">
+                  {orders.map((order) => {
+                    const config = getStatusConfig(order.status);
+                    return (
+                      <tr
+                        key={order.id}
+                        className="hover:bg-gray-50/50 dark:hover:bg-white/[0.02] transition-colors"
+                      >
+                        <td className="px-6 py-4">
+                          <span className="text-sm font-medium text-gray-900 dark:text-white">
+                            #{order.id}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className="text-sm text-gray-600 dark:text-gray-300">
+                            {order.itemName}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span
+                            className={cn(
+                              "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium",
+                              config.bg,
+                              config.text
+                            )}
+                          >
+                            <span
+                              className={cn("w-1.5 h-1.5 rounded-full", config.dot)}
+                            />
+                            {order.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className="text-sm text-gray-600 dark:text-gray-300">
+                            {order.carrier}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
 
       {/* War Room Modal */}
       {showWarRoom && incident && (
-        <WarRoomModal
-          incident={incident}
-          onClose={() => setShowWarRoom(false)}
-        />
+        <WarRoomModal incident={incident} onClose={() => setShowWarRoom(false)} />
       )}
     </div>
   );
