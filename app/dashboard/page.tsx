@@ -42,21 +42,26 @@ export default function DashboardPage() {
         const ordersData = await ordersRes.json();
         const incidentsData = await incidentsRes.json();
 
-        setOrders(ordersData);
+        // Handle API errors
+        if (Array.isArray(ordersData)) {
+          setOrders(ordersData);
+
+          // Calculate service level based on order status
+          const totalOrders = ordersData.length;
+          const failedOrders = ordersData.filter(
+            (o: Order) => o.status === "CANCELLED"
+          ).length;
+          const level = totalOrders > 0 ? ((totalOrders - failedOrders) / totalOrders) * 100 : 98;
+          setServiceLevel(Math.round(level));
+        }
 
         // Find active incident
-        const activeIncident = incidentsData.find(
-          (inc: Incident) => inc.status === "ACTIVE"
-        );
-        setIncident(activeIncident || null);
-
-        // Calculate service level based on order status
-        const totalOrders = ordersData.length;
-        const failedOrders = ordersData.filter(
-          (o: Order) => o.status === "CANCELLED"
-        ).length;
-        const level = totalOrders > 0 ? ((totalOrders - failedOrders) / totalOrders) * 100 : 98;
-        setServiceLevel(Math.round(level));
+        if (Array.isArray(incidentsData)) {
+          const activeIncident = incidentsData.find(
+            (inc: Incident) => inc.status === "ACTIVE"
+          );
+          setIncident(activeIncident || null);
+        }
 
         setIsLoading(false);
       } catch (error) {

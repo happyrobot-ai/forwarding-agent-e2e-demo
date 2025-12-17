@@ -4,7 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { PusherProvider } from "@/components/PusherProvider";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { ClientLayout } from "@/components/ClientLayout";
+import { Layout } from "@/components/Layout";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,7 +37,7 @@ export default function RootLayout({
         <ThemeProvider>
           <PusherProvider>
             <TooltipProvider>
-              <ClientLayout>{children}</ClientLayout>
+              <Layout>{children}</Layout>
             </TooltipProvider>
           </PusherProvider>
         </ThemeProvider>
