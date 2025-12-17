@@ -21,6 +21,9 @@ export const metadata: Metadata = {
   description: "Self-healing supply chain powered by AI agents",
 };
 
+// Force dynamic rendering to prevent build-time static generation
+export const dynamic = 'force-dynamic';
+
 export default function RootLayout({
   children,
 }: Readonly<{
