@@ -8,7 +8,7 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 // Create connection pool and Prisma client with adapter for Prisma 7
-const createPrismaClient = () => {
+function createPrismaClient(): PrismaClient {
   const connectionString = process.env.DATABASE_URL;
 
   if (!connectionString) {
@@ -21,8 +21,20 @@ const createPrismaClient = () => {
   const adapter = new PrismaPg(pool);
 
   return new PrismaClient({ adapter });
+}
+
+// Lazy getter - only initializes when accessed at runtime
+export function getPrisma(): PrismaClient {
+  if (!globalForPrisma.prisma) {
+    globalForPrisma.prisma = createPrismaClient();
+  }
+  return globalForPrisma.prisma;
+}
+
+// For backward compatibility - use getPrisma() in API routes
+export const prisma = {
+  get incident() { return getPrisma().incident; },
+  get order() { return getPrisma().order; },
+  get agentRun() { return getPrisma().agentRun; },
+  $transaction: (...args: Parameters<PrismaClient['$transaction']>) => getPrisma().$transaction(...args),
 };
-
-export const prisma = globalForPrisma.prisma ?? createPrismaClient();
-
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
