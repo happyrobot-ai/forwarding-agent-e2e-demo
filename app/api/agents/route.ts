@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { AgentStatus } from "@prisma/client";
 
 // GET /api/agents - List all agents or filter by status
 export async function GET(req: NextRequest) {
@@ -7,7 +8,7 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const status = searchParams.get("status");
 
-    const where = status ? { status: status as any } : {};
+    const where = status ? { status: status as AgentStatus } : {};
 
     const agents = await prisma.agentRun.findMany({
       where,
@@ -17,7 +18,7 @@ export async function GET(req: NextRequest) {
     });
 
     // Transform to match the expected Agent interface
-    const formattedAgents = agents.map((agent) => ({
+    const formattedAgents = agents.map((agent: typeof agents[number]) => ({
       id: agent.id,
       agent_id: agent.runId,
       agent_name: agent.agentName,
