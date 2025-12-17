@@ -1,0 +1,68 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Incident tracking table
+model Incident {
+  id         String      @id @default(uuid())
+  title      String
+  status     IncidentStatus @default(ACTIVE)
+  createdAt  DateTime    @default(now()) @map("created_at")
+  updatedAt  DateTime    @updatedAt @map("updated_at")
+  agentRuns  AgentRun[]
+
+  @@map("incidents")
+}
+
+enum IncidentStatus {
+  ACTIVE
+  RESOLVED
+  FAILED
+}
+
+// Orders table (Mocking Manhattan TMS)
+model Order {
+  id         String   @id
+  itemName   String   @map("item_name")
+  status     String
+  carrier    String
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@map("orders")
+}
+
+// Agent runs tracking table
+model AgentRun {
+  id         Int      @id @default(autoincrement())
+  runId      String   @unique @map("run_id")
+  incidentId String   @map("incident_id")
+  agentRole  String   @map("agent_role")
+  agentName  String   @map("agent_name")
+  summary    String
+  status     AgentStatus @default(IDLE)
+  logs       Json     @default("[]")
+  link       String   @default("")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  incident   Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+
+  @@map("agent_runs")
+}
+
+enum AgentStatus {
+  IDLE
+  RUNNING
+  ACTIVE
+  COMPLETED
+  FINISHED
+  FAILED
+}
