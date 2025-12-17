@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { AgentStatus } from "@prisma/client";
+
+type AgentStatusType = "IDLE" | "RUNNING" | "ACTIVE" | "COMPLETED" | "FINISHED" | "FAILED";
 
 // GET /api/agents - List all agents or filter by status
 export async function GET(req: NextRequest) {
@@ -8,7 +9,7 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const status = searchParams.get("status");
 
-    const where = status ? { status: status as AgentStatus } : {};
+    const where = status ? { status: status as AgentStatusType } : {};
 
     const agents = await prisma.agentRun.findMany({
       where,
