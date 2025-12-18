@@ -27,14 +27,62 @@ enum IncidentStatus {
   FAILED
 }
 
+// Trucks table (Samsara Fleet)
+model Truck {
+  id          String      @id // e.g., "TRK-882"
+  driverName  String      @map("driver_name")
+  vehicleType VehicleType @default(REFRIGERATED) @map("vehicle_type")
+  status      TruckStatus @default(ACTIVE)
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  orders      Order[]
+
+  @@map("trucks")
+}
+
+enum VehicleType {
+  REFRIGERATED
+  DRY_VAN
+  FLATBED
+  TANKER
+}
+
+enum TruckStatus {
+  ACTIVE
+  IDLE
+  MAINTENANCE
+  INCIDENT
+}
+
 // Orders table (Mocking Manhattan TMS)
 model Order {
-  id         String   @id
-  itemName   String   @map("item_name")
-  status     String
-  carrier    String
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
+  id          String   @id
+  itemName    String   @map("item_name")
+  description String?  @default("Standard shipment") // Order description
+  orderValue  Float    @default(0) @map("order_value") // Dollar value of order
+  status      String
+  carrier     String
+
+  // Assigned truck from Samsara fleet
+  truckId     String?  @map("truck_id")
+  truck       Truck?   @relation(fields: [truckId], references: [id])
+
+  // Geospatial Data for Route Visualization
+  origin      String   @default("Distribution Center")
+  destination String   @default("Regional Hub")
+  startLat    Float    @default(0) @map("start_lat")
+  startLng    Float    @default(0) @map("start_lng")
+  endLat      Float    @default(0) @map("end_lat")
+  endLng      Float    @default(0) @map("end_lng")
+  riskScore   Int      @default(0) @map("risk_score") // 0-100 for color gradient
+
+  // Precomputed route from Mapbox Directions API
+  routeGeoJson Json?   @map("route_geojson") // Array of [lng, lat] coordinates
+  progress     Int     @default(50) // 0-100, truck position along route
+
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
 
   @@map("orders")
 }

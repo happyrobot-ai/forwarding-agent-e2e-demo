@@ -6,6 +6,26 @@
 :root {
   --background: #F8FAFC;
   --foreground: #09090B;
+
+  /* Enterprise color palette - Light mode */
+  --sysco-bg: #F8FAFC;
+  --sysco-card: #FFFFFF;
+  --sysco-border: #E4E4E7;
+  --sysco-surface: #F4F4F5;
+
+  /* Status colors - Light mode */
+  --status-success-bg: #DCFCE7;
+  --status-success-text: #166534;
+  --status-success-border: #BBF7D0;
+  --status-error-bg: #FEE2E2;
+  --status-error-text: #991B1B;
+  --status-error-border: #FECACA;
+  --status-warn-bg: #FEF3C7;
+  --status-warn-text: #92400E;
+  --status-warn-border: #FDE68A;
+  --status-info-bg: #DBEAFE;
+  --status-info-text: #1E40AF;
+  --status-info-border: #BFDBFE;
 }
 
 @theme inline {
@@ -13,11 +33,37 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* Enterprise semantic colors */
+  --color-sysco-bg: var(--sysco-bg);
+  --color-sysco-card: var(--sysco-card);
+  --color-sysco-border: var(--sysco-border);
+  --color-sysco-surface: var(--sysco-surface);
 }
 
 .dark {
   --background: #09090B;
   --foreground: #FAFAFA;
+
+  /* Enterprise color palette - Dark mode (Zinc-based) */
+  --sysco-bg: #09090B;
+  --sysco-card: #18181B;
+  --sysco-border: #27272A;
+  --sysco-surface: #121217;
+
+  /* Status colors - Dark mode (Subtle, not neon) */
+  --status-success-bg: #052E16;
+  --status-success-text: #4ADE80;
+  --status-success-border: #14532D;
+  --status-error-bg: #450A0A;
+  --status-error-text: #F87171;
+  --status-error-border: #7F1D1D;
+  --status-warn-bg: #422006;
+  --status-warn-text: #FBBF24;
+  --status-warn-border: #713F12;
+  --status-info-bg: #172554;
+  --status-info-text: #60A5FA;
+  --status-info-border: #1E3A8A;
 }
 
 * {
@@ -141,6 +187,51 @@ body {
 
 .dark .glass {
   background: rgba(24, 24, 27, 0.8);
+}
+
+/* Enterprise Grid Pattern */
+.grid-pattern {
+  background-image:
+    linear-gradient(to right, var(--sysco-border) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--sysco-border) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.dark .grid-pattern {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+}
+
+/* Subtle gradient glow for cards */
+.card-glow {
+  position: relative;
+  overflow: hidden;
+}
+
+.card-glow::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* Terminal/Log styling */
+.terminal-log {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+/* Data table monospace */
+.data-mono {
+  font-family: var(--font-geist-mono), monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
 }
 
 /* Selection styling */

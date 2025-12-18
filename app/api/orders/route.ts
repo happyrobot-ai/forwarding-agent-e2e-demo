@@ -1,10 +1,13 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-// GET /api/orders - List all orders
+// GET /api/orders - List all orders with truck info
 export async function GET() {
   try {
     const orders = await prisma.order.findMany({
+      include: {
+        truck: true, // Include Samsara truck info
+      },
       orderBy: {
         createdAt: "desc",
       },

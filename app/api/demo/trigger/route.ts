@@ -1,57 +1,89 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { pusherServer } from "@/lib/pusher-server";
 
-export async function POST() {
+export async function POST(request: NextRequest) {
   try {
-    // Clear existing demo data
+    // Get the orderId from request body
+    const body = await request.json().catch(() => ({}));
+    const { orderId } = body as { orderId?: string };
+
+    // Clear only incident-related data (preserve background orders)
     await prisma.agentRun.deleteMany();
     await prisma.incident.deleteMany();
-    await prisma.order.deleteMany();
 
-    // Create the "Prime Rib Crisis" incident
+    // Get the selected order (or use a random one if not specified)
+    let targetOrder;
+    if (orderId) {
+      targetOrder = await prisma.order.findUnique({
+        where: { id: orderId },
+        include: { truck: true },
+      });
+    }
+
+    if (!targetOrder) {
+      // Fallback: pick a random in-transit order with a truck
+      const eligibleOrders = await prisma.order.findMany({
+        where: {
+          status: "IN_TRANSIT",
+          truck: { isNot: null },
+          riskScore: { lt: 80 },
+        },
+        include: { truck: true },
+        take: 10,
+      });
+      if (eligibleOrders.length > 0) {
+        targetOrder = eligibleOrders[Math.floor(Math.random() * eligibleOrders.length)];
+      }
+    }
+
+    if (!targetOrder) {
+      return NextResponse.json(
+        { error: "No eligible orders for incident" },
+        { status: 400 }
+      );
+    }
+
+    // Create the incident with dynamic title
     const incident = await prisma.incident.create({
       data: {
-        title: "Prime Rib Shortage - DFW Distribution Center",
+        title: `${targetOrder.itemName} - ${targetOrder.destination} Delivery Crisis`,
         status: "ACTIVE",
       },
     });
 
-    // Create the cancelled order
-    await prisma.order.create({
+    // Update the target order to critical status
+    await prisma.order.update({
+      where: { id: targetOrder.id },
       data: {
-        id: "8821",
-        itemName: "Prime Rib (5 Pallets)",
         status: "CANCELLED",
-        carrier: "External Supplier - Equipment Failure",
+        riskScore: 100,
       },
     });
 
-    // Create sample "normal" orders
-    await prisma.order.createMany({
-      data: [
-        {
-          id: "8820",
-          itemName: "Fresh Vegetables",
-          status: "CONFIRMED",
-          carrier: "Sysco Fleet #881",
-        },
-        {
-          id: "8822",
-          itemName: "Frozen Seafood",
-          status: "IN_TRANSIT",
-          carrier: "Sysco Fleet #883",
-        },
-        {
-          id: "8823",
-          itemName: "Dairy Products",
-          status: "CONFIRMED",
-          carrier: "External - Prime Logistics",
-        },
-      ],
+    // Update a few random orders to show cascading risk during incident
+    const ordersToEscalate = await prisma.order.findMany({
+      where: {
+        riskScore: { lt: 30 },
+        id: { not: targetOrder.id },
+      },
+      take: 3,
     });
 
-    // Create agent run placeholders
+    for (const order of ordersToEscalate) {
+      await prisma.order.update({
+        where: { id: order.id },
+        data: {
+          riskScore: 60 + Math.floor(Math.random() * 20), // Escalate to 60-80
+          status: "DELAYED",
+        },
+      });
+    }
+
+    // Create agent run placeholders with dynamic info
+    const driverName = targetOrder.truck?.driverName || "Driver";
+    const truckId = targetOrder.truck?.id || "Unknown";
+
     await prisma.agentRun.createMany({
       data: [
         {
@@ -59,7 +91,7 @@ export async function POST() {
           incidentId: incident.id,
           agentRole: "Supplier_Voice",
           agentName: "Supplier Negotiation Agent",
-          summary: "Contact Texas Quality Meats for emergency inventory",
+          summary: `Contact suppliers for emergency ${targetOrder.itemName} inventory`,
           status: "IDLE",
           link: "https://example.com/agent/supplier",
         },
@@ -68,7 +100,7 @@ export async function POST() {
           incidentId: incident.id,
           agentRole: "Driver_Voice",
           agentName: "Driver Coordination Agent",
-          summary: "Reroute Marcus (Driver #882) for pickup",
+          summary: `Reroute ${driverName} (${truckId}) for emergency pickup`,
           status: "IDLE",
           link: "https://example.com/agent/driver",
         },
@@ -78,12 +110,24 @@ export async function POST() {
     // Trigger Pusher event for real-time dashboard update
     await pusherServer.trigger("sysco-demo", "demo-started", {
       incident,
-      message: "CRITICAL ALERT: Inbound Shipment #8821 (Prime Rib) Cancelled",
+      affectedOrderId: targetOrder.id,
+      affectedOrder: {
+        id: targetOrder.id,
+        itemName: targetOrder.itemName,
+        origin: targetOrder.origin,
+        destination: targetOrder.destination,
+        orderValue: targetOrder.orderValue,
+        truck: targetOrder.truck,
+        endLat: targetOrder.endLat,
+        endLng: targetOrder.endLng,
+      },
+      message: `CRITICAL ALERT: Shipment ${targetOrder.id} (${targetOrder.itemName}) - Equipment Failure`,
     });
 
     return NextResponse.json({
       success: true,
       incident,
+      affectedOrderId: targetOrder.id,
       message: "Demo crisis initiated",
     });
   } catch (error) {

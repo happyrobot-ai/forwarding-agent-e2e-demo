@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Package, Truck, Brain, ChevronRight } from "lucide-react";
+import { LayoutDashboard, ChevronRight, LucideIcon } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
 import { ThemeToggle } from "./ThemeToggle";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
@@ -17,7 +17,34 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
   const isCollapsed = !isHovered;
 
-  const navItems = [
+  // Manhattan icon for Orders nav item
+  const getManhattanIcon = () => {
+    return theme === "dark"
+      ? "/manhattan/manhattan_tms_white.png"
+      : "/manhattan/mahnattan_tms_black.svg";
+  };
+
+  // Samsara icon for Fleet nav item
+  const getSamsaraIcon = () => {
+    return theme === "dark"
+      ? "/samsara/Samsara_logo_primary_vertical_wht.png"
+      : "/samsara/Samsara_logo_primary_vertical_blk.png";
+  };
+
+  // HappyRobot icon for Agents nav item
+  const getHappyRobotIcon = () => {
+    return theme === "dark"
+      ? "/happyrobot/Footer-logo-white.png"
+      : "/happyrobot/Footer-logo-black.png";
+  };
+
+  const navItems: {
+    href: string;
+    icon?: LucideIcon;
+    customIcon?: string;
+    label: string;
+    subtitle: string;
+  }[] = [
     {
       href: "/dashboard",
       icon: LayoutDashboard,
@@ -26,19 +53,19 @@ export function Layout({ children }: { children: React.ReactNode }) {
     },
     {
       href: "/orders",
-      icon: Package,
+      customIcon: getManhattanIcon(),
       label: "Orders",
       subtitle: "Order Management",
     },
     {
       href: "/fleet",
-      icon: Truck,
+      customIcon: getSamsaraIcon(),
       label: "Fleet",
       subtitle: "Vehicle Tracking",
     },
     {
       href: "/agents",
-      icon: Brain,
+      customIcon: getHappyRobotIcon(),
       label: "AI Agents",
       subtitle: "Orchestration",
     },
@@ -129,14 +156,29 @@ export function Layout({ children }: { children: React.ReactNode }) {
                     : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/[0.06] hover:text-gray-900 dark:hover:text-white"
                 )}
               >
-                <Icon
-                  className={cn(
-                    "h-5 w-5 shrink-0 transition-colors",
-                    isActive
-                      ? "text-white"
-                      : "text-gray-500 dark:text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300"
-                  )}
-                />
+                {item.customIcon ? (
+                  <Image
+                    src={item.customIcon}
+                    alt={item.label}
+                    width={20}
+                    height={20}
+                    className={cn(
+                      "shrink-0 transition-all object-contain",
+                      isActive
+                        ? "brightness-0 invert" // Make white on blue active background
+                        : "opacity-60 group-hover:opacity-80" // Soften to grey tones
+                    )}
+                  />
+                ) : Icon ? (
+                  <Icon
+                    className={cn(
+                      "h-5 w-5 shrink-0 transition-colors",
+                      isActive
+                        ? "text-white"
+                        : "text-gray-500 dark:text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300"
+                    )}
+                  />
+                ) : null}
                 {!isCollapsed && (
                   <div className="flex-1 min-w-0">
                     <div
