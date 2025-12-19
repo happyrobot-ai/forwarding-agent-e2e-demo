@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import Image from "next/image";
-import { X } from "lucide-react";
+import { X, DollarSign, TrendingDown, Users, AlertTriangle } from "lucide-react";
 import { usePusher } from "./PusherProvider";
 import { useTheme } from "./ThemeProvider";
 import { AgentCard } from "./AgentCard";
@@ -32,14 +32,51 @@ interface Agent {
   logs: AgentLog[];
 }
 
+interface Buyer {
+  id: string;
+  name: string;
+  segment: string;
+  trustScore: number;
+  totalSpend: number;
+}
+
+interface AffectedOrder {
+  id: string;
+  itemName: string;
+  origin: string;
+  destination: string;
+  costPrice?: number;
+  sellPrice?: number;
+  internalBaseCost?: number;
+  actualLogisticsCost?: number;
+  buyers?: Buyer[];
+  truck?: {
+    id: string;
+    driverName: string;
+  } | null;
+}
+
 interface WarRoomModalProps {
   incident: Incident;
+  affectedOrder?: AffectedOrder | null;
   onClose: () => void;
 }
 
-export function WarRoomModal({ incident, onClose }: WarRoomModalProps) {
+export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalProps) {
   const { pusher } = usePusher();
   const { theme } = useTheme();
+
+  // Calculate financial impact
+  const financials = affectedOrder ? {
+    costPrice: affectedOrder.costPrice || 0,
+    sellPrice: affectedOrder.sellPrice || 0,
+    logistics: (affectedOrder.internalBaseCost || 0) + (affectedOrder.actualLogisticsCost || 0),
+    grossProfit: (affectedOrder.sellPrice || 0) - (affectedOrder.costPrice || 0),
+    netMargin: (affectedOrder.sellPrice || 0) - (affectedOrder.costPrice || 0) -
+               (affectedOrder.internalBaseCost || 0) - (affectedOrder.actualLogisticsCost || 0),
+    marginPercent: affectedOrder.sellPrice ?
+      (((affectedOrder.sellPrice - affectedOrder.costPrice!) / affectedOrder.sellPrice) * 100).toFixed(1) : "0",
+  } : null;
   const [agents, setAgents] = useState<Agent[]>([]);
   const [logs, setLogs] = useState<AgentLog[]>([]);
   const [showRouteChange, setShowRouteChange] = useState(false);
@@ -216,8 +253,97 @@ export function WarRoomModal({ incident, onClose }: WarRoomModalProps) {
             </div>
           </div>
 
-          {/* Right Side - Agents & Logs */}
+          {/* Right Side - Financial Impact, Agents & Logs */}
           <div className="w-[500px] flex flex-col bg-[var(--sysco-surface)]">
+            {/* Financial Impact Card */}
+            {affectedOrder && financials && (
+              <div className="p-4 border-b border-[var(--sysco-border)] bg-zinc-50 dark:bg-zinc-900/50">
+                <h3 className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider font-mono mb-3 flex items-center gap-2">
+                  <AlertTriangle className="h-3 w-3 text-red-500" />
+                  FINANCIAL IMPACT AT RISK
+                </h3>
+                <div className="grid grid-cols-2 gap-3">
+                  {/* Net Profit Impact */}
+                  <div className="p-3 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+                    <div className="flex items-center gap-1.5 text-[10px] text-zinc-500 uppercase mb-1">
+                      <DollarSign className="h-3 w-3" />
+                      Net Profit at Risk
+                    </div>
+                    <div className={cn(
+                      "text-xl font-mono font-bold",
+                      financials.netMargin > 0 ? "text-red-500" : "text-red-600"
+                    )}>
+                      ${financials.netMargin.toLocaleString()}
+                    </div>
+                    <div className="text-[10px] text-zinc-500 mt-1">
+                      Margin: <span className="text-zinc-700 dark:text-zinc-300">{financials.marginPercent}%</span>
+                    </div>
+                  </div>
+
+                  {/* Client Trust Risk */}
+                  <div className="p-3 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+                    <div className="flex items-center gap-1.5 text-[10px] text-zinc-500 uppercase mb-1">
+                      <Users className="h-3 w-3" />
+                      Client Trust at Risk
+                    </div>
+                    {affectedOrder.buyers && affectedOrder.buyers.length > 0 ? (
+                      <>
+                        <div className="flex -space-x-2 overflow-hidden py-1">
+                          {affectedOrder.buyers.slice(0, 4).map((buyer) => (
+                            <div
+                              key={buyer.id}
+                              className="h-7 w-7 rounded-full bg-gradient-to-br from-zinc-200 to-zinc-300 dark:from-zinc-700 dark:to-zinc-800 border-2 border-white dark:border-zinc-900 flex items-center justify-center text-[9px] font-semibold text-zinc-600 dark:text-zinc-300"
+                              title={buyer.name}
+                            >
+                              {buyer.name.split(' ')[0][0]}{buyer.name.split(' ').length > 1 ? buyer.name.split(' ')[1][0] : ''}
+                            </div>
+                          ))}
+                          {affectedOrder.buyers.length > 4 && (
+                            <div className="h-7 w-7 rounded-full bg-zinc-100 dark:bg-zinc-800 border-2 border-white dark:border-zinc-900 flex items-center justify-center text-[9px] font-medium text-zinc-500">
+                              +{affectedOrder.buyers.length - 4}
+                            </div>
+                          )}
+                        </div>
+                        <div className="text-[10px] text-red-500 flex items-center gap-1 mt-1">
+                          <TrendingDown className="h-3 w-3" />
+                          <span>-12 pts if delayed &gt;4hrs</span>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="text-sm text-zinc-400 font-mono">No buyers linked</div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Buyer Details */}
+                {affectedOrder.buyers && affectedOrder.buyers.length > 0 && (
+                  <div className="mt-3 pt-3 border-t border-zinc-200 dark:border-zinc-800">
+                    <div className="text-[10px] text-zinc-500 uppercase mb-2">Affected Accounts</div>
+                    <div className="space-y-1.5 max-h-[80px] overflow-y-auto">
+                      {affectedOrder.buyers.map((buyer) => (
+                        <div key={buyer.id} className="flex items-center justify-between text-xs">
+                          <div className="flex items-center gap-2">
+                            <span className="text-zinc-700 dark:text-zinc-300 truncate max-w-[200px]">{buyer.name}</span>
+                            <span className="px-1.5 py-0.5 rounded text-[9px] bg-zinc-100 dark:bg-zinc-800 text-zinc-500">
+                              {buyer.segment}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 font-mono">
+                            <span className={cn(
+                              "text-[10px]",
+                              buyer.trustScore >= 95 ? "text-emerald-500" : buyer.trustScore >= 90 ? "text-amber-500" : "text-red-500"
+                            )}>
+                              Trust: {buyer.trustScore}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Agent Cards */}
             <div className="p-6 space-y-4 border-b border-[var(--sysco-border)]">
               <h3 className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider font-mono">

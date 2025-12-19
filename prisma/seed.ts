@@ -42,15 +42,30 @@ const REGIONAL_CITIES = [
   { name: "Memphis", lat: 35.1495, lng: -90.0490 },
 ];
 
+// Product categories with cost/sell pricing for realistic margins
 const PRODUCT_CATEGORIES = [
-  { name: "Fresh Produce", baseValue: 8000, description: "Temperature-controlled fresh vegetables and fruits" },
-  { name: "Frozen Seafood", baseValue: 25000, description: "Premium frozen seafood requiring -18°C storage" },
-  { name: "Dairy Products", baseValue: 12000, description: "Refrigerated dairy including milk, cheese, and yogurt" },
-  { name: "Beef Products", baseValue: 35000, description: "USDA Prime and Choice beef cuts" },
-  { name: "Poultry", baseValue: 15000, description: "Fresh and frozen chicken and turkey products" },
-  { name: "Bakery Items", baseValue: 6000, description: "Fresh-baked bread, pastries, and desserts" },
-  { name: "Beverages", baseValue: 10000, description: "Soft drinks, juices, and specialty beverages" },
-  { name: "Dry Goods", baseValue: 5000, description: "Shelf-stable pantry items and canned goods" },
+  { name: "Fresh Produce", baseCost: 6000, margin: 1.25, description: "Temperature-controlled fresh vegetables and fruits" },
+  { name: "Frozen Seafood", baseCost: 20000, margin: 1.28, description: "Premium frozen seafood requiring -18°C storage" },
+  { name: "Dairy Products", baseCost: 9000, margin: 1.22, description: "Refrigerated dairy including milk, cheese, and yogurt" },
+  { name: "Beef Products", baseCost: 28000, margin: 1.25, description: "USDA Prime and Choice beef cuts" },
+  { name: "Poultry", baseCost: 12000, margin: 1.20, description: "Fresh and frozen chicken and turkey products" },
+  { name: "Bakery Items", baseCost: 4500, margin: 1.30, description: "Fresh-baked bread, pastries, and desserts" },
+  { name: "Beverages", baseCost: 7500, margin: 1.35, description: "Soft drinks, juices, and specialty beverages" },
+  { name: "Dry Goods", baseCost: 4000, margin: 1.28, description: "Shelf-stable pantry items and canned goods" },
+];
+
+// High-value buyer accounts (restaurants and clients)
+const BUYER_DATA = [
+  { name: "Ruth's Chris Steakhouse - Dallas", segment: "Fine Dining", trustScore: 98, totalSpend: 1200000 },
+  { name: "Omni Hotel Dallas", segment: "Hospitality", trustScore: 92, totalSpend: 850000 },
+  { name: "The Capital Grille", segment: "Fine Dining", trustScore: 96, totalSpend: 950000 },
+  { name: "Whole Foods Market - Texas", segment: "Retail", trustScore: 99, totalSpend: 4500000 },
+  { name: "Pappas Bros Steakhouse", segment: "Fine Dining", trustScore: 94, totalSpend: 780000 },
+  { name: "Marriott Downtown Dallas", segment: "Hospitality", trustScore: 91, totalSpend: 620000 },
+  { name: "Perry's Steakhouse", segment: "Fine Dining", trustScore: 95, totalSpend: 540000 },
+  { name: "Four Seasons Resort", segment: "Hospitality", trustScore: 97, totalSpend: 1100000 },
+  { name: "HEB Grocery", segment: "Retail", trustScore: 98, totalSpend: 3200000 },
+  { name: "Fogo de Chão", segment: "Fine Dining", trustScore: 93, totalSpend: 680000 },
 ];
 
 const CARRIERS = [
@@ -127,13 +142,21 @@ function getRandomCity(cities: typeof TEXAS_CITIES) {
 function getRandomProduct() {
   const category = PRODUCT_CATEGORIES[Math.floor(Math.random() * PRODUCT_CATEGORIES.length)];
   const pallets = Math.floor(Math.random() * 8) + 1;
-  // Calculate value based on pallets (each pallet multiplies base value by 0.8-1.2)
+  // Calculate financials based on pallets
   const valueMultiplier = 0.8 + Math.random() * 0.4;
-  const orderValue = Math.round(category.baseValue * pallets * valueMultiplier);
+  const costPrice = Math.round(category.baseCost * pallets * valueMultiplier);
+  const sellPrice = Math.round(costPrice * category.margin);
+  const internalBaseCost = Math.round(500 + Math.random() * 500); // $500-$1000 overhead
+  const actualLogisticsCost = Math.round(800 + Math.random() * 600); // $800-$1400 logistics
+
   return {
     itemName: `${category.name} (${pallets} Pallets)`,
     description: category.description,
-    orderValue,
+    orderValue: sellPrice, // Keep legacy field in sync
+    costPrice,
+    sellPrice,
+    internalBaseCost,
+    actualLogisticsCost,
   };
 }
 
@@ -156,6 +179,18 @@ async function main() {
   await prisma.incident.deleteMany({});
   await prisma.order.deleteMany({});
   await prisma.truck.deleteMany({});
+  await prisma.buyer.deleteMany({});
+
+  // Create buyer accounts (restaurants and clients)
+  console.log("🏢 Creating buyer accounts...");
+  const buyers: Array<{ id: string; name: string; segment: string }> = [];
+  for (const buyerData of BUYER_DATA) {
+    const buyer = await prisma.buyer.create({
+      data: buyerData,
+    });
+    buyers.push({ id: buyer.id, name: buyer.name, segment: buyer.segment });
+  }
+  console.log(`   Created ${buyers.length} buyer accounts\n`);
 
   // Create the Samsara fleet (25 trucks)
   console.log("🚛 Creating Samsara fleet...");
@@ -197,13 +232,31 @@ async function main() {
     riskScore: number;
     routeGeoJson: number[][] | null;
     progress: number;
+    costPrice: number;
+    sellPrice: number;
+    internalBaseCost: number;
+    actualLogisticsCost: number;
+    buyerIds?: string[]; // Track which buyers to connect
   }> = [];
+
+  // Fixed route for Andrew Thomas (TRK-814): Amarillo → Abilene
+  const AMARILLO = TEXAS_CITIES.find(c => c.name === "Amarillo")!;
+  const ABILENE = TEXAS_CITIES.find(c => c.name === "Abilene")!;
 
   // Generate routes - NO red/critical routes (those only appear during incidents)
   const routeConfigs = [
-    // 18 Normal In-Transit routes (green, low risk)
-    ...Array(18).fill(null).map((_, i) => ({
-      id: `ORD-${8000 + i}`,
+    // Fixed route for Andrew Thomas
+    {
+      id: "ORD-8014",
+      status: "IN_TRANSIT",
+      riskScore: Math.floor(Math.random() * 20) + 5, // 5-24 (green)
+      isRegional: false,
+      fixedRoute: { origin: AMARILLO, dest: ABILENE },
+      fixedTruckIndex: 14, // Andrew Thomas (TRK-814)
+    },
+    // 17 Normal In-Transit routes (green, low risk) - skip index 14
+    ...Array(17).fill(null).map((_, i) => ({
+      id: `ORD-${8000 + (i >= 14 ? i + 1 : i)}`,
       status: "IN_TRANSIT",
       riskScore: Math.floor(Math.random() * 25), // 0-24 (green)
       isRegional: i % 4 === 0, // Some regional routes
@@ -229,7 +282,11 @@ async function main() {
   for (const config of routeConfigs) {
     let origin, dest;
 
-    if (config.isRegional) {
+    // Check for fixed route (like Andrew Thomas: Amarillo → Abilene)
+    if ('fixedRoute' in config && config.fixedRoute) {
+      origin = config.fixedRoute.origin;
+      dest = config.fixedRoute.dest;
+    } else if (config.isRegional) {
       origin = getRandomCity(REGIONAL_CITIES);
       dest = getRandomCity(TEXAS_CITIES);
     } else {
@@ -250,12 +307,23 @@ async function main() {
     }
 
     // Assign truck for in-transit orders (not CONFIRMED - those await pickup)
-    const assignedTruck = config.status !== "CONFIRMED" && trucks.length > 0
-      ? trucks[fetchedCount % trucks.length]
-      : null;
+    // Use fixed truck index if specified, otherwise assign based on fetchedCount
+    let assignedTruck = null;
+    if (config.status !== "CONFIRMED" && trucks.length > 0) {
+      if ('fixedTruckIndex' in config && typeof config.fixedTruckIndex === 'number') {
+        assignedTruck = trucks[config.fixedTruckIndex];
+      } else {
+        assignedTruck = trucks[fetchedCount % trucks.length];
+      }
+    }
 
     // Get product info with value and description
     const product = getRandomProduct();
+
+    // Assign random buyers to this order (1-3 buyers per order)
+    const numBuyers = 1 + Math.floor(Math.random() * 3);
+    const shuffledBuyers = [...buyers].sort(() => Math.random() - 0.5);
+    const orderBuyerIds = shuffledBuyers.slice(0, numBuyers).map(b => b.id);
 
     orders.push({
       id: config.id,
@@ -274,20 +342,38 @@ async function main() {
       riskScore: config.riskScore,
       routeGeoJson: routeGeoJson,
       progress: config.status === "CONFIRMED" ? 0 : 20 + Math.floor(Math.random() * 60), // 20-80% progress
+      costPrice: product.costPrice,
+      sellPrice: product.sellPrice,
+      internalBaseCost: product.internalBaseCost,
+      actualLogisticsCost: product.actualLogisticsCost,
+      buyerIds: orderBuyerIds,
     });
   }
 
-  // Insert all orders
+  // Insert all orders with buyer connections
   for (const order of orders) {
+    const { buyerIds, ...orderData } = order;
     await prisma.order.create({
-      data: order as Parameters<typeof prisma.order.create>[0]["data"],
+      data: {
+        ...orderData,
+        buyers: buyerIds?.length ? {
+          connect: buyerIds.map(id => ({ id })),
+        } : undefined,
+      } as Parameters<typeof prisma.order.create>[0]["data"],
     });
   }
 
   const withRoutes = orders.filter(o => o.routeGeoJson !== null).length;
   const withTrucks = orders.filter(o => o.truckId !== null).length;
+  const totalCost = orders.reduce((sum, o) => sum + o.costPrice, 0);
+  const totalSell = orders.reduce((sum, o) => sum + o.sellPrice, 0);
+  const totalMargin = totalSell - totalCost;
 
   console.log(`\n✅ Database populated successfully!`);
+  console.log(`\n🏢 Buyers: ${buyers.length} accounts`);
+  console.log(`   - ${buyers.filter(b => b.segment === "Fine Dining").length} Fine Dining`);
+  console.log(`   - ${buyers.filter(b => b.segment === "Hospitality").length} Hospitality`);
+  console.log(`   - ${buyers.filter(b => b.segment === "Retail").length} Retail`);
   console.log(`\n🚛 Fleet: ${trucks.length} trucks (Samsara)`);
   console.log(`📦 Orders: ${orders.length} routes (Manhattan TMS)`);
   console.log(`   - ${withRoutes} with real Mapbox directions`);
@@ -296,6 +382,10 @@ async function main() {
   console.log(`   - ${orders.filter(o => o.status === "CONFIRMED").length} Confirmed (awaiting pickup)`);
   console.log(`   - ${orders.filter(o => o.riskScore >= 40).length} At Risk (orange)`);
   console.log(`   - 0 Critical (red only appears during incidents)`);
+  console.log(`\n💰 Financials:`);
+  console.log(`   - Total Cost (COGS): $${totalCost.toLocaleString()}`);
+  console.log(`   - Total Revenue: $${totalSell.toLocaleString()}`);
+  console.log(`   - Gross Margin: $${totalMargin.toLocaleString()}`);
 }
 
 main()

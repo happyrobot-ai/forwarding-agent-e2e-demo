@@ -18,6 +18,10 @@ model Incident {
   updatedAt  DateTime    @updatedAt @map("updated_at")
   agentRuns  AgentRun[]
 
+  // Link to the affected order (for AI context)
+  orderId    String?     @map("order_id")
+  order      Order?      @relation(fields: [orderId], references: [id])
+
   @@map("incidents")
 }
 
@@ -55,12 +59,25 @@ enum TruckStatus {
   INCIDENT
 }
 
+// Buyers table (Restaurant/Client accounts)
+model Buyer {
+  id          String   @id @default(uuid())
+  name        String   // e.g., "Ruth's Chris Steakhouse - Dallas"
+  segment     String   // "Fine Dining", "Fast Casual", "Hospitality", "Retail"
+  trustScore  Int      @default(95) @map("trust_score") // 0-100, drops on delays
+  totalSpend  Float    @default(0) @map("total_spend") // Lifetime value
+  orders      Order[]  @relation("OrderBuyers") // Many-to-many relation
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("buyers")
+}
+
 // Orders table (Mocking Manhattan TMS)
 model Order {
   id          String   @id
   itemName    String   @map("item_name")
   description String?  @default("Standard shipment") // Order description
-  orderValue  Float    @default(0) @map("order_value") // Dollar value of order
+  orderValue  Float    @default(0) @map("order_value") // Legacy field (now using sellPrice)
   status      String
   carrier     String
 
@@ -80,6 +97,16 @@ model Order {
   // Precomputed route from Mapbox Directions API
   routeGeoJson Json?   @map("route_geojson") // Array of [lng, lat] coordinates
   progress     Int     @default(50) // 0-100, truck position along route
+
+  // --- Financials (The "Business Brain") ---
+  costPrice           Float    @default(0) @map("cost_price")           // COGS: What we pay the supplier
+  sellPrice           Float    @default(0) @map("sell_price")           // Revenue: What customers pay us
+  internalBaseCost    Float    @default(0) @map("internal_base_cost")   // Fixed Logistics Overhead (Warehouse/Admin)
+  actualLogisticsCost Float    @default(0) @map("actual_logistics_cost") // Variable: Driver Pay + Fuel + Emergency Fees
+
+  // --- Relationships ---
+  buyers      Buyer[]    @relation("OrderBuyers") // Many-to-many: One truck serves multiple restaurants
+  incidents   Incident[] // Incidents linked to this order
 
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")

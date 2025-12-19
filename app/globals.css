@@ -162,6 +162,44 @@ body {
   }
 }
 
+/* Radar ping effect - submarine/sonar style */
+@keyframes radar-ping {
+  0% {
+    transform: scale(0.15);
+    transform-origin: center center;
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1);
+    transform-origin: center center;
+    opacity: 0;
+  }
+}
+
+@keyframes radar-glow {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(0.9);
+    transform-origin: center center;
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.1);
+    transform-origin: center center;
+  }
+}
+
+@keyframes cluster-glow {
+  0%, 100% {
+    opacity: 0.6;
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.05);
+  }
+}
+
 .animate-wave {
   animation: wave 0.6s ease-in-out infinite;
 }
@@ -243,8 +281,17 @@ body {
   background: rgba(59, 130, 246, 0.4);
 }
 
-/* Focus ring styling */
-*:focus-visible {
+/* Focus ring styling - only for buttons and links, not form inputs */
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible {
   outline: 2px solid #3B82F6;
   outline-offset: 2px;
+}
+
+/* Form inputs have their own subtle focus styling */
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: none;
 }

@@ -87,15 +87,18 @@ interface FleetMapProps {
   incidentStatus: "IDLE" | "ACTIVE" | "RESOLVED";
   onIncidentClick: () => void;
   affectedOrderId?: string | null;
+  highlightedOrderId?: string | null; // External selection from table
+  onOrderSelect?: (orderId: string | null) => void; // Callback when order is selected on map
 }
 
-export function FleetMap({ orders = [], incidentStatus, onIncidentClick, affectedOrderId }: FleetMapProps) {
+export function FleetMap({ orders = [], incidentStatus, onIncidentClick, affectedOrderId, highlightedOrderId, onOrderSelect }: FleetMapProps) {
   const mapRef = useRef<MapRef>(null);
   const { theme } = useTheme();
   const [isMapLoaded, setIsMapLoaded] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [hasPlayedInitialAnimation, setHasPlayedInitialAnimation] = useState(false);
   const prevIncidentStatusRef = useRef<string>(incidentStatus);
+  const prevHighlightedOrderIdRef = useRef<string | null>(null);
 
   const getSamsaraLogo = () => {
     return theme === "dark"
@@ -286,9 +289,60 @@ export function FleetMap({ orders = [], incidentStatus, onIncidentClick, affecte
     return () => clearTimeout(timer);
   }, [isMapLoaded, hasPlayedInitialAnimation]);
 
+  // Handle external order selection (from table click) - fly to the order
+  useEffect(() => {
+    if (!isMapLoaded || !mapRef.current || !hasPlayedInitialAnimation) return;
+    if (highlightedOrderId === prevHighlightedOrderIdRef.current) return;
+
+    prevHighlightedOrderIdRef.current = highlightedOrderId ?? null;
+
+    if (highlightedOrderId) {
+      const order = orders.find(o => o.id === highlightedOrderId);
+      if (order) {
+        // Update internal selected state
+        setSelectedOrderId(highlightedOrderId);
+
+        // Calculate truck position if it has a route
+        let targetLng = order.endLng;
+        let targetLat = order.endLat;
+
+        if (order.routeGeoJson && Array.isArray(order.routeGeoJson) && order.routeGeoJson.length > 0) {
+          const progress = order.progress ?? 50;
+          const position = getPositionAlongRoute(order.routeGeoJson, progress);
+          targetLng = position[0];
+          targetLat = position[1];
+        }
+
+        // Fly to the order location
+        mapRef.current.flyTo({
+          center: [targetLng, targetLat],
+          zoom: 9,
+          duration: 2000,
+          essential: true,
+        });
+      }
+    } else {
+      // If selection cleared, zoom back out to Texas view
+      setSelectedOrderId(null);
+      mapRef.current.flyTo({
+        center: [TEXAS_VIEW.lng, TEXAS_VIEW.lat],
+        zoom: TEXAS_VIEW.zoom,
+        duration: 2000,
+        essential: true,
+      });
+    }
+  }, [highlightedOrderId, orders, isMapLoaded, hasPlayedInitialAnimation]);
+
+  // Handle internal map marker clicks - notify parent
+  const handleMarkerClick = useCallback((orderId: string) => {
+    const newSelection = selectedOrderId === orderId ? null : orderId;
+    setSelectedOrderId(newSelection);
+    onOrderSelect?.(newSelection);
+  }, [selectedOrderId, onOrderSelect]);
+
   return (
     <div className={cn(
-      "h-[500px] w-full overflow-hidden rounded-xl border shadow-lg relative",
+      "h-full w-full overflow-hidden rounded-xl border shadow-lg relative",
       "bg-[var(--sysco-card)] border-[var(--sysco-border)]"
     )}>
       <Map
@@ -327,9 +381,59 @@ export function FleetMap({ orders = [], incidentStatus, onIncidentClick, affecte
               key={truck.truckId}
               longitude={truck.lng}
               latitude={truck.lat}
-              onClick={() => setSelectedOrderId(isSelected ? null : truck.orderId)}
+              onClick={() => handleMarkerClick(truck.orderId)}
             >
               <div className="relative group cursor-pointer">
+                {/* Radar ping effect for critical trucks */}
+                {isHighRisk && (
+                  <>
+                    {/* Radar ring 1 - slowest, largest */}
+                    <div
+                      className="absolute rounded-full border-2 border-red-500 pointer-events-none"
+                      style={{
+                        width: '60px',
+                        height: '60px',
+                        top: '-18px',  /* Center on 24px truck: -(60-24)/2 */
+                        left: '-18px',
+                        animation: 'radar-ping 3s ease-out infinite',
+                      }}
+                    />
+                    {/* Radar ring 2 - medium speed */}
+                    <div
+                      className="absolute rounded-full border-2 border-red-500 pointer-events-none"
+                      style={{
+                        width: '60px',
+                        height: '60px',
+                        top: '-18px',
+                        left: '-18px',
+                        animation: 'radar-ping 3s ease-out infinite 1s',
+                      }}
+                    />
+                    {/* Radar ring 3 - fastest, starts earliest */}
+                    <div
+                      className="absolute rounded-full border-2 border-red-500 pointer-events-none"
+                      style={{
+                        width: '60px',
+                        height: '60px',
+                        top: '-18px',
+                        left: '-18px',
+                        animation: 'radar-ping 3s ease-out infinite 2s',
+                      }}
+                    />
+                    {/* Glow effect behind truck */}
+                    <div
+                      className="absolute rounded-full bg-red-500/30 pointer-events-none"
+                      style={{
+                        width: '32px',
+                        height: '32px',
+                        top: '-4px',  /* Center on 24px truck: -(32-24)/2 */
+                        left: '-4px',
+                        animation: 'radar-glow 1.5s ease-in-out infinite',
+                      }}
+                    />
+                  </>
+                )}
+
                 {/* Selection ring */}
                 {isSelected && (
                   <div className="absolute -top-2 -left-2 h-10 w-10 rounded-full border-2 border-blue-400 animate-pulse" />
@@ -446,10 +550,6 @@ export function FleetMap({ orders = [], incidentStatus, onIncidentClick, affecte
 
       {/* Overlay: Samsara Integration Badge */}
       <div className="absolute top-4 right-4">
-        <div className={cn(
-          "backdrop-blur px-3 py-2 rounded-lg border text-xs font-mono flex items-center gap-2",
-          "bg-black/70 dark:bg-black/80 border-zinc-700"
-        )}>
           <Image
             src={getSamsaraLogo()}
             alt="Samsara"
@@ -457,7 +557,6 @@ export function FleetMap({ orders = [], incidentStatus, onIncidentClick, affecte
             height={20}
             className="object-contain animate-pulse"
           />
-        </div>
       </div>
 
       {/* Click hint when incident is active */}
@@ -471,6 +570,22 @@ export function FleetMap({ orders = [], incidentStatus, onIncidentClick, affecte
           </div>
         </div>
       )}
+
+      {/* Subtle ambient glow for Texas cluster - positioned at center-right of map */}
+      <div
+        className="absolute pointer-events-none"
+        style={{
+          width: '400px',
+          height: '400px',
+          top: '50%',
+          left: '55%',
+          transform: 'translate(-50%, -50%)',
+          background: incidentStatus === "ACTIVE"
+            ? 'radial-gradient(circle, rgba(239,68,68,0.08) 0%, rgba(239,68,68,0.03) 40%, transparent 70%)'
+            : 'radial-gradient(circle, rgba(59,130,246,0.06) 0%, rgba(59,130,246,0.02) 40%, transparent 70%)',
+          animation: 'cluster-glow 4s ease-in-out infinite',
+        }}
+      />
     </div>
   );
 }

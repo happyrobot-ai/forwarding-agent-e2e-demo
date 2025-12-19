@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     if (orderId) {
       targetOrder = await prisma.order.findUnique({
         where: { id: orderId },
-        include: { truck: true },
+        include: { truck: true, buyers: true },
       });
     }
 
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
           truck: { isNot: null },
           riskScore: { lt: 80 },
         },
-        include: { truck: true },
+        include: { truck: true, buyers: true },
         take: 10,
       });
       if (eligibleOrders.length > 0) {
@@ -60,25 +60,6 @@ export async function POST(request: NextRequest) {
         riskScore: 100,
       },
     });
-
-    // Update a few random orders to show cascading risk during incident
-    const ordersToEscalate = await prisma.order.findMany({
-      where: {
-        riskScore: { lt: 30 },
-        id: { not: targetOrder.id },
-      },
-      take: 3,
-    });
-
-    for (const order of ordersToEscalate) {
-      await prisma.order.update({
-        where: { id: order.id },
-        data: {
-          riskScore: 60 + Math.floor(Math.random() * 20), // Escalate to 60-80
-          status: "DELAYED",
-        },
-      });
-    }
 
     // Create agent run placeholders with dynamic info
     const driverName = targetOrder.truck?.driverName || "Driver";
@@ -120,6 +101,13 @@ export async function POST(request: NextRequest) {
         truck: targetOrder.truck,
         endLat: targetOrder.endLat,
         endLng: targetOrder.endLng,
+        // Financial data
+        costPrice: targetOrder.costPrice,
+        sellPrice: targetOrder.sellPrice,
+        internalBaseCost: targetOrder.internalBaseCost,
+        actualLogisticsCost: targetOrder.actualLogisticsCost,
+        // Buyer relationships
+        buyers: targetOrder.buyers,
       },
       message: `CRITICAL ALERT: Shipment ${targetOrder.id} (${targetOrder.itemName}) - Equipment Failure`,
     });
