@@ -6,13 +6,14 @@ import { X, DollarSign, TrendingDown, Users, AlertTriangle } from "lucide-react"
 import { usePusher } from "./PusherProvider";
 import { useTheme } from "./ThemeProvider";
 import { AgentCard } from "./AgentCard";
-import { RouteMap } from "./RouteMap";
+import { FleetMap } from "./FleetMap";
 import { EmailToast } from "./EmailToast";
 import { cn } from "@/lib/utils";
 
 interface Incident {
   id: string;
   title: string;
+  description?: string | null;
   status: string;
 }
 
@@ -53,7 +54,19 @@ interface AffectedOrder {
   truck?: {
     id: string;
     driverName: string;
+    vehicleType?: string;
+    status?: string;
   } | null;
+  // FleetMap required fields
+  status?: string;
+  carrier?: string;
+  startLat?: number;
+  startLng?: number;
+  endLat?: number;
+  endLng?: number;
+  riskScore?: number;
+  routeGeoJson?: number[][] | null;
+  progress?: number;
 }
 
 interface WarRoomModalProps {
@@ -79,7 +92,6 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
   } : null;
   const [agents, setAgents] = useState<Agent[]>([]);
   const [logs, setLogs] = useState<AgentLog[]>([]);
-  const [showRouteChange, setShowRouteChange] = useState(false);
   const [showEmailToast, setShowEmailToast] = useState(false);
   const logsEndRef = useRef<HTMLDivElement>(null);
 
@@ -168,11 +180,6 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
         reasoning: data.reasoning || `Agent ${data.agentRole} - ${data.stage}`,
       };
       setLogs((prev) => [...prev, newLog]);
-
-      // Handle UI actions
-      if (data.ui_action === "update_map" || data.stage === "driver_confirmation") {
-        setShowRouteChange(true);
-      }
     });
 
     channel.bind("demo-complete", () => {
@@ -194,7 +201,7 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className={cn(
-        "rounded-xl w-full max-w-7xl max-h-[90vh] overflow-hidden flex flex-col",
+        "rounded-xl w-full max-w-7xl h-[90vh] overflow-hidden flex flex-col",
         "bg-[var(--sysco-card)] border border-[var(--sysco-border)]"
       )}>
         {/* Header */}
@@ -236,8 +243,8 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
         {/* Content */}
         <div className="flex-1 overflow-hidden flex">
           {/* Left Side - Map */}
-          <div className="flex-1 p-6 border-r border-[var(--sysco-border)] bg-[var(--sysco-bg)]">
-            <div className="flex items-center justify-between mb-4">
+          <div className="flex-1 p-6 border-r border-[var(--sysco-border)] bg-[var(--sysco-bg)] flex flex-col">
+            <div className="flex items-center justify-between mb-4 shrink-0">
               <h3 className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider font-mono">
                 SAMSARA FLEET TRACKING
               </h3>
@@ -246,10 +253,57 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
                 <span>LIVE TELEMETRY</span>
               </div>
             </div>
-            <div className="relative h-full rounded-xl overflow-hidden border border-[var(--sysco-border)] bg-[var(--sysco-surface)]">
+            <div className="relative flex-1 min-h-0 rounded-xl overflow-hidden border border-[var(--sysco-border)] bg-[var(--sysco-surface)]">
               {/* Grid overlay for tech feel */}
-              <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.03)_1px,transparent_1px)] dark:bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" />
-              <RouteMap showReroute={showRouteChange} />
+              <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.03)_1px,transparent_1px)] dark:bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none z-10" />
+              {/* Check if we have valid route data - use !== undefined to handle 0 coordinates */}
+              {affectedOrder &&
+               affectedOrder.startLat !== undefined &&
+               affectedOrder.startLng !== undefined &&
+               affectedOrder.endLat !== undefined &&
+               affectedOrder.endLng !== undefined ? (
+                <FleetMap
+                  orders={[{
+                    id: affectedOrder.id,
+                    itemName: affectedOrder.itemName,
+                    origin: affectedOrder.origin,
+                    destination: affectedOrder.destination,
+                    status: affectedOrder.status || "AT_RISK",
+                    carrier: affectedOrder.carrier || "Sysco Fleet",
+                    startLat: affectedOrder.startLat,
+                    startLng: affectedOrder.startLng,
+                    endLat: affectedOrder.endLat,
+                    endLng: affectedOrder.endLng,
+                    riskScore: affectedOrder.riskScore || 85,
+                    routeGeoJson: affectedOrder.routeGeoJson,
+                    progress: affectedOrder.progress ?? 50,
+                    truck: affectedOrder.truck ? {
+                      id: affectedOrder.truck.id,
+                      driverName: affectedOrder.truck.driverName,
+                      vehicleType: affectedOrder.truck.vehicleType || "REFRIGERATED",
+                      status: affectedOrder.truck.status || "ACTIVE",
+                    } : null,
+                  }]}
+                  incidentStatus="ACTIVE"
+                  onIncidentClick={() => {}}
+                  viewMode="focused"
+                  interactive={false}
+                />
+              ) : (
+                <div className="flex items-center justify-center h-full bg-zinc-900/50">
+                  <div className="text-center">
+                    <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-3 animate-pulse" />
+                    <p className="text-zinc-400 font-mono text-sm">
+                      {affectedOrder ? "ACQUIRING SATELLITE LOCK..." : "WAITING FOR TELEMETRY..."}
+                    </p>
+                    {affectedOrder && (
+                      <p className="text-zinc-600 text-xs mt-1">
+                        {affectedOrder.origin} → {affectedOrder.destination}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -263,20 +317,18 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
                   FINANCIAL IMPACT AT RISK
                 </h3>
                 <div className="grid grid-cols-2 gap-3">
-                  {/* Net Profit Impact */}
-                  <div className="p-3 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
-                    <div className="flex items-center gap-1.5 text-[10px] text-zinc-500 uppercase mb-1">
+                  {/* Total Financial Exposure */}
+                  <div className="p-3 rounded-lg border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-950/30">
+                    <div className="flex items-center gap-1.5 text-[10px] text-red-600 dark:text-red-400 uppercase mb-1">
                       <DollarSign className="h-3 w-3" />
-                      Net Profit at Risk
+                      Total Exposure
                     </div>
-                    <div className={cn(
-                      "text-xl font-mono font-bold",
-                      financials.netMargin > 0 ? "text-red-500" : "text-red-600"
-                    )}>
-                      ${financials.netMargin.toLocaleString()}
+                    <div className="text-2xl font-mono font-bold text-red-600 dark:text-red-400">
+                      ${(financials.sellPrice + financials.costPrice).toLocaleString()}
                     </div>
-                    <div className="text-[10px] text-zinc-500 mt-1">
-                      Margin: <span className="text-zinc-700 dark:text-zinc-300">{financials.marginPercent}%</span>
+                    <div className="text-[10px] text-zinc-500 mt-1 space-y-0.5">
+                      <div>Revenue: <span className="text-zinc-300">${financials.sellPrice.toLocaleString()}</span></div>
+                      <div>Product: <span className="text-zinc-300">${financials.costPrice.toLocaleString()}</span></div>
                     </div>
                   </div>
 
@@ -306,7 +358,7 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
                         </div>
                         <div className="text-[10px] text-red-500 flex items-center gap-1 mt-1">
                           <TrendingDown className="h-3 w-3" />
-                          <span>-12 pts if delayed &gt;4hrs</span>
+                          <span>-12 pts if not making delivery on time</span>
                         </div>
                       </>
                     ) : (
@@ -341,6 +393,19 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
                     </div>
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* Incident Description */}
+            {incident.description && (
+              <div className="p-4 border-b border-[var(--sysco-border)] bg-red-950/20">
+                <div className="flex items-start gap-3">
+                  <AlertTriangle className="h-4 w-4 text-red-400 shrink-0 mt-0.5" />
+                  <div>
+                    <div className="text-[10px] text-red-400 uppercase tracking-wider mb-1 font-mono">Incident Description</div>
+                    <p className="text-sm text-zinc-200 leading-relaxed">{incident.description}</p>
+                  </div>
+                </div>
               </div>
             )}
 

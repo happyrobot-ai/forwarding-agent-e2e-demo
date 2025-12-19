@@ -11,12 +11,13 @@ datasource db {
 
 // Incident tracking table
 model Incident {
-  id         String      @id @default(uuid())
-  title      String
-  status     IncidentStatus @default(ACTIVE)
-  createdAt  DateTime    @default(now()) @map("created_at")
-  updatedAt  DateTime    @updatedAt @map("updated_at")
-  agentRuns  AgentRun[]
+  id          String      @id @default(uuid())
+  title       String
+  description String?     // Incident description for AI context
+  status      IncidentStatus @default(ACTIVE)
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+  agentRuns   AgentRun[]
 
   // Link to the affected order (for AI context)
   orderId    String?     @map("order_id")
@@ -95,8 +96,15 @@ model Order {
   riskScore   Int      @default(0) @map("risk_score") // 0-100 for color gradient
 
   // Precomputed route from Mapbox Directions API
-  routeGeoJson Json?   @map("route_geojson") // Array of [lng, lat] coordinates
-  progress     Int     @default(50) // 0-100, truck position along route
+  routeGeoJson    Json?    @map("route_geojson") // Array of [lng, lat] coordinates
+  distanceMeters  Float    @default(0) @map("distance_meters") // Route distance from Mapbox
+  durationSeconds Float    @default(0) @map("duration_seconds") // Estimated travel time from Mapbox
+  progress        Int      @default(50) // 0-100, truck position along route
+
+  // Real timing data
+  departedAt       DateTime? @map("departed_at") // When truck left origin (null = not departed)
+  estimatedArrival DateTime? @map("estimated_arrival") // Calculated ETA based on departure + duration
+  actualArrival    DateTime? @map("actual_arrival") // When actually delivered (for DELIVERED orders)
 
   // --- Financials (The "Business Brain") ---
   costPrice           Float    @default(0) @map("cost_price")           // COGS: What we pay the supplier
@@ -140,4 +148,21 @@ enum AgentStatus {
   COMPLETED
   FINISHED
   FAILED
+}
+
+// Warehouse/Distribution Center locations
+model Warehouse {
+  id          String   @id // e.g., "WH-DAL-001"
+  name        String
+  type        String   // "BROADLINE_HUB", "REGIONAL_HUB"
+  address     String
+  lat         Float
+  lng         Float
+  status      String   @default("OPERATIONAL") // OPERATIONAL | CRITICAL | WARNING
+  description String?
+
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("warehouses")
 }

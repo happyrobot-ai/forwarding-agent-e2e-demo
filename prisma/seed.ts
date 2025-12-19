@@ -42,16 +42,20 @@ const REGIONAL_CITIES = [
   { name: "Memphis", lat: 35.1495, lng: -90.0490 },
 ];
 
-// Product categories with cost/sell pricing for realistic margins
+// Product categories with REALISTIC cost/sell pricing per pallet
+// Based on actual food distribution industry data:
+// - Sysco's gross margin is typically 18-20%
+// - Fresh items have lower margins (spoilage risk)
+// - Dry goods and beverages have higher margins
 const PRODUCT_CATEGORIES = [
-  { name: "Fresh Produce", baseCost: 6000, margin: 1.25, description: "Temperature-controlled fresh vegetables and fruits" },
-  { name: "Frozen Seafood", baseCost: 20000, margin: 1.28, description: "Premium frozen seafood requiring -18°C storage" },
-  { name: "Dairy Products", baseCost: 9000, margin: 1.22, description: "Refrigerated dairy including milk, cheese, and yogurt" },
-  { name: "Beef Products", baseCost: 28000, margin: 1.25, description: "USDA Prime and Choice beef cuts" },
-  { name: "Poultry", baseCost: 12000, margin: 1.20, description: "Fresh and frozen chicken and turkey products" },
-  { name: "Bakery Items", baseCost: 4500, margin: 1.30, description: "Fresh-baked bread, pastries, and desserts" },
-  { name: "Beverages", baseCost: 7500, margin: 1.35, description: "Soft drinks, juices, and specialty beverages" },
-  { name: "Dry Goods", baseCost: 4000, margin: 1.28, description: "Shelf-stable pantry items and canned goods" },
+  { name: "Fresh Produce", baseCost: 1200, margin: 1.12, description: "Temperature-controlled fresh vegetables and fruits" }, // 12% margin
+  { name: "Frozen Seafood", baseCost: 5500, margin: 1.18, description: "Premium frozen seafood requiring -18°C storage" }, // 18% margin
+  { name: "Dairy Products", baseCost: 2200, margin: 1.14, description: "Refrigerated dairy including milk, cheese, and yogurt" }, // 14% margin
+  { name: "Beef Products", baseCost: 8500, margin: 1.16, description: "USDA Prime and Choice beef cuts" }, // 16% margin
+  { name: "Poultry", baseCost: 3200, margin: 1.15, description: "Fresh and frozen chicken and turkey products" }, // 15% margin
+  { name: "Bakery Items", baseCost: 950, margin: 1.22, description: "Fresh-baked bread, pastries, and desserts" }, // 22% margin
+  { name: "Beverages", baseCost: 1800, margin: 1.28, description: "Soft drinks, juices, and specialty beverages" }, // 28% margin
+  { name: "Dry Goods", baseCost: 1100, margin: 1.24, description: "Shelf-stable pantry items and canned goods" }, // 24% margin
 ];
 
 // High-value buyer accounts (restaurants and clients)
@@ -108,30 +112,42 @@ const DRIVER_NAMES = [
 
 const VEHICLE_TYPES = ["REFRIGERATED", "DRY_VAN", "FLATBED", "TANKER"] as const;
 
-// Fetch route from Mapbox Directions API
+// Route data returned from Mapbox
+interface RouteData {
+  coordinates: number[][] | null;
+  distanceMeters: number; // Total route distance in meters
+  durationSeconds: number; // Estimated travel time in seconds
+}
+
+// Fetch route from Mapbox Directions API (now returns distance/duration too)
 async function fetchRoute(
   startLng: number,
   startLat: number,
   endLng: number,
   endLat: number
-): Promise<number[][] | null> {
+): Promise<RouteData> {
   try {
     const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${startLng},${startLat};${endLng},${endLat}?geometries=geojson&overview=simplified&access_token=${MAPBOX_TOKEN}`;
 
     const response = await fetch(url);
     if (!response.ok) {
       console.warn(`Failed to fetch route: ${response.status}`);
-      return null;
+      return { coordinates: null, distanceMeters: 0, durationSeconds: 0 };
     }
 
     const data = await response.json();
     if (data.routes && data.routes.length > 0) {
-      return data.routes[0].geometry.coordinates;
+      const route = data.routes[0];
+      return {
+        coordinates: route.geometry.coordinates,
+        distanceMeters: route.distance, // in meters
+        durationSeconds: route.duration, // in seconds
+      };
     }
-    return null;
+    return { coordinates: null, distanceMeters: 0, durationSeconds: 0 };
   } catch (error) {
     console.warn("Error fetching route:", error);
-    return null;
+    return { coordinates: null, distanceMeters: 0, durationSeconds: 0 };
   }
 }
 
@@ -143,21 +159,28 @@ function getRandomProduct() {
   const category = PRODUCT_CATEGORIES[Math.floor(Math.random() * PRODUCT_CATEGORIES.length)];
   const pallets = Math.floor(Math.random() * 8) + 1;
   // Calculate financials based on pallets
-  const valueMultiplier = 0.8 + Math.random() * 0.4;
+  const valueMultiplier = 0.85 + Math.random() * 0.3; // 85%-115% of base
   const costPrice = Math.round(category.baseCost * pallets * valueMultiplier);
-  const sellPrice = Math.round(costPrice * category.margin);
-  const internalBaseCost = Math.round(500 + Math.random() * 500); // $500-$1000 overhead
-  const actualLogisticsCost = Math.round(800 + Math.random() * 600); // $800-$1400 logistics
+  // Note: sellPrice will be calculated in main loop AFTER we know logistics cost
+  const internalBaseCost = Math.round(150 + Math.random() * 100); // $150-$250 fixed overhead per order
 
   return {
     itemName: `${category.name} (${pallets} Pallets)`,
     description: category.description,
-    orderValue: sellPrice, // Keep legacy field in sync
     costPrice,
-    sellPrice,
     internalBaseCost,
-    actualLogisticsCost,
+    pallets,
+    margin: category.margin, // Pass margin so we can calculate sell price after logistics
   };
+}
+
+// Calculate realistic logistics cost based on distance and pallets
+// Trucking industry avg: $2.50-$3.50 per mile (fuel, driver, maintenance)
+function calculateLogisticsCost(distanceMeters: number, pallets: number): number {
+  const distanceMiles = distanceMeters / 1609.34;
+  const baseRatePerMile = 2.80 + Math.random() * 0.70; // $2.80-$3.50/mile
+  const palletSurcharge = pallets * 15; // $15 handling per pallet
+  return Math.round(distanceMiles * baseRatePerMile + palletSurcharge);
 }
 
 function getRandomCarrier(index: number) {
@@ -180,6 +203,62 @@ async function main() {
   await prisma.order.deleteMany({});
   await prisma.truck.deleteMany({});
   await prisma.buyer.deleteMany({});
+  await prisma.warehouse.deleteMany({});
+
+  // Create warehouses (Real Sysco Texas locations)
+  console.log("🏭 Creating Sysco warehouses...");
+  const warehouseData = [
+    {
+      id: "WH-DAL-001",
+      name: "Sysco North Texas",
+      type: "BROADLINE_HUB",
+      address: "800 Trinity Dr, Lewisville, TX 75056",
+      lat: 33.0645,
+      lng: -96.9380,
+      description: "Primary distribution hub for DFW Metroplex",
+    },
+    {
+      id: "WH-HOU-001",
+      name: "Sysco Houston",
+      type: "BROADLINE_HUB",
+      address: "10710 Greens Crossing Blvd, Houston, TX 77038",
+      lat: 29.9485,
+      lng: -95.4290,
+      description: "Largest Southern hub servicing coastal regions",
+    },
+    {
+      id: "WH-CTX-001",
+      name: "Sysco Central Texas",
+      type: "BROADLINE_HUB",
+      address: "1260 Schwab Rd, New Braunfels, TX 78132",
+      lat: 29.7405,
+      lng: -98.1565,
+      description: "Strategic corridor hub servicing San Antonio/Austin",
+    },
+    {
+      id: "WH-WTX-001",
+      name: "Sysco West Texas",
+      type: "REGIONAL_HUB",
+      address: "714 2nd Pl, Lubbock, TX 79401",
+      lat: 33.5866,
+      lng: -101.8350,
+      description: "Western Texas plains transfer point",
+    },
+    {
+      id: "WH-ETX-001",
+      name: "Sysco East Texas",
+      type: "REGIONAL_HUB",
+      address: "4577 Estes Pkwy, Longview, TX 75603",
+      lat: 32.4485,
+      lng: -94.7290,
+      description: "Eastern node connecting Louisiana markets",
+    },
+  ];
+
+  for (const warehouse of warehouseData) {
+    await prisma.warehouse.create({ data: warehouse });
+  }
+  console.log(`   Created ${warehouseData.length} warehouse locations\n`);
 
   // Create buyer accounts (restaurants and clients)
   console.log("🏢 Creating buyer accounts...");
@@ -231,13 +310,21 @@ async function main() {
     endLng: number;
     riskScore: number;
     routeGeoJson: number[][] | null;
+    distanceMeters: number;
+    durationSeconds: number;
     progress: number;
+    departedAt: Date | null;
+    estimatedArrival: Date | null;
+    actualArrival: Date | null;
     costPrice: number;
     sellPrice: number;
     internalBaseCost: number;
     actualLogisticsCost: number;
-    buyerIds?: string[]; // Track which buyers to connect
+    buyerIds?: string[];
   }> = [];
+
+  // Base time for calculations (current time)
+  const now = new Date();
 
   // Fixed route for Andrew Thomas (TRK-814): Amarillo → Abilene
   const AMARILLO = TEXAS_CITIES.find(c => c.name === "Amarillo")!;
@@ -275,6 +362,14 @@ async function main() {
       riskScore: 45 + Math.floor(Math.random() * 25), // 45-69 (orange only)
       isRegional: true,
     })),
+    // 3 Delivered routes (completed, 100% progress)
+    ...Array(3).fill(null).map((_, i) => ({
+      id: `DEL-${7000 + i}`,
+      status: "DELIVERED",
+      riskScore: 0, // Delivered = no risk
+      isRegional: false,
+      isDelivered: true,
+    })),
   ];
 
   let fetchedCount = 0;
@@ -296,9 +391,9 @@ async function main() {
       } while (dest.name === origin.name);
     }
 
-    // Fetch real route from Mapbox
+    // Fetch real route from Mapbox (now includes distance/duration)
     console.log(`  Fetching route: ${origin.name} → ${dest.name}...`);
-    const routeGeoJson = await fetchRoute(origin.lng, origin.lat, dest.lng, dest.lat);
+    const routeData = await fetchRoute(origin.lng, origin.lat, dest.lng, dest.lat);
     fetchedCount++;
 
     // Rate limit: Mapbox allows 300 requests/minute, but let's be safe
@@ -307,7 +402,6 @@ async function main() {
     }
 
     // Assign truck for in-transit orders (not CONFIRMED - those await pickup)
-    // Use fixed truck index if specified, otherwise assign based on fetchedCount
     let assignedTruck = null;
     if (config.status !== "CONFIRMED" && trucks.length > 0) {
       if ('fixedTruckIndex' in config && typeof config.fixedTruckIndex === 'number') {
@@ -320,6 +414,64 @@ async function main() {
     // Get product info with value and description
     const product = getRandomProduct();
 
+    // Calculate logistics cost based on actual route distance
+    const actualLogisticsCost = calculateLogisticsCost(routeData.distanceMeters, product.pallets);
+
+    // Calculate sell price to ALWAYS ensure profitability
+    // Sell price = (product cost + logistics cost + overhead) * margin
+    // This ensures we ALWAYS make money on every deal
+    const totalCost = product.costPrice + actualLogisticsCost + product.internalBaseCost;
+    const sellPrice = Math.round(totalCost * product.margin);
+    const orderValue = sellPrice; // Keep legacy field in sync
+
+    // ========== REALISTIC TIMING CALCULATION ==========
+    let departedAt: Date | null = null;
+    let estimatedArrival: Date | null = null;
+    let actualArrival: Date | null = null;
+    let progress = 0;
+
+    const durationMs = routeData.durationSeconds * 1000;
+    const durationHours = routeData.durationSeconds / 3600;
+
+    if (config.status === "CONFIRMED") {
+      // Not departed yet - scheduled to leave within next 2-6 hours
+      departedAt = null;
+      estimatedArrival = null;
+      progress = 0;
+    } else if (config.status === "DELIVERED") {
+      // Delivered 1-12 hours ago
+      const hoursAgo = 1 + Math.random() * 11;
+      actualArrival = new Date(now.getTime() - hoursAgo * 3600 * 1000);
+      // Departure was: arrival - route duration (with some buffer for stops)
+      const totalTripMs = durationMs * (1.1 + Math.random() * 0.2); // 10-30% longer due to stops
+      departedAt = new Date(actualArrival.getTime() - totalTripMs);
+      estimatedArrival = new Date(departedAt.getTime() + durationMs);
+      progress = 100;
+    } else {
+      // IN_TRANSIT - currently on the road
+      // Departed 10% to 90% of route duration ago
+      const progressPercent = 10 + Math.random() * 80; // 10-90%
+      progress = Math.round(progressPercent);
+
+      const elapsedMs = (progressPercent / 100) * durationMs;
+      departedAt = new Date(now.getTime() - elapsedMs);
+
+      // ETA = departure + total duration
+      estimatedArrival = new Date(departedAt.getTime() + durationMs);
+
+      // Add delay for AT_RISK orders
+      if (config.riskScore >= 40) {
+        const delayMinutes = 30 + Math.random() * 90; // 30-120 min delay
+        estimatedArrival = new Date(estimatedArrival.getTime() + delayMinutes * 60 * 1000);
+      }
+    }
+
+    // Log timing info for verification
+    if (routeData.durationSeconds > 0) {
+      const distanceMiles = Math.round(routeData.distanceMeters / 1609.34);
+      console.log(`    → ${distanceMiles} mi, ${durationHours.toFixed(1)}h drive, ${progress}% complete`);
+    }
+
     // Assign random buyers to this order (1-3 buyers per order)
     const numBuyers = 1 + Math.floor(Math.random() * 3);
     const shuffledBuyers = [...buyers].sort(() => Math.random() - 0.5);
@@ -329,7 +481,7 @@ async function main() {
       id: config.id,
       itemName: product.itemName,
       description: product.description,
-      orderValue: product.orderValue,
+      orderValue,
       status: config.status,
       carrier: getRandomCarrier(parseInt(config.id.split("-")[1])),
       truckId: assignedTruck?.id ?? null,
@@ -340,12 +492,17 @@ async function main() {
       endLat: dest.lat,
       endLng: dest.lng,
       riskScore: config.riskScore,
-      routeGeoJson: routeGeoJson,
-      progress: config.status === "CONFIRMED" ? 0 : 20 + Math.floor(Math.random() * 60), // 20-80% progress
+      routeGeoJson: routeData.coordinates,
+      distanceMeters: routeData.distanceMeters,
+      durationSeconds: routeData.durationSeconds,
+      progress,
+      departedAt,
+      estimatedArrival,
+      actualArrival,
       costPrice: product.costPrice,
-      sellPrice: product.sellPrice,
+      sellPrice,
       internalBaseCost: product.internalBaseCost,
-      actualLogisticsCost: product.actualLogisticsCost,
+      actualLogisticsCost,
       buyerIds: orderBuyerIds,
     });
   }
@@ -365,11 +522,19 @@ async function main() {
 
   const withRoutes = orders.filter(o => o.routeGeoJson !== null).length;
   const withTrucks = orders.filter(o => o.truckId !== null).length;
-  const totalCost = orders.reduce((sum, o) => sum + o.costPrice, 0);
-  const totalSell = orders.reduce((sum, o) => sum + o.sellPrice, 0);
-  const totalMargin = totalSell - totalCost;
+  const totalProductCost = orders.reduce((sum, o) => sum + o.costPrice, 0);
+  const totalLogistics = orders.reduce((sum, o) => sum + o.actualLogisticsCost, 0);
+  const totalOverhead = orders.reduce((sum, o) => sum + o.internalBaseCost, 0);
+  const totalCost = totalProductCost + totalLogistics + totalOverhead;
+  const totalRevenue = orders.reduce((sum, o) => sum + o.sellPrice, 0);
+  const totalProfit = totalRevenue - totalCost;
+  const avgDistance = orders.reduce((sum, o) => sum + o.distanceMeters, 0) / orders.length / 1609.34;
+  const avgDuration = orders.reduce((sum, o) => sum + o.durationSeconds, 0) / orders.length / 3600;
 
   console.log(`\n✅ Database populated successfully!`);
+  console.log(`\n🏭 Warehouses: ${warehouseData.length} facilities`);
+  console.log(`   - ${warehouseData.filter(w => w.type === "BROADLINE_HUB").length} Broadline Hubs`);
+  console.log(`   - ${warehouseData.filter(w => w.type === "REGIONAL_HUB").length} Regional Hubs`);
   console.log(`\n🏢 Buyers: ${buyers.length} accounts`);
   console.log(`   - ${buyers.filter(b => b.segment === "Fine Dining").length} Fine Dining`);
   console.log(`   - ${buyers.filter(b => b.segment === "Hospitality").length} Hospitality`);
@@ -380,12 +545,19 @@ async function main() {
   console.log(`   - ${withTrucks} assigned to trucks`);
   console.log(`   - ${orders.filter(o => o.status === "IN_TRANSIT").length} In Transit`);
   console.log(`   - ${orders.filter(o => o.status === "CONFIRMED").length} Confirmed (awaiting pickup)`);
-  console.log(`   - ${orders.filter(o => o.riskScore >= 40).length} At Risk (orange)`);
+  console.log(`   - ${orders.filter(o => o.status === "DELIVERED").length} Delivered`);
+  console.log(`   - ${orders.filter(o => o.riskScore >= 40 && o.riskScore < 80).length} At Risk (orange)`);
   console.log(`   - 0 Critical (red only appears during incidents)`);
-  console.log(`\n💰 Financials:`);
-  console.log(`   - Total Cost (COGS): $${totalCost.toLocaleString()}`);
-  console.log(`   - Total Revenue: $${totalSell.toLocaleString()}`);
-  console.log(`   - Gross Margin: $${totalMargin.toLocaleString()}`);
+  console.log(`\n📏 Route Analytics (from Mapbox):`);
+  console.log(`   - Avg Distance: ${avgDistance.toFixed(0)} miles`);
+  console.log(`   - Avg Duration: ${avgDuration.toFixed(1)} hours`);
+  console.log(`\n💰 Financials (Always Profitable!):`);
+  console.log(`   - Product Cost (COGS): $${totalProductCost.toLocaleString()}`);
+  console.log(`   - Logistics Cost: $${totalLogistics.toLocaleString()}`);
+  console.log(`   - Overhead: $${totalOverhead.toLocaleString()}`);
+  console.log(`   - TOTAL COST: $${totalCost.toLocaleString()}`);
+  console.log(`   - TOTAL REVENUE: $${totalRevenue.toLocaleString()}`);
+  console.log(`   - NET PROFIT: $${totalProfit.toLocaleString()} (${((totalProfit / totalCost) * 100).toFixed(1)}% margin)`);
 }
 
 main()

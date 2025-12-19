@@ -17,12 +17,21 @@ export function PusherProvider({ children }: { children: ReactNode }) {
     const pusherCluster = process.env.NEXT_PUBLIC_PUSHER_CLUSTER;
 
     if (!pusherKey || !pusherCluster) {
-      console.warn("Pusher credentials not configured");
+      console.warn("[PusherProvider] Missing env vars - NEXT_PUBLIC_PUSHER_KEY:", !!pusherKey, "NEXT_PUBLIC_PUSHER_CLUSTER:", !!pusherCluster);
       return;
     }
 
+    console.log("[PusherProvider] Initializing Pusher client with cluster:", pusherCluster);
     const pusherClient = new Pusher(pusherKey, {
       cluster: pusherCluster,
+    });
+
+    // Connection state debugging
+    pusherClient.connection.bind("connected", () => {
+      console.log("[PusherProvider] Connected to Pusher");
+    });
+    pusherClient.connection.bind("error", (err: Error) => {
+      console.error("[PusherProvider] Connection error:", err);
     });
 
     setPusher(pusherClient);

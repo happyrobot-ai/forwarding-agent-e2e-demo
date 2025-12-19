@@ -5,12 +5,25 @@ import Image from "next/image";
 import Map, { Marker, Source, Layer, MapRef } from "react-map-gl/mapbox";
 import type { LayerProps } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
-import { Truck } from "lucide-react";
+import { Truck as TruckIcon, Warehouse as WarehouseIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTheme } from "./ThemeProvider";
+import { OrderDetailPanel } from "./OrderDetailPanel";
+
+// Warehouse/Distribution Center type
+interface Warehouse {
+  id: string;
+  name: string;
+  type: string; // "BROADLINE_HUB" | "REGIONAL_HUB"
+  address: string;
+  lat: number;
+  lng: number;
+  status: string;
+  description?: string | null;
+}
 
 // Truck type from Samsara fleet
-interface Truck {
+interface TruckData {
   id: string;
   driverName: string;
   vehicleType: string;
@@ -26,7 +39,7 @@ interface Order {
   status: string;
   carrier: string;
   truckId?: string | null;
-  truck?: Truck | null; // Samsara truck info
+  truck?: TruckData | null; // Samsara truck info
   origin: string;
   destination: string;
   startLat: number;
@@ -84,14 +97,29 @@ const selectedRouteLayerStyle: LayerProps = {
 
 interface FleetMapProps {
   orders?: Order[];
+  warehouses?: Warehouse[];
   incidentStatus: "IDLE" | "ACTIVE" | "RESOLVED";
+  incidentDescription?: string | null;
   onIncidentClick: () => void;
   affectedOrderId?: string | null;
   highlightedOrderId?: string | null; // External selection from table
   onOrderSelect?: (orderId: string | null) => void; // Callback when order is selected on map
+  viewMode?: "dashboard" | "focused"; // "focused" for War Room with auto-fit bounds
+  interactive?: boolean; // Whether map interactions are enabled
 }
 
-export function FleetMap({ orders = [], incidentStatus, onIncidentClick, affectedOrderId, highlightedOrderId, onOrderSelect }: FleetMapProps) {
+export function FleetMap({
+  orders = [],
+  warehouses = [],
+  incidentStatus,
+  incidentDescription,
+  onIncidentClick,
+  affectedOrderId,
+  highlightedOrderId,
+  onOrderSelect,
+  viewMode = "dashboard",
+  interactive = true
+}: FleetMapProps) {
   const mapRef = useRef<MapRef>(null);
   const { theme } = useTheme();
   const [isMapLoaded, setIsMapLoaded] = useState(false);
@@ -99,6 +127,7 @@ export function FleetMap({ orders = [], incidentStatus, onIncidentClick, affecte
   const [hasPlayedInitialAnimation, setHasPlayedInitialAnimation] = useState(false);
   const prevIncidentStatusRef = useRef<string>(incidentStatus);
   const prevHighlightedOrderIdRef = useRef<string | null>(null);
+  const hasFittedBoundsRef = useRef(false);
 
   const getSamsaraLogo = () => {
     return theme === "dark"
@@ -110,6 +139,24 @@ export function FleetMap({ orders = [], incidentStatus, onIncidentClick, affecte
   const mapStyle = theme === "dark"
     ? "mapbox://styles/mapbox/dark-v11"
     : "mapbox://styles/mapbox/light-v11";
+
+  // Dynamic route layer style based on viewMode
+  const dynamicRouteStyle = useMemo((): LayerProps => ({
+    id: "routes",
+    type: "line",
+    paint: {
+      "line-color": [
+        "interpolate",
+        ["linear"],
+        ["get", "riskScore"],
+        0, "#10b981",
+        40, "#f59e0b",
+        80, "#ef4444",
+      ],
+      "line-width": viewMode === "focused" ? 5 : 2,
+      "line-opacity": viewMode === "focused" ? 1 : 0.25,
+    },
+  }), [viewMode]);
 
   // Helper: Get position along route based on progress
   const getPositionAlongRoute = (route: number[][], progress: number): [number, number] => {
@@ -124,7 +171,13 @@ export function FleetMap({ orders = [], incidentStatus, onIncidentClick, affecte
     return {
       type: "FeatureCollection" as const,
       features: orders
-        .filter(order => order.startLat && order.startLng && order.endLat && order.endLng)
+        .filter(order =>
+          // Filter out orders with missing or default (0) coordinates
+          order.startLat != null && order.startLat !== 0 &&
+          order.startLng != null && order.startLng !== 0 &&
+          order.endLat != null && order.endLat !== 0 &&
+          order.endLng != null && order.endLng !== 0
+        )
         .map(order => {
           // Use precomputed route if available, otherwise fallback to straight line
           const coordinates = order.routeGeoJson && Array.isArray(order.routeGeoJson)
@@ -173,6 +226,21 @@ export function FleetMap({ orders = [], incidentStatus, onIncidentClick, affecte
     };
   }, [selectedOrderId, orders]);
 
+  // Helper: Interpolate position along straight line based on progress
+  const getPositionAlongStraightLine = (
+    startLng: number,
+    startLat: number,
+    endLng: number,
+    endLat: number,
+    progress: number
+  ): [number, number] => {
+    const t = progress / 100;
+    return [
+      startLng + (endLng - startLng) * t,
+      startLat + (endLat - startLat) * t,
+    ];
+  };
+
   // Truck markers with positions along routes
   const truckMarkers = useMemo(() => {
     return orders
@@ -180,11 +248,26 @@ export function FleetMap({ orders = [], incidentStatus, onIncidentClick, affecte
         // Only show trucks for in-transit orders with assigned trucks
         if (order.status === "CONFIRMED") return false;
         if (!order.truck) return false; // Must have an assigned truck
-        return order.routeGeoJson && Array.isArray(order.routeGeoJson) && order.routeGeoJson.length > 0;
+        // Allow orders with routeGeoJson OR valid coordinates
+        const hasRoute = order.routeGeoJson && Array.isArray(order.routeGeoJson) && order.routeGeoJson.length > 0;
+        const hasValidCoords = order.startLat !== 0 && order.startLng !== 0 && order.endLat !== 0 && order.endLng !== 0;
+        return hasRoute || hasValidCoords;
       })
       .map(order => {
         const progress = order.progress ?? 50;
-        const position = getPositionAlongRoute(order.routeGeoJson!, progress);
+        // Use route if available, otherwise interpolate along straight line
+        let position: [number, number];
+        if (order.routeGeoJson && Array.isArray(order.routeGeoJson) && order.routeGeoJson.length > 0) {
+          position = getPositionAlongRoute(order.routeGeoJson, progress);
+        } else {
+          position = getPositionAlongStraightLine(
+            order.startLng,
+            order.startLat,
+            order.endLng,
+            order.endLat,
+            progress
+          );
+        }
         return {
           orderId: order.id,
           truckId: order.truck!.id,
@@ -269,8 +352,9 @@ export function FleetMap({ orders = [], incidentStatus, onIncidentClick, affecte
     setIsMapLoaded(true);
   }, []);
 
-  // Cinematic initial zoom: World view → Texas view on first load
+  // Cinematic initial zoom: World view → Texas view on first load (dashboard mode only)
   useEffect(() => {
+    if (viewMode === "focused") return; // Skip cinematic animation for focused mode
     if (!isMapLoaded || !mapRef.current || hasPlayedInitialAnimation) return;
 
     // Small delay to ensure map is fully ready, then start cinematic zoom
@@ -287,7 +371,75 @@ export function FleetMap({ orders = [], incidentStatus, onIncidentClick, affecte
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [isMapLoaded, hasPlayedInitialAnimation]);
+  }, [isMapLoaded, hasPlayedInitialAnimation, viewMode]);
+
+  // Focused mode: Auto-fit bounds to show all orders (used in War Room)
+  useEffect(() => {
+    if (viewMode !== "focused" || !isMapLoaded || !mapRef.current || hasFittedBoundsRef.current) return;
+    if (orders.length === 0) return;
+
+    const map = mapRef.current.getMap();
+
+    // Collect all coordinates to find center and bounds
+    const allCoords: [number, number][] = [];
+
+    orders.forEach(order => {
+      if (order.routeGeoJson && Array.isArray(order.routeGeoJson)) {
+        order.routeGeoJson.forEach(coord => {
+          allCoords.push([coord[0], coord[1]]);
+        });
+      } else if (
+        order.startLat != null && order.startLat !== 0 &&
+        order.startLng != null && order.startLng !== 0 &&
+        order.endLat != null && order.endLat !== 0 &&
+        order.endLng != null && order.endLng !== 0
+      ) {
+        allCoords.push([order.startLng, order.startLat]);
+        allCoords.push([order.endLng, order.endLat]);
+      }
+    });
+
+    if (allCoords.length > 0) {
+      // Calculate center point of all coordinates
+      const sumLng = allCoords.reduce((sum, c) => sum + c[0], 0);
+      const sumLat = allCoords.reduce((sum, c) => sum + c[1], 0);
+      const centerLng = sumLng / allCoords.length;
+      const centerLat = sumLat / allCoords.length;
+
+      // Calculate the span to determine zoom level
+      const minLng = Math.min(...allCoords.map(c => c[0]));
+      const maxLng = Math.max(...allCoords.map(c => c[0]));
+      const minLat = Math.min(...allCoords.map(c => c[1]));
+      const maxLat = Math.max(...allCoords.map(c => c[1]));
+      const lngSpan = maxLng - minLng;
+      const latSpan = maxLat - minLat;
+      const maxSpan = Math.max(lngSpan, latSpan);
+
+      // Calculate zoom based on span (rough approximation)
+      // Larger span = lower zoom
+      let zoom = 7;
+      if (maxSpan > 10) zoom = 4;
+      else if (maxSpan > 5) zoom = 5;
+      else if (maxSpan > 2) zoom = 6;
+      else if (maxSpan > 1) zoom = 7;
+      else zoom = 8;
+
+      // Trigger resize and then fly to center
+      map.resize();
+
+      setTimeout(() => {
+        map.flyTo({
+          center: [centerLng, centerLat],
+          zoom: zoom,
+          duration: 800,
+          essential: true,
+        });
+      }, 150);
+
+      hasFittedBoundsRef.current = true;
+      setHasPlayedInitialAnimation(true);
+    }
+  }, [viewMode, isMapLoaded, orders]);
 
   // Handle external order selection (from table click) - fly to the order
   useEffect(() => {
@@ -333,11 +485,21 @@ export function FleetMap({ orders = [], incidentStatus, onIncidentClick, affecte
     }
   }, [highlightedOrderId, orders, isMapLoaded, hasPlayedInitialAnimation]);
 
-  // Handle internal map marker clicks - notify parent
-  const handleMarkerClick = useCallback((orderId: string) => {
+  // Handle internal map marker clicks - show order details panel
+  const handleMarkerClick = useCallback((orderId: string, _riskScore: number, lng: number, lat: number) => {
     const newSelection = selectedOrderId === orderId ? null : orderId;
     setSelectedOrderId(newSelection);
     onOrderSelect?.(newSelection);
+
+    // Fly to marker when selecting
+    if (newSelection && mapRef.current) {
+      mapRef.current.flyTo({
+        center: [lng, lat],
+        zoom: 10,
+        duration: 2000,
+        essential: true,
+      });
+    }
   }, [selectedOrderId, onOrderSelect]);
 
   return (
@@ -349,18 +511,23 @@ export function FleetMap({ orders = [], incidentStatus, onIncidentClick, affecte
         ref={mapRef}
         onLoad={handleMapLoad}
         initialViewState={{
-          longitude: WORLD_VIEW.lng,
-          latitude: WORLD_VIEW.lat,
-          zoom: WORLD_VIEW.zoom,
+          longitude: viewMode === "focused" ? TEXAS_VIEW.lng : WORLD_VIEW.lng,
+          latitude: viewMode === "focused" ? TEXAS_VIEW.lat : WORLD_VIEW.lat,
+          zoom: viewMode === "focused" ? TEXAS_VIEW.zoom : WORLD_VIEW.zoom,
         }}
         mapStyle={mapStyle}
         mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
         attributionControl={false}
         reuseMaps
+        scrollZoom={interactive}
+        dragPan={interactive}
+        dragRotate={interactive}
+        doubleClickZoom={interactive}
+        touchZoomRotate={interactive}
       >
-        {/* GeoJSON Route Lines (background, subtle) */}
+        {/* GeoJSON Route Lines (background in dashboard, prominent in focused) */}
         <Source id="sysco-routes" type="geojson" data={geoJsonData}>
-          <Layer {...routeLayerStyle} />
+          <Layer {...dynamicRouteStyle} />
         </Source>
 
         {/* Highlighted Selected Route */}
@@ -378,10 +545,10 @@ export function FleetMap({ orders = [], incidentStatus, onIncidentClick, affecte
 
           return (
             <Marker
-              key={truck.truckId}
+              key={truck.orderId}
               longitude={truck.lng}
               latitude={truck.lat}
-              onClick={() => handleMarkerClick(truck.orderId)}
+              onClick={() => handleMarkerClick(truck.orderId, truck.riskScore, truck.lng, truck.lat)}
             >
               <div className="relative group cursor-pointer">
                 {/* Radar ping effect for critical trucks */}
@@ -449,7 +616,7 @@ export function FleetMap({ orders = [], incidentStatus, onIncidentClick, affecte
                       : "bg-emerald-600 border-emerald-500 text-white",
                   isSelected && "scale-125 ring-2 ring-blue-400 ring-offset-1"
                 )}>
-                  <Truck className="h-3 w-3" />
+                  <TruckIcon className="h-3 w-3" />
                 </div>
 
                 {/* Tooltip on hover - shows truck & driver info */}
@@ -493,9 +660,74 @@ export function FleetMap({ orders = [], incidentStatus, onIncidentClick, affecte
           );
         })()}
 
+        {/* Warehouse/Distribution Center Markers */}
+        {warehouses.map(warehouse => {
+          const isBroadline = warehouse.type === "BROADLINE_HUB";
+          return (
+            <Marker
+              key={warehouse.id}
+              longitude={warehouse.lng}
+              latitude={warehouse.lat}
+            >
+              <div className="relative group cursor-pointer">
+                {/* Warehouse icon */}
+                <div className={cn(
+                  "flex h-5 w-5 items-center justify-center rounded-lg border-2 shadow-lg transition-all",
+                  isBroadline
+                    ? "bg-blue-600 border-blue-400 text-white"
+                    : "bg-indigo-600 border-indigo-400 text-white",
+                  "hover:scale-110"
+                )}>
+                  <WarehouseIcon className="h-2 w-2" />
+                </div>
+
+                {/* Tooltip on hover */}
+                <div className={cn(
+                  "absolute bottom-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity z-50",
+                  "whitespace-nowrap border px-3 py-2 text-xs font-mono rounded-lg pointer-events-none",
+                  "bg-black/90 border-zinc-700 text-white min-w-[180px]"
+                )}>
+                  <div className="font-semibold text-blue-400">{warehouse.name}</div>
+                  <div className="text-zinc-400 text-[10px] mt-1">{warehouse.id}</div>
+                  <div className={cn(
+                    "text-[10px] mt-1 px-1.5 py-0.5 rounded inline-block",
+                    isBroadline ? "bg-blue-500/20 text-blue-300" : "bg-indigo-500/20 text-indigo-300"
+                  )}>
+                    {isBroadline ? "Broadline Hub" : "Regional Hub"}
+                  </div>
+                  {warehouse.description && (
+                    <div className="text-zinc-500 text-[10px] mt-1 border-t border-zinc-700 pt-1">
+                      {warehouse.description}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </Marker>
+          );
+        })}
+
       </Map>
 
-      {/* Overlay: Network Health Legend */}
+      {/* Order Detail Panel - shows when order is selected (dashboard mode only) */}
+      {viewMode === "dashboard" && selectedOrderId && (() => {
+        const selectedOrder = orders.find(o => o.id === selectedOrderId);
+        if (!selectedOrder) return null;
+        return (
+          <OrderDetailPanel
+            order={selectedOrder}
+            onClose={() => {
+              setSelectedOrderId(null);
+              onOrderSelect?.(null);
+            }}
+            isIncidentActive={incidentStatus === "ACTIVE"}
+            incidentDescription={incidentDescription}
+            onOpenWarRoom={onIncidentClick}
+          />
+        );
+      })()}
+
+      {/* Overlay: Network Health Legend - hidden when order detail panel is open or in focused mode */}
+      {viewMode === "dashboard" && !selectedOrderId && (
       <div className="absolute bottom-4 left-4 flex flex-col gap-2">
         <div className={cn(
           "backdrop-blur p-3 rounded-lg border text-xs font-mono",
@@ -525,8 +757,10 @@ export function FleetMap({ orders = [], incidentStatus, onIncidentClick, affecte
           </div>
         </div>
       </div>
+      )}
 
-      {/* Overlay: Fleet Status */}
+      {/* Overlay: Fleet Status (dashboard mode only) */}
+      {viewMode === "dashboard" && (
       <div className="absolute bottom-4 right-4">
         <div className={cn(
           "backdrop-blur p-3 rounded-lg border text-xs font-mono",
@@ -547,8 +781,10 @@ export function FleetMap({ orders = [], incidentStatus, onIncidentClick, affecte
           </div>
         </div>
       </div>
+      )}
 
-      {/* Overlay: Samsara Integration Badge */}
+      {/* Overlay: Samsara Integration Badge (dashboard mode only) */}
+      {viewMode === "dashboard" && (
       <div className="absolute top-4 right-4">
           <Image
             src={getSamsaraLogo()}
@@ -558,34 +794,35 @@ export function FleetMap({ orders = [], incidentStatus, onIncidentClick, affecte
             className="object-contain animate-pulse"
           />
       </div>
+      )}
 
-      {/* Click hint when incident is active */}
-      {incidentStatus === "ACTIVE" && (
+      {/* Click hint when incident is active and no order selected (dashboard mode only) */}
+      {viewMode === "dashboard" && incidentStatus === "ACTIVE" && !selectedOrderId && (
         <div className="absolute top-4 left-1/2 -translate-x-1/2">
           <div className={cn(
             "backdrop-blur px-4 py-2 rounded-lg border text-xs font-mono animate-pulse",
             "bg-red-900/80 border-red-700 text-red-100"
           )}>
-            Click incident marker to open War Room
+            Click incident marker to see details
           </div>
         </div>
       )}
 
-      {/* Subtle ambient glow for Texas cluster - positioned at center-right of map */}
-      <div
-        className="absolute pointer-events-none"
-        style={{
-          width: '400px',
-          height: '400px',
-          top: '50%',
-          left: '55%',
-          transform: 'translate(-50%, -50%)',
-          background: incidentStatus === "ACTIVE"
-            ? 'radial-gradient(circle, rgba(239,68,68,0.08) 0%, rgba(239,68,68,0.03) 40%, transparent 70%)'
-            : 'radial-gradient(circle, rgba(59,130,246,0.06) 0%, rgba(59,130,246,0.02) 40%, transparent 70%)',
-          animation: 'cluster-glow 4s ease-in-out infinite',
-        }}
-      />
+      {/* Subtle ambient glow for Texas cluster - only shown when no incident (dashboard mode only) */}
+      {viewMode === "dashboard" && incidentStatus !== "ACTIVE" && (
+        <div
+          className="absolute pointer-events-none"
+          style={{
+            width: '400px',
+            height: '400px',
+            top: '50%',
+            left: '55%',
+            transform: 'translate(-50%, -50%)',
+            background: 'radial-gradient(circle, rgba(59,130,246,0.06) 0%, rgba(59,130,246,0.02) 40%, transparent 70%)',
+            animation: 'cluster-glow 4s ease-in-out infinite',
+          }}
+        />
+      )}
     </div>
   );
 }

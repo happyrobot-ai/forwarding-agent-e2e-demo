@@ -44,19 +44,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create the incident with dynamic title
+    // Create the incident with dynamic title and hardcoded description
     const incident = await prisma.incident.create({
       data: {
         title: `${targetOrder.itemName} - ${targetOrder.destination} Delivery Crisis`,
+        description: "Truck broke down on Highway I-35. Driver reported engine failure and is awaiting roadside assistance.",
         status: "ACTIVE",
+        orderId: targetOrder.id, // Link incident to the affected order
       },
     });
 
-    // Update the target order to critical status
+    // Update the target order to AT_RISK status with critical risk score
     await prisma.order.update({
       where: { id: targetOrder.id },
       data: {
-        status: "CANCELLED",
+        status: "AT_RISK",
         riskScore: 100,
       },
     });
@@ -89,25 +91,17 @@ export async function POST(request: NextRequest) {
     });
 
     // Trigger Pusher event for real-time dashboard update
+    // IMPORTANT: Send the COMPLETE order object so the War Room has all data it needs
+    console.log("[Pusher] Triggering demo-started event for order:", targetOrder.id);
     await pusherServer.trigger("sysco-demo", "demo-started", {
       incident,
       affectedOrderId: targetOrder.id,
+      // Send the full order with ALL fields needed for FleetMap
       affectedOrder: {
-        id: targetOrder.id,
-        itemName: targetOrder.itemName,
-        origin: targetOrder.origin,
-        destination: targetOrder.destination,
-        orderValue: targetOrder.orderValue,
-        truck: targetOrder.truck,
-        endLat: targetOrder.endLat,
-        endLng: targetOrder.endLng,
-        // Financial data
-        costPrice: targetOrder.costPrice,
-        sellPrice: targetOrder.sellPrice,
-        internalBaseCost: targetOrder.internalBaseCost,
-        actualLogisticsCost: targetOrder.actualLogisticsCost,
-        // Buyer relationships
-        buyers: targetOrder.buyers,
+        ...targetOrder,
+        // Override status and risk to show as critical
+        status: "AT_RISK",
+        riskScore: 100,
       },
       message: `CRITICAL ALERT: Shipment ${targetOrder.id} (${targetOrder.itemName}) - Equipment Failure`,
     });

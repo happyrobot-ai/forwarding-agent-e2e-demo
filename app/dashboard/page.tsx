@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { usePusher } from "@/components/PusherProvider";
@@ -17,6 +17,7 @@ import {
   RotateCcw,
   Search,
   X,
+  DollarSign,
 } from "lucide-react";
 import { WarRoomModal } from "@/components/WarRoomModal";
 import { IncidentSelectionModal } from "@/components/IncidentSelectionModal";
@@ -75,7 +76,15 @@ interface Order {
   endLng: number;
   riskScore: number;
   routeGeoJson?: number[][] | null;
+  // Route analytics from Mapbox
+  distanceMeters?: number;
+  durationSeconds?: number;
   progress?: number;
+  // Real timing data
+  departedAt?: string | null;
+  estimatedArrival?: string | null;
+  actualArrival?: string | null;
+  // Financials
   costPrice?: number;
   sellPrice?: number;
   internalBaseCost?: number;
@@ -88,23 +97,50 @@ interface Order {
 interface Incident {
   id: string;
   title: string;
+  description?: string | null;
   status: string;
   createdAt: string;
+}
+
+interface Warehouse {
+  id: string;
+  name: string;
+  type: string;
+  address: string;
+  lat: number;
+  lng: number;
+  status: string;
+  description?: string | null;
 }
 
 export default function DashboardPage() {
   const { pusher } = usePusher();
   const { theme } = useTheme();
-  const [orders, setOrders] = useState<Order[]>([]);
+
+  // --- STATE MANAGEMENT ---
+  // 1. Server State (Source of Truth from DB)
+  const [serverOrders, setServerOrders] = useState<Order[]>([]);
+  const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [incident, setIncident] = useState<Incident | null>(null);
+
+  // 2. Simulation State (Visual Overrides - decoupled from server)
+  // This is the key fix: we track the animated risk score SEPARATELY
+  // so server fetches don't fight with the local animation.
+  // We also store the full orderData as a fallback for viewers who receive via Pusher.
+  const [simulation, setSimulation] = useState<{
+    active: boolean;
+    orderId: string | null;
+    orderData: Order | null; // Backup data source for viewers
+    currentRiskScore: number;
+  }>({ active: false, orderId: null, orderData: null, currentRiskScore: 0 });
+
+  // 3. UI State
   const [serviceLevel, setServiceLevel] = useState(98);
   const [showWarRoom, setShowWarRoom] = useState(false);
   const [showBanner, setShowBanner] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [showIncidentModal, setShowIncidentModal] = useState(false);
   const [isTriggering, setIsTriggering] = useState(false);
-  const [affectedOrderId, setAffectedOrderId] = useState<string | null>(null);
-  const [affectedOrder, setAffectedOrder] = useState<Order | null>(null);
   const animationRef = useRef<NodeJS.Timeout | null>(null);
 
   // Table interaction state
@@ -116,16 +152,60 @@ export default function DashboardPage() {
   const [priceRange, setPriceRange] = useState<{ min: number; max: number } | null>(null);
   const tableHoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Calculate price range from orders
-  const priceStats = orders.length > 0 ? {
-    min: Math.floor(Math.min(...orders.map(o => o.sellPrice || o.orderValue || 0)) / 1000) * 1000,
-    max: Math.ceil(Math.max(...orders.map(o => o.sellPrice || o.orderValue || 0)) / 1000) * 1000,
+  // Calculate price range from serverOrders
+  const priceStats = serverOrders.length > 0 ? {
+    min: Math.floor(Math.min(...serverOrders.map((o: Order) => o.sellPrice || o.orderValue || 0)) / 1000) * 1000,
+    max: Math.ceil(Math.max(...serverOrders.map((o: Order) => o.sellPrice || o.orderValue || 0)) / 1000) * 1000,
   } : { min: 0, max: 100000 };
 
   const currentPriceMin = priceRange?.min ?? priceStats.min;
   const currentPriceMax = priceRange?.max ?? priceStats.max;
 
   const mapStatus: "IDLE" | "ACTIVE" | "RESOLVED" = incident?.status === "ACTIVE" ? "ACTIVE" : "IDLE";
+
+  // --- DERIVED STATE: THE MERGER ---
+  // This is the Magic Fix. We merge Server Data + Simulation Data on the fly.
+  // If a simulation is active, the UI ignores the server's risk score for that specific order
+  // and uses the local animation score instead. This guarantees 100% smoothness.
+  const displayOrders = useMemo(() => {
+    return serverOrders.map(order => {
+      // If this is the order being simulated, override its risk data
+      if (simulation.active && order.id === simulation.orderId) {
+        return {
+          ...order,
+          riskScore: Math.max(order.riskScore, simulation.currentRiskScore),
+          // Force status update based on the LOCAL animation score, not the server status
+          status: simulation.currentRiskScore > 75 ? "AT_RISK" : order.status
+        };
+      }
+      return order;
+    });
+  }, [serverOrders, simulation]);
+
+  // Derived: The affected order for the War Room
+  // Try finding it in the live list first (for live position updates).
+  // If not found, use the backup 'orderData' from the simulation state.
+  const affectedOrder = useMemo(() => {
+    if (!simulation.orderId) return null;
+
+    // First try to find in the live display orders
+    const liveOrder = displayOrders.find(o => o.id === simulation.orderId);
+
+    // Fallback to the snapshot we got from Pusher if not in the list yet
+    const fallbackOrder = simulation.orderData;
+
+    // Use live data if available, otherwise use fallback
+    const baseOrder = liveOrder || fallbackOrder;
+
+    if (!baseOrder) return null;
+
+    // Merge with simulation overrides for risk display
+    return {
+      ...baseOrder,
+      riskScore: Math.max(baseOrder.riskScore, simulation.currentRiskScore),
+      status: simulation.currentRiskScore > 75 ? "AT_RISK" : baseOrder.status
+    };
+  }, [displayOrders, simulation]);
 
   const getManhattanLogo = () => {
     return theme === "dark"
@@ -136,16 +216,18 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [ordersRes, incidentsRes] = await Promise.all([
+        const [ordersRes, incidentsRes, warehousesRes] = await Promise.all([
           fetch("/api/orders"),
           fetch("/api/incidents"),
+          fetch("/api/warehouses"),
         ]);
 
         const ordersData = await ordersRes.json();
         const incidentsData = await incidentsRes.json();
+        const warehousesData = await warehousesRes.json();
 
         if (Array.isArray(ordersData)) {
-          setOrders(ordersData);
+          setServerOrders(ordersData);
           const totalOrders = ordersData.length;
           const failedOrders = ordersData.filter(
             (o: Order) => o.status === "CANCELLED"
@@ -167,6 +249,10 @@ export default function DashboardPage() {
           }
         }
 
+        if (Array.isArray(warehousesData)) {
+          setWarehouses(warehousesData);
+        }
+
         setIsLoading(false);
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
@@ -178,36 +264,71 @@ export default function DashboardPage() {
   }, []);
 
   useEffect(() => {
-    if (!pusher) return;
+    if (!pusher) {
+      console.warn("[Pusher] No pusher client available - check NEXT_PUBLIC_PUSHER_KEY and NEXT_PUBLIC_PUSHER_CLUSTER env vars");
+      return;
+    }
 
+    console.log("[Pusher] Subscribing to sysco-demo channel");
     const channel = pusher.subscribe("sysco-demo");
 
-    channel.bind("demo-started", (data: { incident: Incident; affectedOrder?: Order }) => {
+    channel.bind("demo-started", (data: { incident: Incident; affectedOrderId?: string; affectedOrder?: Order }) => {
+      // 1. Set Incident & Service Level
       setIncident(data.incident);
       setServiceLevel(92);
+
+      // 2. Optimistic Data Update (Crucial for Viewers)
+      // If the order comes in the payload, inject it into serverOrders immediately.
+      // This ensures 'displayOrders' finds it instantly without waiting for the fetch.
       if (data.affectedOrder) {
-        setAffectedOrder(data.affectedOrder);
+        setServerOrders(prev => {
+          const exists = prev.find(o => o.id === data.affectedOrder!.id);
+          if (exists) {
+            // Update existing order with the payload data
+            return prev.map(o => o.id === data.affectedOrder!.id ? { ...o, ...data.affectedOrder! } : o);
+          }
+          return [...prev, data.affectedOrder!];
+        });
       }
+
+      // 3. Trigger Simulation State (Critical Fix for Viewers)
+      if (data.affectedOrderId) {
+        setHighlightedOrderId(data.affectedOrderId);
+
+        // This populates 'affectedOrder' for the War Room by setting simulation.orderId
+        // We also store the full orderData as a fallback for viewers
+        setSimulation({
+          active: true,
+          orderId: data.affectedOrderId,
+          orderData: data.affectedOrder || null, // Store full order from Pusher payload
+          currentRiskScore: 100, // Force Red immediately
+        });
+      }
+
+      // 4. Show Banner with slight delay for dramatic effect
       setTimeout(() => setShowBanner(true), 1000);
+
+      // 5. Background Refresh (To sync everything else)
       fetch("/api/orders")
         .then((res) => res.json())
-        .then((data) => Array.isArray(data) && setOrders(data));
+        .then((ordersData) => Array.isArray(ordersData) && setServerOrders(ordersData));
     });
 
     channel.bind("agent-update", () => {
       fetch("/api/orders")
         .then((res) => res.json())
-        .then((data) => Array.isArray(data) && setOrders(data));
+        .then((data) => Array.isArray(data) && setServerOrders(data));
     });
 
     channel.bind("demo-complete", () => {
       setIncident(null);
       setShowBanner(false);
       setServiceLevel(98);
-      setAffectedOrder(null);
+      // Reset simulation state completely
+      setSimulation({ active: false, orderId: null, orderData: null, currentRiskScore: 0 });
       fetch("/api/orders")
         .then((res) => res.json())
-        .then((data) => Array.isArray(data) && setOrders(data));
+        .then((data) => Array.isArray(data) && setServerOrders(data));
     });
 
     return () => {
@@ -220,31 +341,35 @@ export default function DashboardPage() {
     setShowIncidentModal(true);
   };
 
-  const animateRiskScore = useCallback((orderId: string) => {
+  // Simulation Animation: Updates LOCAL state only (no server interaction)
+  const startSimulationAnimation = useCallback((orderId: string) => {
     const ANIMATION_DURATION = 3000;
-    const STEPS = 30;
+    const STEPS = 60; // More steps for smoother animation
     const INTERVAL = ANIMATION_DURATION / STEPS;
     let step = 0;
 
+    // Reset any existing animation
     if (animationRef.current) {
       clearInterval(animationRef.current);
     }
 
+    // Capture the current order data as a snapshot for the simulation
+    const currentOrder = serverOrders.find(o => o.id === orderId) || null;
+
+    // Initialize simulation state with the order data
+    setSimulation({ active: true, orderId, orderData: currentOrder, currentRiskScore: 0 });
+
     animationRef.current = setInterval(() => {
       step++;
       const progress = step / STEPS;
-      const easeOut = 1 - Math.pow(1 - progress, 3);
+      const easeOut = 1 - Math.pow(1 - progress, 3); // Cubic ease out
+      const newScore = Math.floor(100 * easeOut);
 
-      setOrders((prevOrders) =>
-        prevOrders.map((order) => {
-          if (order.id === orderId) {
-            const startScore = order.riskScore < 80 ? order.riskScore : 0;
-            const newScore = Math.round(startScore + (100 - startScore) * easeOut);
-            return { ...order, riskScore: Math.min(100, newScore) };
-          }
-          return order;
-        })
-      );
+      // Update ONLY the simulation state, NOT the server orders
+      setSimulation(prev => ({
+        ...prev,
+        currentRiskScore: newScore
+      }));
 
       if (step >= STEPS) {
         if (animationRef.current) {
@@ -253,21 +378,18 @@ export default function DashboardPage() {
         }
       }
     }, INTERVAL);
-  }, []);
+  }, [serverOrders]);
 
   const handleSelectOrder = async (orderId: string) => {
     setShowIncidentModal(false);
     setIsTriggering(true);
-    setAffectedOrderId(orderId);
-
-    const selectedOrder = orders.find(o => o.id === orderId);
-    if (selectedOrder) {
-      setAffectedOrder(selectedOrder);
-    }
+    setHighlightedOrderId(orderId); // Trigger map zoom immediately
 
     try {
-      animateRiskScore(orderId);
+      // A. Visuals First (Optimistic UI) - Start local animation immediately
+      startSimulationAnimation(orderId);
 
+      // B. Server Call (Fire and Forget) - Pusher will handle the rest
       await fetch("/api/demo/trigger", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -290,22 +412,24 @@ export default function DashboardPage() {
 
   const handleResetDemo = async () => {
     try {
+      // Stop any running animation
       if (animationRef.current) {
         clearInterval(animationRef.current);
         animationRef.current = null;
       }
 
-      setAffectedOrderId(null);
-      setAffectedOrder(null);
+      // Reset all simulation and UI state
+      setSimulation({ active: false, orderId: null, orderData: null, currentRiskScore: 0 });
       setShowBanner(false);
       setIncident(null);
+      setHighlightedOrderId(null);
 
       await fetch("/api/demo/reset", { method: "POST" });
 
       const ordersRes = await fetch("/api/orders");
       const ordersData = await ordersRes.json();
       if (Array.isArray(ordersData)) {
-        setOrders(ordersData);
+        setServerOrders(ordersData);
         setServiceLevel(98);
       }
     } catch (error) {
@@ -315,31 +439,49 @@ export default function DashboardPage() {
 
   const statusConfig: Record<
     string,
-    { bg: string; text: string; dot: string; border: string }
+    { bg: string; text: string; dot: string; border: string; label: string }
   > = {
     CONFIRMED: {
-      bg: "bg-[var(--status-success-bg)]",
-      text: "text-[var(--status-success-text)]",
-      dot: "bg-emerald-500",
-      border: "border-[var(--status-success-border)]",
+      bg: "bg-[var(--status-warn-bg)]",
+      text: "text-[var(--status-warn-text)]",
+      dot: "bg-amber-500",
+      border: "border-[var(--status-warn-border)]",
+      label: "Pending Pickup",
     },
     IN_TRANSIT: {
       bg: "bg-[var(--status-info-bg)]",
       text: "text-[var(--status-info-text)]",
       dot: "bg-blue-500",
       border: "border-[var(--status-info-border)]",
+      label: "In Transit",
+    },
+    AT_RISK: {
+      bg: "bg-[var(--status-error-bg)]",
+      text: "text-[var(--status-error-text)]",
+      dot: "bg-red-500 animate-pulse",
+      border: "border-[var(--status-error-border)]",
+      label: "At Risk",
+    },
+    DELIVERED: {
+      bg: "bg-[var(--status-success-bg)]",
+      text: "text-[var(--status-success-text)]",
+      dot: "bg-emerald-500",
+      border: "border-[var(--status-success-border)]",
+      label: "Delivered",
     },
     CANCELLED: {
       bg: "bg-[var(--status-error-bg)]",
       text: "text-[var(--status-error-text)]",
       dot: "bg-red-500",
       border: "border-[var(--status-error-border)]",
+      label: "Cancelled",
     },
     RECOVERING: {
       bg: "bg-[var(--status-warn-bg)]",
       text: "text-[var(--status-warn-text)]",
       dot: "bg-amber-500 animate-pulse",
       border: "border-[var(--status-warn-border)]",
+      label: "Recovering",
     },
   };
 
@@ -349,12 +491,13 @@ export default function DashboardPage() {
       text: "text-zinc-600 dark:text-zinc-400",
       dot: "bg-zinc-500",
       border: "border-zinc-500/30",
+      label: status.replace('_', ' '),
     };
 
-  const uniqueOrigins = [...new Set(orders.map(o => o.origin.split(',')[0]))].sort();
-  const uniqueDestinations = [...new Set(orders.map(o => o.destination.split(',')[0]))].sort();
+  const uniqueOrigins = [...new Set(displayOrders.map(o => o.origin.split(',')[0]))].sort();
+  const uniqueDestinations = [...new Set(displayOrders.map(o => o.destination.split(',')[0]))].sort();
 
-  const filteredOrders = orders.filter(order => {
+  const filteredOrders = displayOrders.filter(order => {
     const matchesSearch = searchQuery === "" ||
       order.itemName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -404,6 +547,35 @@ export default function DashboardPage() {
 
   const handleMapOrderSelect = (orderId: string | null) => {
     setHighlightedOrderId(orderId);
+  };
+
+ // --- FINANCIAL CALCULATIONS ---
+  // Use displayOrders (merged state) for stable calculations
+  // 1. Total Pipeline Revenue (Sum of all active orders)
+  const totalPipelineValue = displayOrders.reduce((acc, order) => {
+    return acc + (order.sellPrice || order.orderValue || 0);
+  }, 0);
+
+  // 2. Revenue at Risk
+  // Now uses displayOrders which already has simulation state merged in
+  const revenueAtRisk = displayOrders
+    .filter((o) =>
+      o.status === "CANCELLED" ||
+      o.status === "AT_RISK" ||
+      o.riskScore > 75
+    )
+    .reduce((acc, order) => {
+      return acc + (order.sellPrice || order.orderValue || 0);
+    }, 0);
+
+  // 3. Formatter
+  const formatCurrency = (val: number) => {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: 0,
+      notation: val > 1000000 ? "compact" : "standard",
+    }).format(val);
   };
 
   if (isLoading) {
@@ -462,9 +634,10 @@ export default function DashboardPage() {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-h-0 p-6 space-y-4 overflow-hidden">
         {/* Critical Incident Banner - Using Framer Motion */}
-        <AnimatePresence>
+        <AnimatePresence mode="wait">
           {showBanner && incident && (
             <motion.div
+              key="incident-banner"
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
@@ -495,7 +668,7 @@ export default function DashboardPage() {
                     </div>
                   </div>
                   <button className="group flex items-center gap-2 rounded-lg border border-[var(--status-error-border)] bg-red-500/10 dark:bg-red-900/50 px-4 py-2 text-xs font-medium text-[var(--status-error-text)] hover:bg-red-500/20 dark:hover:bg-red-900 transition-colors">
-                    Launch Recovery Protocols
+                    Launch HappyRobot War Room
                     <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
                   </button>
                 </div>
@@ -558,7 +731,7 @@ export default function DashboardPage() {
                   Active Orders
                 </p>
                 <span className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white font-mono">
-                  {orders.length}
+                  {displayOrders.length}
                 </span>
               </div>
               <div className="rounded-full p-1.5 bg-blue-500/10 text-blue-500">
@@ -567,6 +740,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
+          {/* Financial Health Card (Replaces Fleet Status) */}
           <div
             className={cn(
               "relative overflow-hidden rounded-lg px-4 py-3",
@@ -577,16 +751,50 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-[10px] font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                  Fleet Status
+                  {revenueAtRisk > 0 ? "Revenue at Risk" : "Pipeline Revenue"}
                 </p>
-                <span className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white font-mono">
-                  {orders.filter((o) => o.status === "IN_TRANSIT").length}
-                </span>
+                <div className="flex items-baseline gap-2">
+                  <span
+                    className={cn(
+                      "text-2xl font-bold tracking-tight font-mono",
+                      revenueAtRisk > 0
+                        ? "text-red-600 dark:text-red-400"
+                        : "text-zinc-900 dark:text-white"
+                    )}
+                  >
+                    {revenueAtRisk > 0
+                      ? formatCurrency(revenueAtRisk)
+                      : formatCurrency(totalPipelineValue)}
+                  </span>
+                  {/* Show percent of total if there is risk */}
+                  {revenueAtRisk > 0 && totalPipelineValue > 0 && (
+                    <span className="text-xs font-mono text-red-500">
+                      ({((revenueAtRisk / totalPipelineValue) * 100).toFixed(1)}%)
+                    </span>
+                  )}
+                </div>
               </div>
-              <div className="rounded-full p-1.5 bg-violet-500/10 text-violet-500">
-                <Truck className="h-4 w-4" />
+              <div
+                className={cn(
+                  "rounded-full p-1.5",
+                  revenueAtRisk > 0
+                    ? "bg-red-500/10 text-red-500"
+                    : "bg-emerald-500/10 text-emerald-500"
+                )}
+              >
+                <DollarSign className="h-4 w-4" />
               </div>
             </div>
+
+            {/* Optional: Tiny progress bar at bottom for context */}
+            {revenueAtRisk > 0 && (
+               <div className="absolute bottom-0 left-0 h-0.5 w-full bg-red-100 dark:bg-red-900/30">
+                  <div
+                    className="h-full bg-red-500"
+                    style={{ width: `${(revenueAtRisk / totalPipelineValue) * 100}%` }}
+                  />
+               </div>
+            )}
           </div>
 
           <div
@@ -641,10 +849,12 @@ export default function DashboardPage() {
             >
               <div className="absolute inset-0 w-full h-full">
                 <FleetMap
-                  orders={orders}
+                  orders={displayOrders}
+                  warehouses={warehouses}
                   incidentStatus={mapStatus}
+                  incidentDescription={incident?.description}
                   onIncidentClick={() => setShowWarRoom(true)}
-                  affectedOrderId={affectedOrderId}
+                  affectedOrderId={simulation.orderId}
                   highlightedOrderId={highlightedOrderId}
                   onOrderSelect={handleMapOrderSelect}
                 />
@@ -749,7 +959,7 @@ export default function DashboardPage() {
               </div>
 
               {/* Table Content - Flex-based div table for better GPU animation */}
-              {orders.length === 0 ? (
+              {displayOrders.length === 0 ? (
                 <div className="px-4 py-12 text-center flex-1 flex flex-col items-center justify-center">
                   <Package className="h-10 w-10 text-zinc-400 dark:text-zinc-700 mb-2" />
                   <p className="text-sm text-zinc-600 dark:text-zinc-400 font-medium">No orders</p>
@@ -876,7 +1086,7 @@ export default function DashboardPage() {
                                   getStatusConfig(order.status).text,
                                   getStatusConfig(order.status).border
                                 )}>
-                                  {order.status.replace('_', ' ')}
+                                  {getStatusConfig(order.status).label}
                                 </span>
                               </motion.div>
                               <motion.div
@@ -913,7 +1123,7 @@ export default function DashboardPage() {
       {/* Incident Selection Modal */}
       {showIncidentModal && (
         <IncidentSelectionModal
-          orders={orders}
+          orders={displayOrders}
           onClose={() => setShowIncidentModal(false)}
           onSelectOrder={handleSelectOrder}
           isTriggering={isTriggering}

@@ -35,12 +35,24 @@ export async function POST() {
       },
     });
 
+    // Reset any AT_RISK orders back to IN_TRANSIT
+    await prisma.order.updateMany({
+      where: {
+        status: "AT_RISK",
+      },
+      data: {
+        status: "IN_TRANSIT",
+        riskScore: 15, // Reset to low risk (green)
+      },
+    });
+
     // Also reset any orders with high risk scores back to normal
     await prisma.order.updateMany({
       where: {
         riskScore: { gte: 40 },
       },
       data: {
+        status: "IN_TRANSIT",
         riskScore: 15, // Reset to low risk (green)
       },
     });
