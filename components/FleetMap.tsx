@@ -128,6 +128,8 @@ export function FleetMap({
   const prevIncidentStatusRef = useRef<string>(incidentStatus);
   const prevHighlightedOrderIdRef = useRef<string | null>(null);
   const hasFittedBoundsRef = useRef(false);
+  const animationFrameRef = useRef<number | null>(null);
+  const dashOffsetRef = useRef(0);
 
   const getSamsaraLogo = () => {
     return theme === "dark"
@@ -157,6 +159,18 @@ export function FleetMap({
       "line-opacity": viewMode === "focused" ? 1 : 0.25,
     },
   }), [viewMode]);
+
+  // Animated flow layer for War Room (focused mode) - shows direction of travel
+  const animatedFlowStyle = useMemo((): LayerProps => ({
+    id: "routes-flow",
+    type: "line",
+    paint: {
+      "line-color": "#ffffff",
+      "line-width": 2,
+      "line-opacity": 0.6,
+      "line-dasharray": [0, 4, 3], // Creates animated dash pattern
+    },
+  }), []);
 
   // Helper: Get position along route based on progress
   const getPositionAlongRoute = (route: number[][], progress: number): [number, number] => {
@@ -400,46 +414,85 @@ export function FleetMap({
     });
 
     if (allCoords.length > 0) {
-      // Calculate center point of all coordinates
-      const sumLng = allCoords.reduce((sum, c) => sum + c[0], 0);
-      const sumLat = allCoords.reduce((sum, c) => sum + c[1], 0);
-      const centerLng = sumLng / allCoords.length;
-      const centerLat = sumLat / allCoords.length;
-
-      // Calculate the span to determine zoom level
+      // Calculate bounding box
       const minLng = Math.min(...allCoords.map(c => c[0]));
       const maxLng = Math.max(...allCoords.map(c => c[0]));
       const minLat = Math.min(...allCoords.map(c => c[1]));
       const maxLat = Math.max(...allCoords.map(c => c[1]));
-      const lngSpan = maxLng - minLng;
-      const latSpan = maxLat - minLat;
-      const maxSpan = Math.max(lngSpan, latSpan);
 
-      // Calculate zoom based on span (rough approximation)
-      // Larger span = lower zoom
-      let zoom = 7;
-      if (maxSpan > 10) zoom = 4;
-      else if (maxSpan > 5) zoom = 5;
-      else if (maxSpan > 2) zoom = 6;
-      else if (maxSpan > 1) zoom = 7;
-      else zoom = 8;
-
-      // Trigger resize and then fly to center
+      // Trigger resize first to ensure container dimensions are correct
       map.resize();
 
       setTimeout(() => {
-        map.flyTo({
-          center: [centerLng, centerLat],
-          zoom: zoom,
-          duration: 800,
-          essential: true,
-        });
+        // Use fitBounds which properly accounts for container aspect ratio
+        map.fitBounds(
+          [[minLng, minLat], [maxLng, maxLat]],
+          {
+            padding: { top: 80, bottom: 80, left: 40, right: 40 },
+            maxZoom: 8,
+            duration: 800,
+          }
+        );
       }, 150);
 
       hasFittedBoundsRef.current = true;
       setHasPlayedInitialAnimation(true);
     }
   }, [viewMode, isMapLoaded, orders]);
+
+  // Animated flow effect for War Room (focused mode) - marching ants showing direction
+  useEffect(() => {
+    if (viewMode !== "focused" || !isMapLoaded || !mapRef.current) return;
+
+    const map = mapRef.current.getMap();
+    let lastTime = 0;
+    const speed = 0.03; // Slower speed for smoother animation
+    const cycleLength = 100; // Long cycle to avoid visible reset/jerk
+
+    const animate = (time: number) => {
+      if (!map.getLayer("routes-flow")) {
+        animationFrameRef.current = requestAnimationFrame(animate);
+        return;
+      }
+
+      // Throttle updates to ~30fps for performance
+      if (time - lastTime < 33) {
+        animationFrameRef.current = requestAnimationFrame(animate);
+        return;
+      }
+      lastTime = time;
+
+      // Update dash offset with long cycle - continuous marching effect
+      dashOffsetRef.current = (dashOffsetRef.current + speed) % cycleLength;
+
+      // Use sine wave for smooth oscillation within the dash pattern
+      // This creates a flowing effect without any jerky resets
+      const phase = (dashOffsetRef.current / cycleLength) * Math.PI * 2;
+      const dashLength = 2 + Math.sin(phase) * 0.5; // 1.5-2.5
+      const gapLength = 4 + dashOffsetRef.current % 8; // Continuously shifting gap
+
+      // Animated dash pattern that flows smoothly
+      map.setPaintProperty("routes-flow", "line-dasharray", [
+        dashLength,
+        gapLength,
+      ]);
+
+      animationFrameRef.current = requestAnimationFrame(animate);
+    };
+
+    // Start animation after a short delay to ensure layer exists
+    const startTimer = setTimeout(() => {
+      animationFrameRef.current = requestAnimationFrame(animate);
+    }, 500);
+
+    return () => {
+      clearTimeout(startTimer);
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
+      }
+    };
+  }, [viewMode, isMapLoaded]);
 
   // Handle external order selection (from table click) - fly to the order
   useEffect(() => {
@@ -528,6 +581,8 @@ export function FleetMap({
         {/* GeoJSON Route Lines (background in dashboard, prominent in focused) */}
         <Source id="sysco-routes" type="geojson" data={geoJsonData}>
           <Layer {...dynamicRouteStyle} />
+          {/* Animated flow overlay for War Room - shows direction of travel */}
+          {viewMode === "focused" && <Layer {...animatedFlowStyle} />}
         </Source>
 
         {/* Highlighted Selected Route */}
@@ -659,6 +714,34 @@ export function FleetMap({
             </Marker>
           );
         })()}
+
+        {/* Origin & Destination markers for War Room (focused mode) */}
+        {viewMode === "focused" && orders.map(order => (
+          <div key={`endpoints-${order.id}`}>
+            {/* Origin marker */}
+            <Marker longitude={order.startLng} latitude={order.startLat}>
+              <div className="flex flex-col items-center">
+                <div className="h-5 w-5 rounded-full bg-emerald-500 border-2 border-white shadow-lg flex items-center justify-center">
+                  <div className="h-2 w-2 rounded-full bg-white" />
+                </div>
+                <div className="mt-1 px-2 py-0.5 bg-emerald-900/90 text-emerald-100 text-[9px] font-mono rounded whitespace-nowrap border border-emerald-700">
+                  ORIGIN
+                </div>
+              </div>
+            </Marker>
+            {/* Destination marker */}
+            <Marker longitude={order.endLng} latitude={order.endLat}>
+              <div className="flex flex-col items-center">
+                <div className="h-5 w-5 rounded-full bg-red-500 border-2 border-white shadow-lg flex items-center justify-center">
+                  <div className="h-0 w-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[6px] border-t-white" />
+                </div>
+                <div className="mt-1 px-2 py-0.5 bg-red-900/90 text-red-100 text-[9px] font-mono rounded whitespace-nowrap border border-red-700">
+                  DESTINATION
+                </div>
+              </div>
+            </Marker>
+          </div>
+        ))}
 
         {/* Warehouse/Distribution Center Markers */}
         {warehouses.map(warehouse => {

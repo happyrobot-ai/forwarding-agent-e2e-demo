@@ -151,10 +151,6 @@ async function fetchRoute(
   }
 }
 
-function getRandomCity(cities: typeof TEXAS_CITIES) {
-  return cities[Math.floor(Math.random() * cities.length)];
-}
-
 function getRandomProduct() {
   const category = PRODUCT_CATEGORIES[Math.floor(Math.random() * PRODUCT_CATEGORIES.length)];
   const pallets = Math.floor(Math.random() * 8) + 1;
@@ -271,15 +267,15 @@ async function main() {
   }
   console.log(`   Created ${buyers.length} buyer accounts\n`);
 
-  // Create the Samsara fleet (25 trucks)
+  // Create the Samsara fleet (210 trucks - 3 per route × 70 routes)
   console.log("🚛 Creating Samsara fleet...");
   const trucks: Array<{ id: string; driverName: string; vehicleType: typeof VEHICLE_TYPES[number] }> = [];
 
-  for (let i = 0; i < 25; i++) {
+  for (let i = 0; i < 210; i++) {
     const truckId = `TRK-${800 + i}`;
     const truck = {
       id: truckId,
-      driverName: DRIVER_NAMES[i],
+      driverName: DRIVER_NAMES[i % DRIVER_NAMES.length], // Cycle through driver names
       vehicleType: VEHICLE_TYPES[i % VEHICLE_TYPES.length],
     };
     trucks.push(truck);
@@ -326,185 +322,118 @@ async function main() {
   // Base time for calculations (current time)
   const now = new Date();
 
-  // Fixed route for Andrew Thomas (TRK-814): Amarillo → Abilene
-  const AMARILLO = TEXAS_CITIES.find(c => c.name === "Amarillo")!;
-  const ABILENE = TEXAS_CITIES.find(c => c.name === "Abilene")!;
+  // All cities for route generation
+  const ALL_CITIES = [...TEXAS_CITIES, ...REGIONAL_CITIES];
 
-  // Generate routes - NO red/critical routes (those only appear during incidents)
-  const routeConfigs = [
-    // Fixed route for Andrew Thomas
-    {
-      id: "ORD-8014",
-      status: "IN_TRANSIT",
-      riskScore: Math.floor(Math.random() * 20) + 5, // 5-24 (green)
-      isRegional: false,
-      fixedRoute: { origin: AMARILLO, dest: ABILENE },
-      fixedTruckIndex: 14, // Andrew Thomas (TRK-814)
-    },
-    // 17 Normal In-Transit routes (green, low risk) - skip index 14
-    ...Array(17).fill(null).map((_, i) => ({
-      id: `ORD-${8000 + (i >= 14 ? i + 1 : i)}`,
-      status: "IN_TRANSIT",
-      riskScore: Math.floor(Math.random() * 25), // 0-24 (green)
-      isRegional: i % 4 === 0, // Some regional routes
-    })),
-    // 5 Confirmed routes (green, awaiting pickup)
-    ...Array(5).fill(null).map((_, i) => ({
-      id: `ORD-${8100 + i}`,
-      status: "CONFIRMED",
-      riskScore: Math.floor(Math.random() * 15), // 0-14 (green)
-      isRegional: false,
-    })),
-    // 2 At-Risk routes (orange, minor delays - but NOT critical/red)
-    ...Array(2).fill(null).map((_, i) => ({
-      id: `DLY-${9000 + i}`,
-      status: "IN_TRANSIT",
-      riskScore: 45 + Math.floor(Math.random() * 25), // 45-69 (orange only)
-      isRegional: true,
-    })),
-    // 3 Delivered routes (completed, 100% progress)
-    ...Array(3).fill(null).map((_, i) => ({
-      id: `DEL-${7000 + i}`,
-      status: "DELIVERED",
-      riskScore: 0, // Delivered = no risk
-      isRegional: false,
-      isDelivered: true,
-    })),
-  ];
+  // Generate 70 unique routes, each will have 3 trucks
+  console.log("📍 Generating 70 unique routes with 3 trucks each (210 total orders)...\n");
 
-  let fetchedCount = 0;
+  // Pre-generate 70 unique origin/destination pairs
+  const routePairs: Array<{ origin: typeof TEXAS_CITIES[0]; dest: typeof TEXAS_CITIES[0] }> = [];
+  const usedPairs = new Set<string>();
 
-  for (const config of routeConfigs) {
-    let origin, dest;
+  while (routePairs.length < 70) {
+    const origin = ALL_CITIES[Math.floor(Math.random() * ALL_CITIES.length)];
+    const dest = ALL_CITIES[Math.floor(Math.random() * ALL_CITIES.length)];
+    const pairKey = `${origin.name}-${dest.name}`;
+    const reversePairKey = `${dest.name}-${origin.name}`;
 
-    // Check for fixed route (like Andrew Thomas: Amarillo → Abilene)
-    if ('fixedRoute' in config && config.fixedRoute) {
-      origin = config.fixedRoute.origin;
-      dest = config.fixedRoute.dest;
-    } else if (config.isRegional) {
-      origin = getRandomCity(REGIONAL_CITIES);
-      dest = getRandomCity(TEXAS_CITIES);
-    } else {
-      origin = getRandomCity(TEXAS_CITIES);
-      do {
-        dest = getRandomCity(TEXAS_CITIES);
-      } while (dest.name === origin.name);
+    // Avoid same origin/destination and duplicates
+    if (origin.name !== dest.name && !usedPairs.has(pairKey) && !usedPairs.has(reversePairKey)) {
+      routePairs.push({ origin, dest });
+      usedPairs.add(pairKey);
     }
+  }
 
-    // Fetch real route from Mapbox (now includes distance/duration)
-    console.log(`  Fetching route: ${origin.name} → ${dest.name}...`);
+  let truckIndex = 0;
+  let orderIndex = 0;
+
+  for (let routeIdx = 0; routeIdx < 70; routeIdx++) {
+    const { origin, dest } = routePairs[routeIdx];
+
+    // Fetch real route from Mapbox
+    console.log(`  [${routeIdx + 1}/70] Fetching route: ${origin.name} → ${dest.name}...`);
     const routeData = await fetchRoute(origin.lng, origin.lat, dest.lng, dest.lat);
-    fetchedCount++;
 
-    // Rate limit: Mapbox allows 300 requests/minute, but let's be safe
-    if (fetchedCount % 5 === 0) {
-      await delay(200);
+    // Rate limit: Mapbox allows 300 requests/minute
+    if ((routeIdx + 1) % 10 === 0) {
+      await delay(300);
     }
-
-    // Assign truck for in-transit orders (not CONFIRMED - those await pickup)
-    let assignedTruck = null;
-    if (config.status !== "CONFIRMED" && trucks.length > 0) {
-      if ('fixedTruckIndex' in config && typeof config.fixedTruckIndex === 'number') {
-        assignedTruck = trucks[config.fixedTruckIndex];
-      } else {
-        assignedTruck = trucks[fetchedCount % trucks.length];
-      }
-    }
-
-    // Get product info with value and description
-    const product = getRandomProduct();
-
-    // Calculate logistics cost based on actual route distance
-    const actualLogisticsCost = calculateLogisticsCost(routeData.distanceMeters, product.pallets);
-
-    // Calculate sell price to ALWAYS ensure profitability
-    // Sell price = (product cost + logistics cost + overhead) * margin
-    // This ensures we ALWAYS make money on every deal
-    const totalCost = product.costPrice + actualLogisticsCost + product.internalBaseCost;
-    const sellPrice = Math.round(totalCost * product.margin);
-    const orderValue = sellPrice; // Keep legacy field in sync
-
-    // ========== REALISTIC TIMING CALCULATION ==========
-    let departedAt: Date | null = null;
-    let estimatedArrival: Date | null = null;
-    let actualArrival: Date | null = null;
-    let progress = 0;
 
     const durationMs = routeData.durationSeconds * 1000;
     const durationHours = routeData.durationSeconds / 3600;
+    const distanceMiles = Math.round(routeData.distanceMeters / 1609.34);
 
-    if (config.status === "CONFIRMED") {
-      // Not departed yet - scheduled to leave within next 2-6 hours
-      departedAt = null;
-      estimatedArrival = null;
-      progress = 0;
-    } else if (config.status === "DELIVERED") {
-      // Delivered 1-12 hours ago
-      const hoursAgo = 1 + Math.random() * 11;
-      actualArrival = new Date(now.getTime() - hoursAgo * 3600 * 1000);
-      // Departure was: arrival - route duration (with some buffer for stops)
-      const totalTripMs = durationMs * (1.1 + Math.random() * 0.2); // 10-30% longer due to stops
-      departedAt = new Date(actualArrival.getTime() - totalTripMs);
-      estimatedArrival = new Date(departedAt.getTime() + durationMs);
-      progress = 100;
-    } else {
-      // IN_TRANSIT - currently on the road
-      // Departed 10% to 90% of route duration ago
-      const progressPercent = 10 + Math.random() * 80; // 10-90%
-      progress = Math.round(progressPercent);
+    // Create 3 orders for this route with different trucks and progress
+    // Progress positions: ~20%, ~50%, ~80% along the route
+    const progressValues = [15 + Math.random() * 15, 45 + Math.random() * 15, 75 + Math.random() * 15];
 
-      const elapsedMs = (progressPercent / 100) * durationMs;
-      departedAt = new Date(now.getTime() - elapsedMs);
+    for (let truckOnRoute = 0; truckOnRoute < 3; truckOnRoute++) {
+      const assignedTruck = trucks[truckIndex];
+      truckIndex++;
 
-      // ETA = departure + total duration
-      estimatedArrival = new Date(departedAt.getTime() + durationMs);
+      // Get product info
+      const product = getRandomProduct();
 
-      // Add delay for AT_RISK orders
-      if (config.riskScore >= 40) {
-        const delayMinutes = 30 + Math.random() * 90; // 30-120 min delay
-        estimatedArrival = new Date(estimatedArrival.getTime() + delayMinutes * 60 * 1000);
+      // Calculate logistics cost based on actual route distance
+      const actualLogisticsCost = calculateLogisticsCost(routeData.distanceMeters, product.pallets);
+
+      // Calculate sell price to ensure profitability
+      const totalCost = product.costPrice + actualLogisticsCost + product.internalBaseCost;
+      const sellPrice = Math.round(totalCost * product.margin);
+
+      // Progress for this truck (spread across the route)
+      const progress = Math.round(progressValues[truckOnRoute]);
+
+      // Calculate timing based on progress
+      const elapsedMs = (progress / 100) * durationMs;
+      const departedAt = new Date(now.getTime() - elapsedMs);
+      const estimatedArrival = new Date(departedAt.getTime() + durationMs);
+
+      // Risk score - mostly green, some orange
+      let riskScore = Math.floor(Math.random() * 25); // 0-24 (green)
+      if (Math.random() < 0.05) {
+        riskScore = 45 + Math.floor(Math.random() * 25); // 5% chance of orange (45-69)
       }
+
+      // Assign random buyers (1-3 per order)
+      const numBuyers = 1 + Math.floor(Math.random() * 3);
+      const shuffledBuyers = [...buyers].sort(() => Math.random() - 0.5);
+      const orderBuyerIds = shuffledBuyers.slice(0, numBuyers).map(b => b.id);
+
+      orders.push({
+        id: `ORD-${8000 + orderIndex}`,
+        itemName: product.itemName,
+        description: product.description,
+        orderValue: sellPrice,
+        status: "IN_TRANSIT",
+        carrier: getRandomCarrier(orderIndex),
+        truckId: assignedTruck.id,
+        origin: origin.name,
+        destination: dest.name,
+        startLat: origin.lat,
+        startLng: origin.lng,
+        endLat: dest.lat,
+        endLng: dest.lng,
+        riskScore,
+        routeGeoJson: routeData.coordinates,
+        distanceMeters: routeData.distanceMeters,
+        durationSeconds: routeData.durationSeconds,
+        progress,
+        departedAt,
+        estimatedArrival,
+        actualArrival: null,
+        costPrice: product.costPrice,
+        sellPrice,
+        internalBaseCost: product.internalBaseCost,
+        actualLogisticsCost,
+        buyerIds: orderBuyerIds,
+      });
+
+      orderIndex++;
     }
 
-    // Log timing info for verification
-    if (routeData.durationSeconds > 0) {
-      const distanceMiles = Math.round(routeData.distanceMeters / 1609.34);
-      console.log(`    → ${distanceMiles} mi, ${durationHours.toFixed(1)}h drive, ${progress}% complete`);
-    }
-
-    // Assign random buyers to this order (1-3 buyers per order)
-    const numBuyers = 1 + Math.floor(Math.random() * 3);
-    const shuffledBuyers = [...buyers].sort(() => Math.random() - 0.5);
-    const orderBuyerIds = shuffledBuyers.slice(0, numBuyers).map(b => b.id);
-
-    orders.push({
-      id: config.id,
-      itemName: product.itemName,
-      description: product.description,
-      orderValue,
-      status: config.status,
-      carrier: getRandomCarrier(parseInt(config.id.split("-")[1])),
-      truckId: assignedTruck?.id ?? null,
-      origin: origin.name,
-      destination: dest.name,
-      startLat: origin.lat,
-      startLng: origin.lng,
-      endLat: dest.lat,
-      endLng: dest.lng,
-      riskScore: config.riskScore,
-      routeGeoJson: routeData.coordinates,
-      distanceMeters: routeData.distanceMeters,
-      durationSeconds: routeData.durationSeconds,
-      progress,
-      departedAt,
-      estimatedArrival,
-      actualArrival,
-      costPrice: product.costPrice,
-      sellPrice,
-      internalBaseCost: product.internalBaseCost,
-      actualLogisticsCost,
-      buyerIds: orderBuyerIds,
-    });
+    console.log(`    → ${distanceMiles} mi, ${durationHours.toFixed(1)}h drive, 3 trucks placed`);
   }
 
   // Insert all orders with buyer connections
