@@ -211,20 +211,21 @@ export function OrderDetailPanel({ order, onClose, isIncidentActive, incidentDes
               </div>
             )}
 
-            {/* 1. Financial Impact Card */}
+            {/* 1. Financial Impact Card - Total Exposure */}
             <div className="bg-gradient-to-br from-zinc-900 to-zinc-900/50 rounded-lg p-4 border border-zinc-800 relative overflow-hidden">
                <div className="absolute top-0 right-0 p-2 opacity-10"><DollarSign className="h-12 w-12 text-zinc-100" /></div>
                <div className="relative z-10">
-                  <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1">Projected Loss</div>
+                  <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1">Total Exposure</div>
                   <div className="flex items-baseline gap-2">
-                    <span className="text-2xl font-mono font-bold text-white">${sellPrice.toLocaleString()}</span>
+                    <span className="text-2xl font-mono font-bold text-white">${(sellPrice + costPrice).toLocaleString()}</span>
                     <span className="text-xs text-red-400 font-mono">(-${margin.toLocaleString()} Margin)</span>
                   </div>
-                  <div className="mt-2 h-1 w-full bg-zinc-800 rounded-full overflow-hidden">
-                    <div className="h-full bg-red-500 w-full animate-pulse" /> 
+                  <div className="mt-2 text-[10px] text-zinc-500 space-y-0.5">
+                    <div>Revenue: <span className="text-zinc-300">${sellPrice.toLocaleString()}</span></div>
+                    <div>Product: <span className="text-zinc-300">${costPrice.toLocaleString()}</span></div>
                   </div>
-                  <div className="mt-1 text-[10px] text-red-400 flex items-center gap-1">
-                    <AlertTriangle className="h-3 w-3" /> Total Revenue at Risk
+                  <div className="mt-2 h-1 w-full bg-zinc-800 rounded-full overflow-hidden">
+                    <div className="h-full bg-red-500 w-full animate-pulse" />
                   </div>
                </div>
             </div>

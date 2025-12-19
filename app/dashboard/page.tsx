@@ -99,6 +99,7 @@ interface Incident {
   title: string;
   description?: string | null;
   status: string;
+  orderId?: string | null; // Link to affected order
   createdAt: string;
 }
 
@@ -229,14 +230,15 @@ export default function DashboardPage() {
         if (Array.isArray(ordersData)) {
           setServerOrders(ordersData);
           const totalOrders = ordersData.length;
-          const failedOrders = ordersData.filter(
-            (o: Order) => o.status === "CANCELLED"
+          // Count orders with issues: CANCELLED or AT_RISK
+          const problematicOrders = ordersData.filter(
+            (o: Order) => o.status === "CANCELLED" || o.status === "AT_RISK"
           ).length;
           const level =
             totalOrders > 0
-              ? ((totalOrders - failedOrders) / totalOrders) * 100
-              : 98;
-          setServiceLevel(Math.round(level));
+              ? ((totalOrders - problematicOrders) / totalOrders) * 100
+              : 100;
+          setServiceLevel(Math.round(level * 10) / 10); // Keep one decimal for precision
         }
 
         if (Array.isArray(incidentsData)) {
@@ -246,6 +248,22 @@ export default function DashboardPage() {
           setIncident(activeIncident || null);
           if (activeIncident) {
             setShowBanner(true);
+
+            // Restore simulation state if there's an active incident with orderId
+            // This ensures War Room works correctly after page refresh
+            if (activeIncident.orderId) {
+              const affectedOrderData = Array.isArray(ordersData)
+                ? ordersData.find((o: Order) => o.id === activeIncident.orderId)
+                : null;
+
+              setSimulation({
+                active: true,
+                orderId: activeIncident.orderId,
+                orderData: affectedOrderData || null,
+                currentRiskScore: affectedOrderData?.riskScore || 100,
+              });
+              setHighlightedOrderId(activeIncident.orderId);
+            }
           }
         }
 
@@ -273,9 +291,8 @@ export default function DashboardPage() {
     const channel = pusher.subscribe("sysco-demo");
 
     channel.bind("demo-started", (data: { incident: Incident; affectedOrderId?: string; affectedOrder?: Order }) => {
-      // 1. Set Incident & Service Level
+      // 1. Set Incident
       setIncident(data.incident);
-      setServiceLevel(92);
 
       // 2. Optimistic Data Update (Crucial for Viewers)
       // If the order comes in the payload, inject it into serverOrders immediately.
@@ -283,11 +300,21 @@ export default function DashboardPage() {
       if (data.affectedOrder) {
         setServerOrders(prev => {
           const exists = prev.find(o => o.id === data.affectedOrder!.id);
-          if (exists) {
-            // Update existing order with the payload data
-            return prev.map(o => o.id === data.affectedOrder!.id ? { ...o, ...data.affectedOrder! } : o);
-          }
-          return [...prev, data.affectedOrder!];
+          const updatedOrders = exists
+            ? prev.map(o => o.id === data.affectedOrder!.id ? { ...o, ...data.affectedOrder! } : o)
+            : [...prev, data.affectedOrder!];
+
+          // Calculate service level: (total - problematic) / total * 100
+          const totalOrders = updatedOrders.length;
+          const problematicOrders = updatedOrders.filter(
+            o => o.status === "CANCELLED" || o.status === "AT_RISK"
+          ).length;
+          const level = totalOrders > 0
+            ? ((totalOrders - problematicOrders) / totalOrders) * 100
+            : 100;
+          setServiceLevel(Math.round(level * 10) / 10);
+
+          return updatedOrders;
         });
       }
 
@@ -323,12 +350,25 @@ export default function DashboardPage() {
     channel.bind("demo-complete", () => {
       setIncident(null);
       setShowBanner(false);
-      setServiceLevel(98);
       // Reset simulation state completely
       setSimulation({ active: false, orderId: null, orderData: null, currentRiskScore: 0 });
+      // Fetch fresh data and recalculate service level
       fetch("/api/orders")
         .then((res) => res.json())
-        .then((data) => Array.isArray(data) && setServerOrders(data));
+        .then((ordersData) => {
+          if (Array.isArray(ordersData)) {
+            setServerOrders(ordersData);
+            // Recalculate service level from fresh data
+            const totalOrders = ordersData.length;
+            const problematicOrders = ordersData.filter(
+              (o: Order) => o.status === "CANCELLED" || o.status === "AT_RISK"
+            ).length;
+            const level = totalOrders > 0
+              ? ((totalOrders - problematicOrders) / totalOrders) * 100
+              : 100;
+            setServiceLevel(Math.round(level * 10) / 10);
+          }
+        });
     });
 
     return () => {
@@ -430,7 +470,15 @@ export default function DashboardPage() {
       const ordersData = await ordersRes.json();
       if (Array.isArray(ordersData)) {
         setServerOrders(ordersData);
-        setServiceLevel(98);
+        // Recalculate service level from fresh data
+        const totalOrders = ordersData.length;
+        const problematicOrders = ordersData.filter(
+          (o: Order) => o.status === "CANCELLED" || o.status === "AT_RISK"
+        ).length;
+        const level = totalOrders > 0
+          ? ((totalOrders - problematicOrders) / totalOrders) * 100
+          : 100;
+        setServiceLevel(Math.round(level * 10) / 10);
       }
     } catch (error) {
       console.error("Error resetting demo:", error);
@@ -556,17 +604,23 @@ export default function DashboardPage() {
     return acc + (order.sellPrice || order.orderValue || 0);
   }, 0);
 
-  // 2. Revenue at Risk
+  // 2. Total Exposure at Risk (Revenue + Product Cost)
   // Now uses displayOrders which already has simulation state merged in
-  const revenueAtRisk = displayOrders
-    .filter((o) =>
-      o.status === "CANCELLED" ||
-      o.status === "AT_RISK" ||
-      o.riskScore > 75
-    )
-    .reduce((acc, order) => {
-      return acc + (order.sellPrice || order.orderValue || 0);
-    }, 0);
+  const atRiskOrders = displayOrders.filter((o) =>
+    o.status === "CANCELLED" ||
+    o.status === "AT_RISK" ||
+    o.riskScore > 75
+  );
+
+  const revenueAtRisk = atRiskOrders.reduce((acc, order) => {
+    return acc + (order.sellPrice || order.orderValue || 0);
+  }, 0);
+
+  const productCostAtRisk = atRiskOrders.reduce((acc, order) => {
+    return acc + (order.costPrice || 0);
+  }, 0);
+
+  const totalExposure = revenueAtRisk + productCostAtRisk;
 
   // 3. Formatter
   const formatCurrency = (val: number) => {
@@ -692,12 +746,12 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-[10px] font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                  Service Level
+                  Service Level (target 99.9%)
                 </p>
                 <span
                   className={cn(
                     "text-2xl font-bold tracking-tight font-mono",
-                    serviceLevel >= 95
+                    serviceLevel >= 99.9
                       ? "text-emerald-600 dark:text-emerald-400"
                       : "text-red-600 dark:text-red-400"
                   )}
@@ -708,7 +762,7 @@ export default function DashboardPage() {
               <div
                 className={cn(
                   "rounded-full p-1.5",
-                  serviceLevel >= 95
+                  serviceLevel >= 99.9
                     ? "bg-emerald-500/10 text-emerald-500"
                     : "bg-red-500/10 text-red-500"
                 )}
@@ -751,33 +805,33 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-[10px] font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                  {revenueAtRisk > 0 ? "Revenue at Risk" : "Pipeline Revenue"}
+                  {totalExposure > 0 ? "Total Exposure" : "Pipeline Revenue"}
                 </p>
                 <div className="flex items-baseline gap-2">
                   <span
                     className={cn(
                       "text-2xl font-bold tracking-tight font-mono",
-                      revenueAtRisk > 0
+                      totalExposure > 0
                         ? "text-red-600 dark:text-red-400"
                         : "text-zinc-900 dark:text-white"
                     )}
                   >
-                    {revenueAtRisk > 0
-                      ? formatCurrency(revenueAtRisk)
+                    {totalExposure > 0
+                      ? formatCurrency(totalExposure)
                       : formatCurrency(totalPipelineValue)}
                   </span>
-                  {/* Show percent of total if there is risk */}
-                  {revenueAtRisk > 0 && totalPipelineValue > 0 && (
-                    <span className="text-xs font-mono text-red-500">
-                      ({((revenueAtRisk / totalPipelineValue) * 100).toFixed(1)}%)
-                    </span>
-                  )}
                 </div>
+                {/* Breakdown: Revenue + Product */}
+                {totalExposure > 0 && (
+                  <div className="text-[9px] text-zinc-500 mt-0.5 font-mono">
+                    Rev: {formatCurrency(revenueAtRisk)} + Prod: {formatCurrency(productCostAtRisk)}
+                  </div>
+                )}
               </div>
               <div
                 className={cn(
                   "rounded-full p-1.5",
-                  revenueAtRisk > 0
+                  totalExposure > 0
                     ? "bg-red-500/10 text-red-500"
                     : "bg-emerald-500/10 text-emerald-500"
                 )}
@@ -787,7 +841,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Optional: Tiny progress bar at bottom for context */}
-            {revenueAtRisk > 0 && (
+            {totalExposure > 0 && (
                <div className="absolute bottom-0 left-0 h-0.5 w-full bg-red-100 dark:bg-red-900/30">
                   <div
                     className="h-full bg-red-500"

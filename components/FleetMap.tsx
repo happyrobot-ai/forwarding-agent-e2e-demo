@@ -387,6 +387,14 @@ export function FleetMap({
     return () => clearTimeout(timer);
   }, [isMapLoaded, hasPlayedInitialAnimation, viewMode]);
 
+  // Reset fitted bounds ref when orders change or switching to focused mode
+  // This ensures the map re-centers when War Room opens with new/different orders
+  useEffect(() => {
+    if (viewMode === "focused") {
+      hasFittedBoundsRef.current = false;
+    }
+  }, [viewMode, orders]);
+
   // Focused mode: Auto-fit bounds to show all orders (used in War Room)
   useEffect(() => {
     if (viewMode !== "focused" || !isMapLoaded || !mapRef.current || hasFittedBoundsRef.current) return;

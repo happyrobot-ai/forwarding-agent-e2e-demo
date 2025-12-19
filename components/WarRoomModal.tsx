@@ -313,7 +313,6 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
             {affectedOrder && financials && (
               <div className="p-4 border-b border-[var(--sysco-border)] bg-zinc-50 dark:bg-zinc-900/50">
                 <h3 className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider font-mono mb-3 flex items-center gap-2">
-                  <AlertTriangle className="h-3 w-3 text-red-500" />
                   FINANCIAL IMPACT AT RISK
                 </h3>
                 <div className="grid grid-cols-2 gap-3">
