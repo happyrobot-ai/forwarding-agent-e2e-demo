@@ -6,7 +6,7 @@ import { X, DollarSign, TrendingDown, Users, AlertTriangle } from "lucide-react"
 import { usePusher } from "./PusherProvider";
 import { useTheme } from "./ThemeProvider";
 import { AgentCard } from "./AgentCard";
-import { FleetMap } from "./FleetMap";
+import { FleetMap, ServiceCenter } from "./FleetMap";
 import { EmailToast } from "./EmailToast";
 import { cn } from "@/lib/utils";
 
@@ -93,6 +93,7 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
   const [agents, setAgents] = useState<Agent[]>([]);
   const [logs, setLogs] = useState<AgentLog[]>([]);
   const [showEmailToast, setShowEmailToast] = useState(false);
+  const [foundServiceCenters, setFoundServiceCenters] = useState<ServiceCenter[]>([]);
   const logsEndRef = useRef<HTMLDivElement>(null);
 
   const getHappyRobotLogo = () => {
@@ -145,6 +146,33 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
     fetchAgents();
   }, []);
 
+  // Smart Recovery: Trigger discovery when War Room opens
+  // This is the correct place to run discovery - NOT on incident creation
+  useEffect(() => {
+    const initDiscovery = async () => {
+      try {
+        console.log("[War Room] Initiating discovery for incident:", incident.id);
+        const response = await fetch(`/api/incidents/${incident.id}/discover`, {
+          method: "POST",
+        });
+        const data = await response.json();
+
+        console.log("[War Room] Discovery response:", data.status);
+
+        // If discovery already completed, load candidates immediately (no animation)
+        if (data.status === "COMPLETED" && data.candidates) {
+          console.log("[War Room] Loading cached candidates:", data.candidates.length);
+          setFoundServiceCenters(data.candidates);
+        }
+        // If "STARTED" or "RUNNING", wait for Pusher events (handled below)
+      } catch (error) {
+        console.error("[War Room] Error initiating discovery:", error);
+      }
+    };
+
+    initDiscovery();
+  }, [incident.id]);
+
   // Listen for Pusher updates
   useEffect(() => {
     if (!pusher) return;
@@ -189,11 +217,35 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
       );
     });
 
+    // Listen for service center discovery events (Smart Recovery Workflow)
+    // Only handle events for THIS incident (filter by incidentId)
+    channel.bind("resource-located", (data: {
+      incidentId: string;
+      serviceCenter: ServiceCenter;
+      rank: number;
+      timestamp: string;
+    }) => {
+      // Only process events for this incident
+      if (data.incidentId !== incident.id) {
+        console.log("[War Room] Ignoring resource-located for different incident:", data.incidentId);
+        return;
+      }
+
+      console.log("[War Room] Resource located:", data.serviceCenter.name, "at", data.serviceCenter.distance?.toFixed(1), "mi");
+
+      // Add the service center to state (will appear on map with animation)
+      setFoundServiceCenters((prev) => {
+        // Avoid duplicates
+        if (prev.find(sc => sc.id === data.serviceCenter.id)) return prev;
+        return [...prev, data.serviceCenter];
+      });
+    });
+
     return () => {
       channel.unbind_all();
       pusher.unsubscribe("sysco-demo");
     };
-  }, [pusher]);
+  }, [pusher, incident.id]);
 
   const supplierAgent = agents.find((a) => a.agentRole === "Supplier_Voice");
   const driverAgent = agents.find((a) => a.agentRole === "Driver_Voice");
@@ -288,6 +340,7 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
                   onIncidentClick={() => {}}
                   viewMode="focused"
                   interactive={true}
+                  serviceCenters={foundServiceCenters}
                 />
               ) : (
                 <div className="flex items-center justify-center h-full bg-zinc-900/50">

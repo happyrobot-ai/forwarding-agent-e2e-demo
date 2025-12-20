@@ -9,6 +9,7 @@ export async function POST(request: NextRequest) {
     const { orderId, description } = body as { orderId?: string; description?: string };
 
     // Clear only incident-related data (preserve background orders)
+    // Note: IncidentCandidate will be cascade-deleted with incidents
     await prisma.agentRun.deleteMany();
     await prisma.incident.deleteMany();
 
@@ -19,10 +20,16 @@ export async function POST(request: NextRequest) {
         where: { id: orderId },
         include: { truck: true, buyers: true },
       });
-    }
 
-    if (!targetOrder) {
-      // Fallback: pick a random in-transit order with a truck
+      // If specific order was requested but not found, return error (don't fall back)
+      if (!targetOrder) {
+        return NextResponse.json(
+          { error: `Order "${orderId}" not found. Use a valid order ID like "ORD-8001".` },
+          { status: 404 }
+        );
+      }
+    } else {
+      // No orderId specified - pick a random in-transit order with a truck
       const eligibleOrders = await prisma.order.findMany({
         where: {
           status: "IN_TRANSIT",
@@ -45,13 +52,15 @@ export async function POST(request: NextRequest) {
     }
 
     // Create the incident with dynamic title and optional custom description
+    // discoveryStatus defaults to PENDING - discovery runs when War Room opens
     const defaultDescription = "Truck broke down on Highway I-35. Driver reported engine failure and is awaiting roadside assistance.";
     const incident = await prisma.incident.create({
       data: {
         title: `${targetOrder.itemName} - ${targetOrder.destination} Delivery Crisis`,
         description: description || defaultDescription,
         status: "ACTIVE",
-        orderId: targetOrder.id, // Link incident to the affected order
+        orderId: targetOrder.id,
+        // discoveryStatus: "PENDING" is the default
       },
     });
 
@@ -106,6 +115,9 @@ export async function POST(request: NextRequest) {
       },
       message: `CRITICAL ALERT: Shipment ${targetOrder.id} (${targetOrder.itemName}) - Equipment Failure`,
     });
+
+    // NOTE: Smart Recovery discovery is now triggered when the War Room opens
+    // See: /api/incidents/[id]/discover
 
     return NextResponse.json({
       success: true,

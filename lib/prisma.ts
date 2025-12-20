@@ -39,5 +39,7 @@ export const prisma = {
   get truck() { return getPrisma().truck; },
   get buyer() { return getPrisma().buyer; },
   get warehouse() { return getPrisma().warehouse; },
+  get serviceCenter() { return getPrisma().serviceCenter; },
+  get incidentCandidate() { return getPrisma().incidentCandidate; },
   $transaction: (...args: Parameters<PrismaClient['$transaction']>) => getPrisma().$transaction(...args),
 };

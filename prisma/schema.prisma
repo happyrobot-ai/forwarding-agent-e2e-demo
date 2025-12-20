@@ -23,7 +23,23 @@ model Incident {
   orderId    String?     @map("order_id")
   order      Order?      @relation(fields: [orderId], references: [id])
 
+  // Smart Recovery: Discovery workflow status
+  discoveryStatus DiscoveryStatus @default(PENDING) @map("discovery_status")
+
+  // Smart Recovery: Found service center candidates (with distance metadata)
+  candidates  IncidentCandidate[]
+
+  // Smart Recovery: Combined discovered resources (service centers + warehouses)
+  // Stored as JSON for flexibility: [{ id, name, type, resourceType, lat, lng, phone?, distance, rank }]
+  discoveredResources Json @default("[]") @map("discovered_resources")
+
   @@map("incidents")
+}
+
+enum DiscoveryStatus {
+  PENDING    // Not yet started
+  RUNNING    // Currently scanning for resources
+  COMPLETED  // Discovery finished, candidates saved
 }
 
 enum IncidentStatus {
@@ -187,7 +203,30 @@ model ServiceCenter {
   createdAt       DateTime @default(now()) @map("created_at")
   updatedAt       DateTime @updatedAt @map("updated_at")
 
+  // Reverse relation to incidents where this center was a candidate
+  incidentCandidates IncidentCandidate[]
+
   @@map("service_centers")
+}
+
+// Join table: Links Incidents to their discovered ServiceCenter candidates
+// Stores distance metadata calculated during discovery
+model IncidentCandidate {
+  id              String   @id @default(uuid())
+
+  incidentId      String   @map("incident_id")
+  incident        Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+
+  serviceCenterId String   @map("service_center_id")
+  serviceCenter   ServiceCenter @relation(fields: [serviceCenterId], references: [id], onDelete: Cascade)
+
+  distance        Float    // Distance from incident truck in miles
+  rank            Int      // 1 = closest, 2 = second, etc.
+
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@unique([incidentId, serviceCenterId]) // Prevent duplicates
+  @@map("incident_candidates")
 }
 
 enum ServiceCenterType {

@@ -972,7 +972,7 @@ export default function DashboardPage() {
                     marginTop: isTableExpanded ? 12 : 0
                   }}
                   transition={{ duration: 0.3, ease: "easeOut" }}
-                  className="overflow-hidden"
+                  className={isTableExpanded ? "overflow-visible" : "overflow-hidden"}
                 >
                   <div className="flex gap-2">
                     {/* Search */}

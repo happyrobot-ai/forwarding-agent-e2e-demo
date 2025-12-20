@@ -5,7 +5,7 @@ import Image from "next/image";
 import Map, { Marker, Source, Layer, MapRef } from "react-map-gl/mapbox";
 import type { LayerProps } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
-import { Truck as TruckIcon, Warehouse as WarehouseIcon } from "lucide-react";
+import { Truck as TruckIcon, Warehouse as WarehouseIcon, Wrench } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTheme } from "./ThemeProvider";
 import { OrderDetailPanel } from "./OrderDetailPanel";
@@ -28,6 +28,20 @@ interface TruckData {
   driverName: string;
   vehicleType: string;
   status: string;
+}
+
+// Discovered resource type for War Room recovery workflow
+// Can be either a service center OR a Sysco warehouse
+export interface ServiceCenter {
+  id: string;
+  name: string;
+  type: string;
+  resourceType?: "SERVICE_CENTER" | "WAREHOUSE"; // Distinguishes discovered warehouses from service centers
+  lat: number;
+  lng: number;
+  phone?: string;
+  distance?: number; // Distance from incident in miles
+  rank?: number; // 1 = closest, 2 = second closest, etc.
 }
 
 // Order type with geospatial data
@@ -98,6 +112,7 @@ const selectedRouteLayerStyle: LayerProps = {
 interface FleetMapProps {
   orders?: Order[];
   warehouses?: Warehouse[];
+  serviceCenters?: ServiceCenter[]; // Dynamic service centers for War Room discovery
   incidentStatus: "IDLE" | "ACTIVE" | "RESOLVED";
   incidentDescription?: string | null;
   onIncidentClick: () => void;
@@ -111,6 +126,7 @@ interface FleetMapProps {
 export function FleetMap({
   orders = [],
   warehouses = [],
+  serviceCenters = [],
   incidentStatus,
   incidentDescription,
   onIncidentClick,
@@ -335,29 +351,29 @@ export function FleetMap({
           targetLat = position[1];
         }
 
-        // Dramatic zoom to the truck's current location (doubled duration: 5000ms)
-        mapRef.current.flyTo({
+        // Smooth zoom to the truck's current location - no dramatic arc
+        mapRef.current.easeTo({
           center: [targetLng, targetLat],
           zoom: 10,
-          duration: 5000,
-          essential: true,
+          duration: 6000,
+          easing: (t: number) => 1 - Math.pow(1 - t, 2), // Ease-out quadratic: smooth deceleration
         });
       } else {
         // Fallback to Dallas if no affected order found
-        mapRef.current.flyTo({
+        mapRef.current.easeTo({
           center: [DALLAS_VIEW.lng, DALLAS_VIEW.lat],
           zoom: DALLAS_VIEW.zoom,
-          duration: 5000,
-          essential: true,
+          duration: 6000,
+          easing: (t: number) => 1 - Math.pow(1 - t, 2),
         });
       }
     } else if ((incidentStatus === "RESOLVED" || incidentStatus === "IDLE") && prevStatus === "ACTIVE") {
-      // Only flyTo Texas when resetting from an active incident (not on initial load)
-      mapRef.current.flyTo({
+      // Only zoom to Texas when resetting from an active incident (not on initial load)
+      mapRef.current.easeTo({
         center: [TEXAS_VIEW.lng, TEXAS_VIEW.lat],
         zoom: TEXAS_VIEW.zoom,
-        duration: 4000,
-        essential: true,
+        duration: 5000,
+        easing: (t: number) => 1 - Math.pow(1 - t, 2),
       });
     }
   }, [incidentStatus, isMapLoaded, affectedOrderId, orders, hasPlayedInitialAnimation]);
@@ -778,6 +794,96 @@ export function FleetMap({
                   {warehouse.description && (
                     <div className="text-zinc-500 text-[10px] mt-1 border-t border-zinc-700 pt-1">
                       {warehouse.description}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </Marker>
+          );
+        })}
+
+        {/* Discovered Resource Markers - Service Centers OR Warehouses found during War Room recovery */}
+        {serviceCenters.map((center) => {
+          const isWarehouse = center.resourceType === "WAREHOUSE";
+
+          return (
+            <Marker
+              key={center.id}
+              longitude={center.lng}
+              latitude={center.lat}
+              style={{ zIndex: 100 }} // Ensure discovered resources are above other markers
+            >
+              <div className="group relative flex flex-col items-center cursor-pointer hover:z-[200]">
+                {/* Main icon container - different styling for warehouse vs service center */}
+                <div className={cn(
+                  "relative flex h-9 w-9 items-center justify-center border-2 shadow-xl transition-all hover:scale-110",
+                  isWarehouse
+                    ? "bg-blue-600 border-blue-400 text-white rounded-lg" // Square-ish for warehouses
+                    : "bg-emerald-500 border-emerald-400 text-white rounded-full" // Circular for service centers
+                )}>
+                  {isWarehouse ? (
+                    <WarehouseIcon className="h-4 w-4" />
+                  ) : (
+                    <Wrench className="h-4 w-4" />
+                  )}
+                </div>
+
+                {/* Distance badge - color matches resource type */}
+                {center.distance !== undefined && (
+                  <div className={cn(
+                    "absolute -bottom-1 -right-1 bg-black/90 text-[9px] font-mono px-1.5 py-0.5 rounded-full border shadow-lg",
+                    isWarehouse
+                      ? "text-blue-400 border-blue-500/50"
+                      : "text-emerald-400 border-emerald-500/50"
+                  )}>
+                    {center.distance.toFixed(1)}mi
+                  </div>
+                )}
+
+                {/* Rank badge for top 3 resources */}
+                {center.rank && (
+                  <div className={cn(
+                    "absolute -top-1 -left-1 h-5 w-5 flex items-center justify-center rounded-full text-[10px] font-bold border-2 shadow-lg",
+                    isWarehouse
+                      ? "bg-blue-600 border-blue-400 text-white"
+                      : "bg-emerald-600 border-emerald-400 text-white"
+                  )}>
+                    {center.rank}
+                  </div>
+                )}
+
+                {/* Tooltip on hover - themed for resource type */}
+                <div className={cn(
+                  "absolute bottom-12 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity z-[999]",
+                  "whitespace-nowrap border px-3 py-2 text-xs font-mono rounded-lg pointer-events-none",
+                  "bg-black/95 text-white min-w-[200px] shadow-2xl",
+                  isWarehouse ? "border-blue-500/50" : "border-emerald-500/50"
+                )}>
+                  <div className={cn(
+                    "font-semibold",
+                    isWarehouse ? "text-blue-400" : "text-emerald-400"
+                  )}>
+                    {center.name}
+                  </div>
+                  <div className={cn(
+                    "text-[10px] mt-1 px-1.5 py-0.5 rounded inline-block",
+                    isWarehouse
+                      ? "bg-blue-500/20 text-blue-300"
+                      : "bg-emerald-500/20 text-emerald-300"
+                  )}>
+                    {isWarehouse ? "SYSCO FACILITY" : center.type.replace(/_/g, ' ')}
+                  </div>
+                  {center.phone && (
+                    <div className="text-zinc-500 text-[10px] mt-1 border-t border-zinc-700 pt-1">
+                      📞 {center.phone}
+                    </div>
+                  )}
+                  {center.distance !== undefined && (
+                    <div className={cn(
+                      "text-[10px] mt-1 font-bold",
+                      isWarehouse ? "text-blue-400" : "text-emerald-400"
+                    )}>
+                      {center.distance.toFixed(1)} miles from incident
                     </div>
                   )}
                 </div>
