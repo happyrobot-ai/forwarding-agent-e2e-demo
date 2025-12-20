@@ -969,18 +969,16 @@ export function FleetMap({
       </div>
       )}
 
-      {/* Overlay: Samsara Integration Badge (dashboard mode only) */}
-      {viewMode === "dashboard" && (
+      {/* Overlay: Samsara Integration Badge */}
       <div className="absolute top-4 right-4">
-          <Image
-            src={getSamsaraLogo()}
-            alt="Samsara"
-            width={40}
-            height={20}
-            className="object-contain animate-pulse"
-          />
+        <Image
+          src={getSamsaraLogo()}
+          alt="Samsara"
+          width={40}
+          height={20}
+          className="object-contain animate-pulse"
+        />
       </div>
-      )}
 
       {/* Click hint when incident is active and no order selected (dashboard mode only) */}
       {viewMode === "dashboard" && incidentStatus === "ACTIVE" && !selectedOrderId && (
