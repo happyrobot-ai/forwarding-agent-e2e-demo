@@ -56,7 +56,7 @@ export async function POST(
 
     // 2. If already COMPLETED, return cached resources from JSON field
     if (incident.discoveryStatus === "COMPLETED") {
-      const cachedResources = incident.discoveredResources as DiscoveredResource[];
+      const cachedResources = incident.discoveredResources as unknown as DiscoveredResource[];
       console.log(`[Discovery] Incident ${incidentId} already completed, returning ${cachedResources.length} cached resources`);
 
       return NextResponse.json({
