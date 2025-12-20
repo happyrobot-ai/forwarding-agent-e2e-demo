@@ -127,7 +127,7 @@ export function OrderDetailPanel({ order, onClose, isIncidentActive, incidentDes
 
 
   return (
-    <div className="absolute top-4 left-4 bottom-4 z-50 w-[340px] animate-in slide-in-from-left-2 duration-200 flex flex-col">
+    <div className="absolute top-4 left-4 bottom-4 z-30 w-[340px] animate-in slide-in-from-left-2 duration-200 flex flex-col">
       <div className={cn(
         "backdrop-blur-xl border rounded-xl shadow-2xl overflow-hidden flex flex-col transition-colors duration-300 max-h-full",
         // Dynamic border color based on tab state
