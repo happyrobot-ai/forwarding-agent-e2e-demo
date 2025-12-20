@@ -166,3 +166,41 @@ model Warehouse {
 
   @@map("warehouses")
 }
+
+// Roadside Assistance Network - contracted repair/service providers
+model ServiceCenter {
+  id              String   @id // e.g., "SVC-DAL-001"
+  name            String   // Company/Shop name
+  type            ServiceCenterType @default(REPAIR_SHOP)
+  address         String
+  lat             Float
+  lng             Float
+  phone           String
+  services        String[] // ["TOWING", "TIRE", "MECHANICAL", "REFRIGERATION", "FUEL"]
+  is24Hours       Boolean  @default(false) @map("is_24_hours")
+  avgResponseMins Int      @default(45) @map("avg_response_mins") // Average response time
+  coverageRadius  Int      @default(50) @map("coverage_radius") // Miles
+  status          ServiceCenterStatus @default(AVAILABLE)
+  rating          Float    @default(4.5) // 0-5 star rating
+  contractTier    String   @default("STANDARD") // "PREFERRED", "STANDARD", "ON_DEMAND"
+
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("service_centers")
+}
+
+enum ServiceCenterType {
+  TRUCK_STOP        // Major truck stops (Loves, Pilot, TA)
+  REPAIR_SHOP       // Dedicated truck repair facilities
+  MOBILE_MECHANIC   // On-site repair services
+  TOWING_SERVICE    // Heavy-duty towing companies
+  TIRE_CENTER       // Tire specialists
+  REFRIGERATION     // Reefer repair specialists
+}
+
+enum ServiceCenterStatus {
+  AVAILABLE   // Ready to dispatch
+  BUSY        // Currently handling another call
+  OFFLINE     // Closed or unavailable
+}

@@ -287,7 +287,7 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
                   incidentStatus="ACTIVE"
                   onIncidentClick={() => {}}
                   viewMode="focused"
-                  interactive={false}
+                  interactive={true}
                 />
               ) : (
                 <div className="flex items-center justify-center h-full bg-zinc-900/50">

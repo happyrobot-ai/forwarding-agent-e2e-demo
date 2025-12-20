@@ -4,9 +4,9 @@ import { pusherServer } from "@/lib/pusher-server";
 
 export async function POST(request: NextRequest) {
   try {
-    // Get the orderId from request body
+    // Get orderId and description from request body
     const body = await request.json().catch(() => ({}));
-    const { orderId } = body as { orderId?: string };
+    const { orderId, description } = body as { orderId?: string; description?: string };
 
     // Clear only incident-related data (preserve background orders)
     await prisma.agentRun.deleteMany();
@@ -44,11 +44,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create the incident with dynamic title and hardcoded description
+    // Create the incident with dynamic title and optional custom description
+    const defaultDescription = "Truck broke down on Highway I-35. Driver reported engine failure and is awaiting roadside assistance.";
     const incident = await prisma.incident.create({
       data: {
         title: `${targetOrder.itemName} - ${targetOrder.destination} Delivery Crisis`,
-        description: "Truck broke down on Highway I-35. Driver reported engine failure and is awaiting roadside assistance.",
+        description: description || defaultDescription,
         status: "ACTIVE",
         orderId: targetOrder.id, // Link incident to the affected order
       },

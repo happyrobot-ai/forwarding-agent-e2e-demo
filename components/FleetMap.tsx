@@ -650,17 +650,6 @@ export function FleetMap({
                         animation: 'radar-ping 3s ease-out infinite 2s',
                       }}
                     />
-                    {/* Glow effect behind truck */}
-                    <div
-                      className="absolute rounded-full bg-red-500/30 pointer-events-none"
-                      style={{
-                        width: '32px',
-                        height: '32px',
-                        top: '-4px',  /* Center on 24px truck: -(32-24)/2 */
-                        left: '-4px',
-                        animation: 'radar-glow 1.5s ease-in-out infinite',
-                      }}
-                    />
                   </>
                 )}
 
