@@ -123,6 +123,18 @@ const selectedRouteLayerStyle: LayerProps = {
   },
 };
 
+// Animated flow layer for selected route - shows direction of travel with matching color
+const selectedRouteFlowStyle: LayerProps = {
+  id: "selected-route-flow",
+  type: "line",
+  paint: {
+    "line-color": "#ffffff",
+    "line-width": 2,
+    "line-opacity": 0.7,
+    "line-dasharray": [0, 4, 3], // Animated dash pattern
+  },
+};
+
 interface FleetMapProps {
   orders?: Order[];
   warehouses?: Warehouse[];
@@ -154,6 +166,8 @@ export function FleetMap({
   const { theme } = useTheme();
   const [isMapLoaded, setIsMapLoaded] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [hoveredTruckId, setHoveredTruckId] = useState<string | null>(null);
+  const [hoveredServiceCenterId, setHoveredServiceCenterId] = useState<string | null>(null);
   const [hasPlayedInitialAnimation, setHasPlayedInitialAnimation] = useState(false);
   const prevIncidentStatusRef = useRef<string>(incidentStatus);
   const prevHighlightedOrderIdRef = useRef<string | null>(null);
@@ -417,13 +431,15 @@ export function FleetMap({
     return () => clearTimeout(timer);
   }, [isMapLoaded, hasPlayedInitialAnimation, viewMode]);
 
-  // Reset fitted bounds ref when orders change or switching to focused mode
-  // This ensures the map re-centers when War Room opens with new/different orders
+  // Reset fitted bounds ref when switching to focused mode
+  // This ensures the map re-centers when War Room opens
+  // Note: We intentionally exclude `orders` from deps to prevent re-fitting when
+  // service centers are discovered (which causes parent re-renders with new array refs)
   useEffect(() => {
     if (viewMode === "focused") {
       hasFittedBoundsRef.current = false;
     }
-  }, [viewMode, orders]);
+  }, [viewMode]);
 
   // Focused mode: Auto-fit bounds to show all orders (used in War Room)
   useEffect(() => {
@@ -478,21 +494,22 @@ export function FleetMap({
     }
   }, [viewMode, isMapLoaded, orders]);
 
-  // Animated flow effect for War Room (focused mode) - marching ants showing direction
+  // Animated flow effect - marching ants showing direction
+  // Runs for: 1) War Room (focused mode), 2) Dashboard when a route is selected
   useEffect(() => {
-    if (viewMode !== "focused" || !isMapLoaded || !mapRef.current) return;
+    const shouldAnimate = isMapLoaded && mapRef.current && (
+      viewMode === "focused" || // War Room always animates
+      (viewMode === "dashboard" && selectedOrderId) // Dashboard animates when route selected
+    );
 
-    const map = mapRef.current.getMap();
+    if (!shouldAnimate) return;
+
+    const map = mapRef.current!.getMap();
     let lastTime = 0;
     const speed = 0.03; // Slower speed for smoother animation
     const cycleLength = 100; // Long cycle to avoid visible reset/jerk
 
     const animate = (time: number) => {
-      if (!map.getLayer("routes-flow")) {
-        animationFrameRef.current = requestAnimationFrame(animate);
-        return;
-      }
-
       // Throttle updates to ~30fps for performance
       if (time - lastTime < 33) {
         animationFrameRef.current = requestAnimationFrame(animate);
@@ -509,11 +526,21 @@ export function FleetMap({
       const dashLength = 2 + Math.sin(phase) * 0.5; // 1.5-2.5
       const gapLength = 4 + dashOffsetRef.current % 8; // Continuously shifting gap
 
-      // Animated dash pattern that flows smoothly
-      map.setPaintProperty("routes-flow", "line-dasharray", [
-        dashLength,
-        gapLength,
-      ]);
+      // Animate War Room routes-flow layer (focused mode)
+      if (viewMode === "focused" && map.getLayer("routes-flow")) {
+        map.setPaintProperty("routes-flow", "line-dasharray", [
+          dashLength,
+          gapLength,
+        ]);
+      }
+
+      // Animate selected route flow layer (dashboard mode when route selected)
+      if (selectedOrderId && map.getLayer("selected-route-flow")) {
+        map.setPaintProperty("selected-route-flow", "line-dasharray", [
+          dashLength,
+          gapLength,
+        ]);
+      }
 
       animationFrameRef.current = requestAnimationFrame(animate);
     };
@@ -530,7 +557,7 @@ export function FleetMap({
         animationFrameRef.current = null;
       }
     };
-  }, [viewMode, isMapLoaded]);
+  }, [viewMode, isMapLoaded, selectedOrderId]);
 
   // Handle external order selection (from table click) - fly to the order
   useEffect(() => {
@@ -627,12 +654,15 @@ export function FleetMap({
         {selectedRouteData && (
           <Source id="selected-route" type="geojson" data={selectedRouteData}>
             <Layer {...selectedRouteLayerStyle} />
+            {/* Animated flow overlay - shows direction of travel */}
+            <Layer {...selectedRouteFlowStyle} />
           </Source>
         )}
 
         {/* Truck Markers along routes */}
         {truckMarkers.map(truck => {
           const isSelected = truck.orderId === selectedOrderId;
+          const isHovered = hoveredTruckId === truck.orderId;
           const isHighRisk = truck.riskScore >= 80;
           const isMediumRisk = truck.riskScore >= 40;
 
@@ -641,9 +671,14 @@ export function FleetMap({
               key={truck.orderId}
               longitude={truck.lng}
               latitude={truck.lat}
+              style={{ zIndex: isHovered ? 100 : 20 }} // Trucks above service centers (10)
               onClick={() => handleMarkerClick(truck.orderId, truck.riskScore, truck.lng, truck.lat)}
             >
-              <div className="relative group cursor-pointer">
+              <div
+                className="relative group cursor-pointer"
+                onMouseEnter={() => setHoveredTruckId(truck.orderId)}
+                onMouseLeave={() => setHoveredTruckId(null)}
+              >
                 {/* Radar ping effect for critical trucks */}
                 {isHighRisk && (
                   <>
@@ -819,15 +854,20 @@ export function FleetMap({
         {/* Discovered Resource Markers - Service Centers OR Warehouses found during War Room recovery */}
         {serviceCenters.map((center) => {
           const isWarehouse = center.resourceType === "WAREHOUSE";
+          const isHovered = hoveredServiceCenterId === center.id;
 
           return (
             <Marker
               key={center.id}
               longitude={center.lng}
               latitude={center.lat}
-              style={{ zIndex: 10 }} // Same level as truck markers
+              style={{ zIndex: isHovered ? 100 : 10 }} // Elevate on hover so tooltip appears above other markers
             >
-              <div className="group relative flex flex-col items-center cursor-pointer hover:z-20">
+              <div
+                className="group relative flex flex-col items-center cursor-pointer"
+                onMouseEnter={() => setHoveredServiceCenterId(center.id)}
+                onMouseLeave={() => setHoveredServiceCenterId(null)}
+              >
                 {/* Main icon container - different styling for warehouse vs service center */}
                 <div className={cn(
                   "relative flex h-9 w-9 items-center justify-center border-2 shadow-xl transition-all hover:scale-110",
@@ -996,16 +1036,38 @@ export function FleetMap({
       </div>
 
       {/* Click hint when incident is active and no order selected (dashboard mode only) */}
-      {viewMode === "dashboard" && incidentStatus === "ACTIVE" && !selectedOrderId && (
-        <div className="absolute top-4 left-1/2 -translate-x-1/2">
-          <div className={cn(
-            "backdrop-blur px-4 py-2 rounded-lg border text-xs font-mono animate-pulse",
-            "bg-red-900/80 border-red-700 text-red-100"
-          )}>
-            Click incident marker to see details
+      {viewMode === "dashboard" && incidentStatus === "ACTIVE" && !selectedOrderId && (() => {
+        // Find the affected order to make the hint clickable
+        const affectedOrder = affectedOrderId
+          ? orders.find(o => o.id === affectedOrderId)
+          : orders.find(o => o.riskScore >= 80);
+
+        if (!affectedOrder) return null;
+
+        // Calculate truck position for fly-to
+        let targetLng = affectedOrder.endLng;
+        let targetLat = affectedOrder.endLat;
+        if (affectedOrder.routeGeoJson && Array.isArray(affectedOrder.routeGeoJson) && affectedOrder.routeGeoJson.length > 0) {
+          const progress = affectedOrder.progress ?? 50;
+          const position = getPositionAlongRoute(affectedOrder.routeGeoJson, progress);
+          targetLng = position[0];
+          targetLat = position[1];
+        }
+
+        return (
+          <div className="absolute top-4 left-1/2 -translate-x-1/2">
+            <button
+              onClick={() => handleMarkerClick(affectedOrder.id, affectedOrder.riskScore, targetLng, targetLat)}
+              className={cn(
+                "backdrop-blur px-4 py-2 rounded-lg border text-xs font-mono animate-pulse cursor-pointer",
+                "bg-red-900/80 border-red-700 text-red-100 hover:bg-red-800/90 transition-colors"
+              )}
+            >
+              Click to view incident details →
+            </button>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Subtle ambient glow for Texas cluster - only shown when no incident (dashboard mode only) */}
       {viewMode === "dashboard" && incidentStatus !== "ACTIVE" && (

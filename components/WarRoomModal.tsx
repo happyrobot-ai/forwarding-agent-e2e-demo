@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import Image from "next/image";
 import { X, AlertTriangle, Terminal } from "lucide-react";
 import { usePusher } from "./PusherProvider";
@@ -74,6 +74,7 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
   const [showEmailToast, setShowEmailToast] = useState(false);
   const [foundServiceCenters, setFoundServiceCenters] = useState<ServiceCenter[]>([]);
   const logsEndRef = useRef<HTMLDivElement>(null);
+  const discoveryInitiatedRef = useRef(false); // Prevent double-trigger in Strict Mode
 
   const getHappyRobotLogo = () => {
     return theme === "dark"
@@ -99,6 +100,10 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
 
   // Smart Recovery: Trigger discovery when War Room opens
   useEffect(() => {
+    // Prevent double-trigger in React Strict Mode
+    if (discoveryInitiatedRef.current) return;
+    discoveryInitiatedRef.current = true;
+
     const initDiscovery = async () => {
       try {
         console.log("[War Room] Initiating discovery for incident:", incident.id);
@@ -191,6 +196,38 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
   const supplierAgent = agents.find((a) => a.agentRole === "Supplier_Voice");
   const driverAgent = agents.find((a) => a.agentRole === "Driver_Voice");
 
+  // Memoize orders array to prevent FleetMap re-renders when service centers are discovered
+  // This creates a stable reference that only changes when actual order data changes
+  const memoizedOrders = useMemo(() => {
+    if (!affectedOrder) return [];
+    return [{
+      id: affectedOrder.id,
+      itemName: affectedOrder.itemName,
+      origin: affectedOrder.origin,
+      destination: affectedOrder.destination,
+      status: affectedOrder.status || "AT_RISK",
+      carrier: affectedOrder.carrier || "Sysco Fleet",
+      startLat: affectedOrder.startLat!,
+      startLng: affectedOrder.startLng!,
+      endLat: affectedOrder.endLat!,
+      endLng: affectedOrder.endLng!,
+      riskScore: affectedOrder.riskScore || 100,
+      routeGeoJson: affectedOrder.routeGeoJson,
+      progress: affectedOrder.progress ?? 50,
+      costPrice: affectedOrder.costPrice,
+      sellPrice: affectedOrder.sellPrice,
+      internalBaseCost: affectedOrder.internalBaseCost,
+      actualLogisticsCost: affectedOrder.actualLogisticsCost,
+      buyers: affectedOrder.buyers,
+      truck: affectedOrder.truck ? {
+        id: affectedOrder.truck.id,
+        driverName: affectedOrder.truck.driverName,
+        vehicleType: affectedOrder.truck.vehicleType || "REFRIGERATED",
+        status: affectedOrder.truck.status || "INCIDENT",
+      } : null,
+    }];
+  }, [affectedOrder]);
+
   return (
     <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
       <div className={cn(
@@ -214,7 +251,7 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
                   className="object-contain"
                 />
                 <h2 className="text-lg font-bold text-red-400 tracking-tight">
-                  AUTONOMOUS INCIDENT RESPONSE
+                  HappyRobot Incident Response
                 </h2>
               </div>
               <p className="text-[10px] text-red-400/70 font-mono mt-0.5">
@@ -247,45 +284,16 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
 
             {/* Map Container */}
             <div className="flex-1 relative">
-              {affectedOrder &&
-               affectedOrder.startLat !== undefined &&
-               affectedOrder.startLng !== undefined &&
-               affectedOrder.endLat !== undefined &&
-               affectedOrder.endLng !== undefined ? (
+              {memoizedOrders.length > 0 ? (
                 <FleetMap
-                  orders={[{
-                    id: affectedOrder.id,
-                    itemName: affectedOrder.itemName,
-                    origin: affectedOrder.origin,
-                    destination: affectedOrder.destination,
-                    status: affectedOrder.status || "AT_RISK",
-                    carrier: affectedOrder.carrier || "Sysco Fleet",
-                    startLat: affectedOrder.startLat,
-                    startLng: affectedOrder.startLng,
-                    endLat: affectedOrder.endLat,
-                    endLng: affectedOrder.endLng,
-                    riskScore: affectedOrder.riskScore || 100,
-                    routeGeoJson: affectedOrder.routeGeoJson,
-                    progress: affectedOrder.progress ?? 50,
-                    costPrice: affectedOrder.costPrice,
-                    sellPrice: affectedOrder.sellPrice,
-                    internalBaseCost: affectedOrder.internalBaseCost,
-                    actualLogisticsCost: affectedOrder.actualLogisticsCost,
-                    buyers: affectedOrder.buyers,
-                    truck: affectedOrder.truck ? {
-                      id: affectedOrder.truck.id,
-                      driverName: affectedOrder.truck.driverName,
-                      vehicleType: affectedOrder.truck.vehicleType || "REFRIGERATED",
-                      status: affectedOrder.truck.status || "INCIDENT",
-                    } : null,
-                  }]}
+                  orders={memoizedOrders}
                   incidentStatus="ACTIVE"
                   incidentDescription={incident.description}
                   onIncidentClick={() => {}}
                   viewMode="focused"
                   interactive={true}
                   serviceCenters={foundServiceCenters}
-                  highlightedOrderId={affectedOrder.id} // Auto-select to open OrderDetailPanel
+                  highlightedOrderId={affectedOrder?.id}
                 />
               ) : (
                 <div className="flex items-center justify-center h-full">

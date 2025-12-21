@@ -54,11 +54,10 @@ export async function POST(request: NextRequest) {
 
     // Create the incident with dynamic title and optional custom description
     // discoveryStatus defaults to PENDING - discovery runs when War Room opens
-    const defaultDescription = "Truck broke down on Highway I-35. Driver reported engine failure and is awaiting roadside assistance.";
     const incident = await prisma.incident.create({
       data: {
         title: `${targetOrder.itemName} - ${targetOrder.destination} Delivery Crisis`,
-        description: description || defaultDescription,
+        description: description,
         status: "ACTIVE",
         orderId: targetOrder.id,
         // discoveryStatus: "PENDING" is the default
@@ -78,16 +77,17 @@ export async function POST(request: NextRequest) {
     const driverName = targetOrder.truck?.driverName || "Driver";
     const truckId = targetOrder.truck?.id || "Unknown";
 
+    // Use the description from API request (or fallback to default)
     await writeIncidentLog(
       incident.id,
-      `CRITICAL: Equipment failure detected on ${truckId}. Driver ${driverName} reporting engine malfunction.`,
+      `CRITICAL: Incident detected on ${truckId}. Report: ${description}`,
       "SYSTEM",
       "ERROR"
     );
 
     await writeIncidentLog(
       incident.id,
-      `Affected shipment: ${targetOrder.itemName} → ${targetOrder.destination}. Estimated impact: $${(targetOrder.sellPrice || 0).toLocaleString()}.`,
+      `Affected shipment: ${targetOrder.itemName} → ${targetOrder.destination}. Estimated impact: $${(targetOrder.sellPrice + targetOrder.costPrice || 0).toLocaleString()}.`,
       "SYSTEM",
       "WARNING"
     );
