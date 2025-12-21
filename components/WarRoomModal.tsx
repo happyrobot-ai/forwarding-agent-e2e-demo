@@ -9,29 +9,15 @@ import { FleetMap, ServiceCenter } from "./FleetMap";
 import { AgentCard } from "./AgentCard";
 import { EmailToast } from "./EmailToast";
 import { cn } from "@/lib/utils";
+import { useIncidentLogs, useAgents } from "@/hooks";
+import type { IncidentLog } from "@/hooks";
+import { AgentCardSkeleton } from "./Skeletons";
 
 // --- TYPES ---
 interface Incident {
   id: string;
   title: string;
   description?: string | null;
-  status: string;
-}
-
-// Unified log type from database (IncidentLog model)
-interface IncidentLog {
-  id: string;
-  timestamp: string;
-  message: string;
-  source: string; // "SYSTEM" | "ORCHESTRATOR" | "DISCOVERY" | "AGENT:SUPPLIER" | "AGENT:DRIVER"
-  status: string; // "INFO" | "SUCCESS" | "WARNING" | "ERROR"
-}
-
-interface Agent {
-  id: number;
-  runId: string;
-  agentRole: string;
-  agentName: string;
   status: string;
 }
 
@@ -80,9 +66,11 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
   const { pusher } = usePusher();
   const { theme } = useTheme();
 
-  // State
-  const [logs, setLogs] = useState<IncidentLog[]>([]);
-  const [agents, setAgents] = useState<Agent[]>([]);
+  // SWR hooks for data fetching
+  const { logs, isLoading: logsLoading, addLog } = useIncidentLogs(incident.id);
+  const { agents, isLoading: agentsLoading, updateAgentStatus } = useAgents({ incidentId: incident.id });
+
+  // Local UI state
   const [showEmailToast, setShowEmailToast] = useState(false);
   const [foundServiceCenters, setFoundServiceCenters] = useState<ServiceCenter[]>([]);
   const logsEndRef = useRef<HTMLDivElement>(null);
@@ -107,34 +95,7 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
     logsEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [logs]);
 
-  // Fetch persisted logs and agents from DB on mount
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Fetch incident logs from DB
-        const logsRes = await fetch(`/api/incidents/${incident.id}/logs`);
-        if (logsRes.ok) {
-          const logsData = await logsRes.json();
-          setLogs(logsData);
-        }
-
-        // Fetch agents for status display
-        const agentsRes = await fetch("/api/agents");
-        if (agentsRes.ok) {
-          const agentsData = await agentsRes.json();
-          // Filter to only this incident's agents
-          const incidentAgents = agentsData.filter(
-            (a: Agent & { incidentId: string }) => a.incidentId === incident.id
-          );
-          setAgents(incidentAgents.length > 0 ? incidentAgents : agentsData);
-        }
-      } catch (error) {
-        console.error("[War Room] Error fetching data:", error);
-      }
-    };
-
-    fetchData();
-  }, [incident.id]);
+  // Note: Logs and agents are now fetched via SWR hooks (useIncidentLogs, useAgents)
 
   // Smart Recovery: Trigger discovery when War Room opens
   useEffect(() => {
@@ -174,20 +135,14 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
       if (data.incidentId !== incident.id) return;
 
       console.log("[War Room] New log received:", data.log.message);
-      setLogs((prev) => {
-        // Avoid duplicates by checking ID
-        if (prev.find((l) => l.id === data.log.id)) return prev;
-        return [...prev, data.log];
-      });
+      // Use SWR's addLog for optimistic cache update
+      addLog(data.log);
     });
 
     // Listen for agent status updates
     channel.bind("agent-update", (data: { agentRole: string; status: string }) => {
-      setAgents((prev) =>
-        prev.map((a) =>
-          a.agentRole === data.agentRole ? { ...a, status: data.status } : a
-        )
-      );
+      // Use SWR's updateAgentStatus for optimistic cache update
+      updateAgentStatus(data.agentRole, data.status);
     });
 
     // Listen for resource discovery (for map markers)
@@ -346,7 +301,7 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
           </div>
 
           {/* Right: Intelligence Console (4 cols) */}
-          <div className="col-span-4 flex flex-col bg-zinc-950">
+          <div className="col-span-4 flex flex-col bg-zinc-950 overflow-hidden">
             {/* Situation Report */}
             {incident.description && (
               <div className="p-4 border-b border-zinc-800 bg-red-950/10 shrink-0">
@@ -371,19 +326,28 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
                 Active Agents
               </div>
               <div className="space-y-2">
-                {supplierAgent ? (
-                  <AgentCard agent={supplierAgent} />
+                {agentsLoading ? (
+                  <>
+                    <AgentCardSkeleton />
+                    <AgentCardSkeleton />
+                  </>
                 ) : (
-                  <div className="h-16 rounded-lg border border-dashed border-zinc-800 flex items-center justify-center text-xs text-zinc-600">
-                    Supplier Agent Standby...
-                  </div>
-                )}
-                {driverAgent ? (
-                  <AgentCard agent={driverAgent} />
-                ) : (
-                  <div className="h-16 rounded-lg border border-dashed border-zinc-800 flex items-center justify-center text-xs text-zinc-600">
-                    Driver Agent Standby...
-                  </div>
+                  <>
+                    {supplierAgent ? (
+                      <AgentCard agent={supplierAgent} />
+                    ) : (
+                      <div className="h-16 rounded-lg border border-dashed border-zinc-800 flex items-center justify-center text-xs text-zinc-600">
+                        Supplier Agent Standby...
+                      </div>
+                    )}
+                    {driverAgent ? (
+                      <AgentCard agent={driverAgent} />
+                    ) : (
+                      <div className="h-16 rounded-lg border border-dashed border-zinc-800 flex items-center justify-center text-xs text-zinc-600">
+                        Driver Agent Standby...
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </div>
@@ -407,7 +371,17 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
 
               {/* Log Stream */}
               <div className="flex-1 p-3 overflow-y-auto font-mono text-[11px] space-y-1.5 scrollbar-thin scrollbar-thumb-zinc-800">
-                {logs.length === 0 ? (
+                {logsLoading ? (
+                  <div className="space-y-2">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <div key={i} className="flex gap-2 items-start animate-pulse">
+                        <div className="h-3 w-16 bg-zinc-800 rounded shrink-0" />
+                        <div className="h-3 w-20 bg-zinc-800 rounded shrink-0" />
+                        <div className="h-3 bg-zinc-800 rounded flex-1" style={{ maxWidth: `${50 + Math.random() * 40}%` }} />
+                      </div>
+                    ))}
+                  </div>
+                ) : logs.length === 0 ? (
                   <div className="text-zinc-600 flex items-center gap-2">
                     <span className="animate-pulse">_</span>
                     <span>Waiting for incident data...</span>

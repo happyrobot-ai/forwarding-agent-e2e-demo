@@ -11,7 +11,6 @@ import {
   AlertCircle,
   TrendingUp,
   Package,
-  Truck,
   ArrowRight,
   Activity,
   RotateCcw,
@@ -23,6 +22,16 @@ import { WarRoomModal } from "@/components/WarRoomModal";
 import { IncidentSelectionModal } from "@/components/IncidentSelectionModal";
 import { FilterDropdown } from "@/components/FilterDropdown";
 import { PriceRangeSlider } from "@/components/PriceRangeSlider";
+import { KPICardSkeleton, TableSkeleton, MapSkeleton } from "@/components/Skeletons";
+import {
+  useOrders,
+  useIncidents,
+  useWarehouses,
+  revalidateOrders,
+  revalidateIncidents,
+  mutateIncident,
+} from "@/hooks";
+import type { Order, Incident, Warehouse } from "@/hooks";
 
 // Spring config for natural motion - slower and smoother
 const SPRING_CONFIG = { type: "spring", stiffness: 100, damping: 20 } as const;
@@ -43,86 +52,21 @@ const FleetMap = dynamic(
   }
 );
 
-// --- TYPES ---
-interface Truck {
-  id: string;
-  driverName: string;
-  vehicleType: string;
-  status: string;
-}
-
-interface Buyer {
-  id: string;
-  name: string;
-  segment: string;
-  trustScore: number;
-  totalSpend: number;
-}
-
-interface Order {
-  id: string;
-  itemName: string;
-  description?: string | null;
-  orderValue?: number;
-  status: string;
-  carrier: string;
-  truckId?: string | null;
-  truck?: Truck | null;
-  origin: string;
-  destination: string;
-  startLat: number;
-  startLng: number;
-  endLat: number;
-  endLng: number;
-  riskScore: number;
-  routeGeoJson?: number[][] | null;
-  // Route analytics from Mapbox
-  distanceMeters?: number;
-  durationSeconds?: number;
-  progress?: number;
-  // Real timing data
-  departedAt?: string | null;
-  estimatedArrival?: string | null;
-  actualArrival?: string | null;
-  // Financials
-  costPrice?: number;
-  sellPrice?: number;
-  internalBaseCost?: number;
-  actualLogisticsCost?: number;
-  buyers?: Buyer[];
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface Incident {
-  id: string;
-  title: string;
-  description?: string | null;
-  status: string;
-  orderId?: string | null; // Link to affected order
-  createdAt: string;
-}
-
-interface Warehouse {
-  id: string;
-  name: string;
-  type: string;
-  address: string;
-  lat: number;
-  lng: number;
-  status: string;
-  description?: string | null;
-}
+// Types are now imported from @/hooks
 
 export default function DashboardPage() {
   const { pusher } = usePusher();
   const { theme } = useTheme();
 
   // --- STATE MANAGEMENT ---
-  // 1. Server State (Source of Truth from DB)
-  const [serverOrders, setServerOrders] = useState<Order[]>([]);
-  const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
-  const [incident, setIncident] = useState<Incident | null>(null);
+  // 1. Server State via SWR (Source of Truth from DB)
+  const { orders: serverOrders, isLoading: ordersLoading, mutate: mutateOrders, updateOrder, addOrder } = useOrders();
+  const { warehouses, isLoading: warehousesLoading } = useWarehouses();
+  const { activeIncident, isLoading: incidentsLoading } = useIncidents();
+
+  // Use activeIncident from SWR, but allow local override for optimistic updates
+  const [localIncident, setLocalIncident] = useState<Incident | null>(null);
+  const incident = localIncident ?? activeIncident;
 
   // 2. Simulation State (Visual Overrides - decoupled from server)
   // This is the key fix: we track the animated risk score SEPARATELY
@@ -136,13 +80,14 @@ export default function DashboardPage() {
   }>({ active: false, orderId: null, orderData: null, currentRiskScore: 0 });
 
   // 3. UI State
-  const [serviceLevel, setServiceLevel] = useState(98);
   const [showWarRoom, setShowWarRoom] = useState(false);
   const [showBanner, setShowBanner] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const [showIncidentModal, setShowIncidentModal] = useState(false);
   const [isTriggering, setIsTriggering] = useState(false);
   const animationRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Combined loading state
+  const isLoading = ordersLoading || warehousesLoading || incidentsLoading;
 
   // Table interaction state
   const [highlightedOrderId, setHighlightedOrderId] = useState<string | null>(null);
@@ -163,6 +108,17 @@ export default function DashboardPage() {
   const currentPriceMax = priceRange?.max ?? priceStats.max;
 
   const mapStatus: "IDLE" | "ACTIVE" | "RESOLVED" = incident?.status === "ACTIVE" ? "ACTIVE" : "IDLE";
+
+  // --- DERIVED STATE: Service Level ---
+  // Calculate service level from orders (derived, not stored)
+  const serviceLevel = useMemo(() => {
+    if (serverOrders.length === 0) return 100;
+    const problematicOrders = serverOrders.filter(
+      (o) => o.status === "CANCELLED" || o.status === "AT_RISK"
+    ).length;
+    const level = ((serverOrders.length - problematicOrders) / serverOrders.length) * 100;
+    return Math.round(level * 10) / 10;
+  }, [serverOrders]);
 
   // --- DERIVED STATE: THE MERGER ---
   // This is the Magic Fix. We merge Server Data + Simulation Data on the fly.
@@ -214,72 +170,20 @@ export default function DashboardPage() {
       : "/manhattan/mahnattan_tms_black.svg";
   };
 
+  // Restore simulation state when activeIncident loads (e.g., page refresh)
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [ordersRes, incidentsRes, warehousesRes] = await Promise.all([
-          fetch("/api/orders"),
-          fetch("/api/incidents"),
-          fetch("/api/warehouses"),
-        ]);
-
-        const ordersData = await ordersRes.json();
-        const incidentsData = await incidentsRes.json();
-        const warehousesData = await warehousesRes.json();
-
-        if (Array.isArray(ordersData)) {
-          setServerOrders(ordersData);
-          const totalOrders = ordersData.length;
-          // Count orders with issues: CANCELLED or AT_RISK
-          const problematicOrders = ordersData.filter(
-            (o: Order) => o.status === "CANCELLED" || o.status === "AT_RISK"
-          ).length;
-          const level =
-            totalOrders > 0
-              ? ((totalOrders - problematicOrders) / totalOrders) * 100
-              : 100;
-          setServiceLevel(Math.round(level * 10) / 10); // Keep one decimal for precision
-        }
-
-        if (Array.isArray(incidentsData)) {
-          const activeIncident = incidentsData.find(
-            (inc: Incident) => inc.status === "ACTIVE"
-          );
-          setIncident(activeIncident || null);
-          if (activeIncident) {
-            setShowBanner(true);
-
-            // Restore simulation state if there's an active incident with orderId
-            // This ensures War Room works correctly after page refresh
-            if (activeIncident.orderId) {
-              const affectedOrderData = Array.isArray(ordersData)
-                ? ordersData.find((o: Order) => o.id === activeIncident.orderId)
-                : null;
-
-              setSimulation({
-                active: true,
-                orderId: activeIncident.orderId,
-                orderData: affectedOrderData || null,
-                currentRiskScore: affectedOrderData?.riskScore || 100,
-              });
-              setHighlightedOrderId(activeIncident.orderId);
-            }
-          }
-        }
-
-        if (Array.isArray(warehousesData)) {
-          setWarehouses(warehousesData);
-        }
-
-        setIsLoading(false);
-      } catch (error) {
-        console.error("Error fetching dashboard data:", error);
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
+    if (activeIncident && activeIncident.orderId && !simulation.active) {
+      const affectedOrderData = serverOrders.find((o) => o.id === activeIncident.orderId);
+      setShowBanner(true);
+      setSimulation({
+        active: true,
+        orderId: activeIncident.orderId,
+        orderData: affectedOrderData || null,
+        currentRiskScore: affectedOrderData?.riskScore || 100,
+      });
+      setHighlightedOrderId(activeIncident.orderId);
+    }
+  }, [activeIncident, serverOrders, simulation.active]);
 
   useEffect(() => {
     if (!pusher) {
@@ -291,31 +195,14 @@ export default function DashboardPage() {
     const channel = pusher.subscribe("sysco-demo");
 
     channel.bind("demo-started", (data: { incident: Incident; affectedOrderId?: string; affectedOrder?: Order }) => {
-      // 1. Set Incident
-      setIncident(data.incident);
+      // 1. Set Incident (local for immediate update + SWR for cache)
+      setLocalIncident(data.incident);
+      mutateIncident(data.incident);
 
-      // 2. Optimistic Data Update (Crucial for Viewers)
-      // If the order comes in the payload, inject it into serverOrders immediately.
-      // This ensures 'displayOrders' finds it instantly without waiting for the fetch.
+      // 2. Optimistic Data Update via SWR
+      // If the order comes in the payload, inject it into cache immediately.
       if (data.affectedOrder) {
-        setServerOrders(prev => {
-          const exists = prev.find(o => o.id === data.affectedOrder!.id);
-          const updatedOrders = exists
-            ? prev.map(o => o.id === data.affectedOrder!.id ? { ...o, ...data.affectedOrder! } : o)
-            : [...prev, data.affectedOrder!];
-
-          // Calculate service level: (total - problematic) / total * 100
-          const totalOrders = updatedOrders.length;
-          const problematicOrders = updatedOrders.filter(
-            o => o.status === "CANCELLED" || o.status === "AT_RISK"
-          ).length;
-          const level = totalOrders > 0
-            ? ((totalOrders - problematicOrders) / totalOrders) * 100
-            : 100;
-          setServiceLevel(Math.round(level * 10) / 10);
-
-          return updatedOrders;
-        });
+        addOrder(data.affectedOrder);
       }
 
       // 3. Trigger Simulation State (Critical Fix for Viewers)
@@ -327,55 +214,70 @@ export default function DashboardPage() {
         setSimulation({
           active: true,
           orderId: data.affectedOrderId,
-          orderData: data.affectedOrder || null, // Store full order from Pusher payload
-          currentRiskScore: 100, // Force Red immediately
+          orderData: data.affectedOrder || null,
+          currentRiskScore: 100,
         });
       }
 
       // 4. Show Banner with slight delay for dramatic effect
       setTimeout(() => setShowBanner(true), 1000);
 
-      // 5. Background Refresh (To sync everything else)
-      fetch("/api/orders")
-        .then((res) => res.json())
-        .then((ordersData) => Array.isArray(ordersData) && setServerOrders(ordersData));
+      // 5. Background Refresh via SWR (will dedupe if already fetching)
+      revalidateOrders();
     });
 
     channel.bind("agent-update", () => {
-      fetch("/api/orders")
-        .then((res) => res.json())
-        .then((data) => Array.isArray(data) && setServerOrders(data));
+      // Use SWR revalidation instead of manual fetch
+      revalidateOrders();
     });
 
     channel.bind("demo-complete", () => {
-      setIncident(null);
+      setLocalIncident(null);
       setShowBanner(false);
       // Reset simulation state completely
       setSimulation({ active: false, orderId: null, orderData: null, currentRiskScore: 0 });
-      // Fetch fresh data and recalculate service level
-      fetch("/api/orders")
-        .then((res) => res.json())
-        .then((ordersData) => {
-          if (Array.isArray(ordersData)) {
-            setServerOrders(ordersData);
-            // Recalculate service level from fresh data
-            const totalOrders = ordersData.length;
-            const problematicOrders = ordersData.filter(
-              (o: Order) => o.status === "CANCELLED" || o.status === "AT_RISK"
-            ).length;
-            const level = totalOrders > 0
-              ? ((totalOrders - problematicOrders) / totalOrders) * 100
-              : 100;
-            setServiceLevel(Math.round(level * 10) / 10);
-          }
-        });
+      setHighlightedOrderId(null);
+      // Revalidate orders via SWR (service level is now derived automatically)
+      revalidateOrders();
+      revalidateIncidents();
+    });
+
+    // --- Prisma Middleware Events (auto-broadcast from DB changes) ---
+    // These ensure real-time sync even when explicit events aren't sent
+
+    // Bulk order updates (e.g., from reset endpoint)
+    channel.bind("orders:bulk-updated", () => {
+      console.log("[Pusher] Orders bulk-updated via Prisma middleware");
+      revalidateOrders();
+    });
+
+    // Bulk order deletes
+    channel.bind("orders:bulk-deleted", () => {
+      console.log("[Pusher] Orders bulk-deleted via Prisma middleware");
+      revalidateOrders();
+    });
+
+    // Single order updates (granular real-time sync)
+    channel.bind("order:updated", () => {
+      console.log("[Pusher] Order updated via Prisma middleware");
+      revalidateOrders();
+    });
+
+    // Incidents cleared (from reset or resolution)
+    channel.bind("incidents:bulk-deleted", () => {
+      console.log("[Pusher] Incidents bulk-deleted via Prisma middleware");
+      setLocalIncident(null);
+      setShowBanner(false);
+      setSimulation({ active: false, orderId: null, orderData: null, currentRiskScore: 0 });
+      setHighlightedOrderId(null);
+      revalidateIncidents();
     });
 
     return () => {
       channel.unbind_all();
       pusher.unsubscribe("sysco-demo");
     };
-  }, [pusher]);
+  }, [pusher, addOrder]);
 
   const handleTriggerDemo = () => {
     setShowIncidentModal(true);
@@ -461,25 +363,13 @@ export default function DashboardPage() {
       // Reset all simulation and UI state
       setSimulation({ active: false, orderId: null, orderData: null, currentRiskScore: 0 });
       setShowBanner(false);
-      setIncident(null);
+      setLocalIncident(null);
       setHighlightedOrderId(null);
 
       await fetch("/api/demo/reset", { method: "POST" });
 
-      const ordersRes = await fetch("/api/orders");
-      const ordersData = await ordersRes.json();
-      if (Array.isArray(ordersData)) {
-        setServerOrders(ordersData);
-        // Recalculate service level from fresh data
-        const totalOrders = ordersData.length;
-        const problematicOrders = ordersData.filter(
-          (o: Order) => o.status === "CANCELLED" || o.status === "AT_RISK"
-        ).length;
-        const level = totalOrders > 0
-          ? ((totalOrders - problematicOrders) / totalOrders) * 100
-          : 100;
-        setServiceLevel(Math.round(level * 10) / 10);
-      }
+      // Revalidate all data via SWR (service level is derived automatically)
+      await mutateOrders();
     } catch (error) {
       console.error("Error resetting demo:", error);
     }

@@ -825,9 +825,9 @@ export function FleetMap({
               key={center.id}
               longitude={center.lng}
               latitude={center.lat}
-              style={{ zIndex: 100 }} // Ensure discovered resources are above other markers
+              style={{ zIndex: 10 }} // Same level as truck markers
             >
-              <div className="group relative flex flex-col items-center cursor-pointer hover:z-[200]">
+              <div className="group relative flex flex-col items-center cursor-pointer hover:z-20">
                 {/* Main icon container - different styling for warehouse vs service center */}
                 <div className={cn(
                   "relative flex h-9 w-9 items-center justify-center border-2 shadow-xl transition-all hover:scale-110",

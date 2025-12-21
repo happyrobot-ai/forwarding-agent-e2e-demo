@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { PusherProvider } from "@/components/PusherProvider";
+import { SWRProvider } from "@/components/SWRProvider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Layout } from "@/components/Layout";
 
@@ -35,11 +36,13 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider>
-          <PusherProvider>
-            <TooltipProvider>
-              <Layout>{children}</Layout>
-            </TooltipProvider>
-          </PusherProvider>
+          <SWRProvider>
+            <PusherProvider>
+              <TooltipProvider>
+                <Layout>{children}</Layout>
+              </TooltipProvider>
+            </PusherProvider>
+          </SWRProvider>
         </ThemeProvider>
       </body>
     </html>
