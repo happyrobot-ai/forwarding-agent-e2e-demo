@@ -56,6 +56,26 @@ interface AffectedOrder {
   progress?: number;
 }
 
+// Discovered driver for trailer relay
+interface DiscoveredDriver {
+  id: string;
+  orderId: string;
+  driverName: string;
+  truckId: string;
+  currentLocation: string;
+  lat: number;
+  lng: number;
+  distance: number;
+  status: "DELIVERED" | "COMPLETING";
+  progress?: number;
+  nearestDropOff?: {
+    id: string;
+    name: string;
+    distance: number;
+  };
+  rank?: number;
+}
+
 interface WarRoomModalProps {
   incident: Incident;
   affectedOrder?: AffectedOrder | null;
@@ -73,6 +93,7 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
   // Local UI state
   const [showEmailToast, setShowEmailToast] = useState(false);
   const [foundServiceCenters, setFoundServiceCenters] = useState<ServiceCenter[]>([]);
+  const [foundDrivers, setFoundDrivers] = useState<DiscoveredDriver[]>([]);
   const logsEndRef = useRef<HTMLDivElement>(null);
   const discoveryInitiatedRef = useRef(false); // Prevent double-trigger in Strict Mode
 
@@ -114,10 +135,16 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
 
         console.log("[War Room] Discovery response:", data.status);
 
-        // If discovery already completed, load candidates immediately
-        if (data.status === "COMPLETED" && data.candidates) {
-          console.log("[War Room] Loading cached candidates:", data.candidates.length);
-          setFoundServiceCenters(data.candidates);
+        // If discovery already completed, load candidates and drivers immediately
+        if (data.status === "COMPLETED") {
+          if (data.candidates) {
+            console.log("[War Room] Loading cached candidates:", data.candidates.length);
+            setFoundServiceCenters(data.candidates);
+          }
+          if (data.drivers) {
+            console.log("[War Room] Loading cached drivers:", data.drivers.length);
+            setFoundDrivers(data.drivers);
+          }
         }
         // If "STARTED" or "RUNNING", wait for Pusher events
       } catch (error) {
@@ -161,6 +188,20 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
       setFoundServiceCenters((prev) => {
         if (prev.find((sc) => sc.id === data.serviceCenter.id)) return prev;
         return [...prev, data.serviceCenter];
+      });
+    });
+
+    // Listen for driver discovery (for purple map markers)
+    channel.bind("driver-located", (data: {
+      incidentId: string;
+      driver: DiscoveredDriver;
+    }) => {
+      if (data.incidentId !== incident.id) return;
+
+      console.log("[War Room] Driver located:", data.driver.driverName);
+      setFoundDrivers((prev) => {
+        if (prev.find((d) => d.id === data.driver.id)) return prev;
+        return [...prev, data.driver];
       });
     });
 
@@ -293,6 +334,7 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
                   viewMode="focused"
                   interactive={true}
                   serviceCenters={foundServiceCenters}
+                  availableDrivers={foundDrivers}
                   highlightedOrderId={affectedOrder?.id}
                 />
               ) : (
@@ -345,7 +387,7 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
                       <AgentCard agent={supplierAgent} />
                     ) : (
                       <div className="h-16 rounded-lg border border-dashed border-zinc-800 flex items-center justify-center text-xs text-zinc-600">
-                        Supplier Agent Standby...
+                        Assistance Agent Standby...
                       </div>
                     )}
                     {driverAgent ? (

@@ -44,6 +44,26 @@ export interface ServiceCenter {
   rank?: number; // 1 = closest, 2 = second closest, etc.
 }
 
+// Available driver for trailer relay operations
+export interface AvailableDriver {
+  id: string;
+  orderId: string;
+  driverName: string;
+  truckId: string;
+  currentLocation: string;
+  lat: number;
+  lng: number;
+  distance: number;
+  status: "DELIVERED" | "COMPLETING";
+  progress?: number;
+  nearestDropOff?: {
+    id: string;
+    name: string;
+    distance: number;
+  };
+  rank?: number;
+}
+
 // Buyer type for affected clients
 interface Buyer {
   id: string;
@@ -139,6 +159,7 @@ interface FleetMapProps {
   orders?: Order[];
   warehouses?: Warehouse[];
   serviceCenters?: ServiceCenter[]; // Dynamic service centers for War Room discovery
+  availableDrivers?: AvailableDriver[]; // Drivers available for trailer relay
   incidentStatus: "IDLE" | "ACTIVE" | "RESOLVED";
   incidentDescription?: string | null;
   onIncidentClick: () => void;
@@ -153,6 +174,7 @@ export function FleetMap({
   orders = [],
   warehouses = [],
   serviceCenters = [],
+  availableDrivers = [],
   incidentStatus,
   incidentDescription,
   onIncidentClick,
@@ -941,6 +963,75 @@ export function FleetMap({
                       isWarehouse ? "text-blue-400" : "text-emerald-400"
                     )}>
                       {center.distance.toFixed(1)} miles from incident
+                    </div>
+                  )}
+                </div>
+              </div>
+            </Marker>
+          );
+        })}
+
+        {/* Available Driver Markers - Purple markers for trailer relay drivers */}
+        {availableDrivers.map((driver) => {
+          const isHovered = hoveredServiceCenterId === `driver-${driver.id}`;
+
+          return (
+            <Marker
+              key={`driver-${driver.id}`}
+              longitude={driver.lng}
+              latitude={driver.lat}
+              style={{ zIndex: isHovered ? 100 : 10 }}
+            >
+              <div
+                className="group relative flex flex-col items-center cursor-pointer"
+                onMouseEnter={() => setHoveredServiceCenterId(`driver-${driver.id}`)}
+                onMouseLeave={() => setHoveredServiceCenterId(null)}
+              >
+                {/* Main icon - purple truck for available drivers */}
+                <div className="relative flex h-9 w-9 items-center justify-center rounded-full bg-purple-600 border-2 border-purple-400 text-white shadow-xl transition-all hover:scale-110">
+                  <TruckIcon className="h-4 w-4" />
+                </div>
+
+                {/* Distance badge */}
+                <div className="absolute -bottom-1 -right-1 bg-black/90 text-purple-400 text-[9px] font-mono px-1.5 py-0.5 rounded-full border border-purple-500/50 shadow-lg">
+                  {driver.distance.toFixed(1)}mi
+                </div>
+
+                {/* Rank badge */}
+                {driver.rank && (
+                  <div className="absolute -top-1 -left-1 h-5 w-5 flex items-center justify-center rounded-full bg-purple-600 border-2 border-purple-400 text-white text-[10px] font-bold shadow-lg">
+                    {driver.rank}
+                  </div>
+                )}
+
+                {/* Status indicator - green for DELIVERED, amber for COMPLETING */}
+                <div className={cn(
+                  "absolute -top-1 -right-1 h-3 w-3 rounded-full border-2 border-black",
+                  driver.status === "DELIVERED" ? "bg-emerald-500" : "bg-amber-500"
+                )} />
+
+                {/* Tooltip on hover */}
+                <div className="absolute bottom-12 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity z-[999] whitespace-nowrap border border-purple-500/50 px-3 py-2 text-xs font-mono rounded-lg pointer-events-none bg-black/95 text-white min-w-[220px] shadow-2xl">
+                  <div className="text-purple-400 font-semibold">
+                    {driver.driverName}
+                  </div>
+                  <div className="text-zinc-400 text-[10px]">
+                    {driver.truckId} • {driver.currentLocation}
+                  </div>
+                  <div className={cn(
+                    "text-[10px] mt-1 px-1.5 py-0.5 rounded inline-block",
+                    driver.status === "DELIVERED"
+                      ? "bg-emerald-500/20 text-emerald-300"
+                      : "bg-amber-500/20 text-amber-300"
+                  )}>
+                    {driver.status === "DELIVERED" ? "DELIVERY COMPLETE" : `${driver.progress}% COMPLETE`}
+                  </div>
+                  <div className="text-purple-400 text-[10px] mt-1 font-bold">
+                    {driver.distance.toFixed(1)} miles from incident
+                  </div>
+                  {driver.nearestDropOff && (
+                    <div className="text-zinc-500 text-[10px] mt-1 border-t border-zinc-700 pt-1">
+                      🏭 Drop trailer: {driver.nearestDropOff.name} ({driver.nearestDropOff.distance.toFixed(1)}mi)
                     </div>
                   )}
                 </div>

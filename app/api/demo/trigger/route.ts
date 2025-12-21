@@ -85,9 +85,10 @@ export async function POST(request: NextRequest) {
       "ERROR"
     );
 
+    const totalExposure = (targetOrder.sellPrice || 0) + (targetOrder.costPrice || 0);
     await writeIncidentLog(
       incident.id,
-      `Affected shipment: ${targetOrder.itemName} → ${targetOrder.destination}. Estimated impact: $${(targetOrder.sellPrice + targetOrder.costPrice || 0).toLocaleString()}.`,
+      `Affected shipment: ${targetOrder.itemName} → ${targetOrder.destination}. Total exposure: $${totalExposure.toLocaleString()} (Revenue: $${(targetOrder.sellPrice || 0).toLocaleString()} + Product: $${(targetOrder.costPrice || 0).toLocaleString()}).`,
       "SYSTEM",
       "WARNING"
     );

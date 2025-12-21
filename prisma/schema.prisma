@@ -26,12 +26,8 @@ model Incident {
   // Smart Recovery: Discovery workflow status
   discoveryStatus DiscoveryStatus @default(PENDING) @map("discovery_status")
 
-  // Smart Recovery: Found service center candidates (with distance metadata)
+  // Smart Recovery: Unified candidates table (service centers, warehouses, drivers)
   candidates  IncidentCandidate[]
-
-  // Smart Recovery: Combined discovered resources (service centers + warehouses)
-  // Stored as JSON for flexibility: [{ id, name, type, resourceType, lat, lng, phone?, distance, rank }]
-  discoveredResources Json @default("[]") @map("discovered_resources")
 
   // Unified incident timeline logs (System, Discovery, Agent events)
   logs        IncidentLog[]
@@ -62,6 +58,12 @@ enum DiscoveryStatus {
   COMPLETED  // Discovery finished, candidates saved
 }
 
+enum CandidateType {
+  SERVICE_CENTER
+  WAREHOUSE
+  DRIVER
+}
+
 enum IncidentStatus {
   ACTIVE
   RESOLVED
@@ -78,6 +80,9 @@ model Truck {
   updatedAt   DateTime    @updatedAt @map("updated_at")
 
   orders      Order[]
+
+  // Reverse relation to incidents where this truck's driver was a candidate
+  incidentCandidates IncidentCandidate[]
 
   @@map("trucks")
 }
@@ -200,6 +205,9 @@ model Warehouse {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
+  // Reverse relation to incidents where this warehouse was a candidate
+  incidentCandidates IncidentCandidate[]
+
   @@map("warehouses")
 }
 
@@ -229,23 +237,43 @@ model ServiceCenter {
   @@map("service_centers")
 }
 
-// Join table: Links Incidents to their discovered ServiceCenter candidates
-// Stores distance metadata calculated during discovery
+// Unified candidate table: Links Incidents to discovered resources (service centers, warehouses, drivers)
 model IncidentCandidate {
   id              String   @id @default(uuid())
 
   incidentId      String   @map("incident_id")
   incident        Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
 
-  serviceCenterId String   @map("service_center_id")
-  serviceCenter   ServiceCenter @relation(fields: [serviceCenterId], references: [id], onDelete: Cascade)
+  candidateType   CandidateType @map("candidate_type")
 
+  // Polymorphic FKs (only one set based on candidateType)
+  serviceCenterId String?  @map("service_center_id")
+  serviceCenter   ServiceCenter? @relation(fields: [serviceCenterId], references: [id], onDelete: Cascade)
+
+  warehouseId     String?  @map("warehouse_id")
+  warehouse       Warehouse? @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+
+  truckId         String?  @map("truck_id")
+  truck           Truck?   @relation(fields: [truckId], references: [id], onDelete: Cascade)
+
+  // Common fields
   distance        Float    // Distance from incident truck in miles
   rank            Int      // 1 = closest, 2 = second, etc.
 
+  // Driver-specific snapshot (null for non-drivers)
+  lat             Float?   // Driver's current lat at discovery time
+  lng             Float?   // Driver's current lng at discovery time
+  currentLocation String?  @map("current_location")  // Delivery destination name
+  status          String?  // "DELIVERED" or "COMPLETING" (driver only)
+  progress        Int?     // Progress percentage (driver only)
+
+  // Nearest Sysco hub for trailer drop-off (driver only)
+  nearestDropOffId   String?  @map("nearest_dropoff_id")
+  nearestDropOffName String?  @map("nearest_dropoff_name")
+  nearestDropOffDistance Float? @map("nearest_dropoff_distance")
+
   createdAt       DateTime @default(now()) @map("created_at")
 
-  @@unique([incidentId, serviceCenterId]) // Prevent duplicates
   @@map("incident_candidates")
 }
 

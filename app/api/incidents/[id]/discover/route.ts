@@ -3,6 +3,74 @@ import { prisma } from "@/lib/prisma";
 import { pusherServer } from "@/lib/pusher-server";
 import { writeIncidentLog } from "@/lib/incident-logger";
 
+// Inline types for Prisma query results
+interface ServiceCenterRow {
+  id: string;
+  name: string;
+  type: string;
+  lat: number;
+  lng: number;
+  phone: string;
+}
+
+interface WarehouseRow {
+  id: string;
+  name: string;
+  type: string;
+  lat: number;
+  lng: number;
+}
+
+interface OrderWithTruck {
+  id: string;
+  destination: string;
+  endLat: number;
+  endLng: number;
+  status: string;
+  progress: number | null;
+  estimatedArrival: Date | null;
+  truck: {
+    id: string;
+    driverName: string;
+  } | null;
+}
+
+// Type for unified candidate table with includes
+interface CandidateWithRelations {
+  candidateType: "SERVICE_CENTER" | "WAREHOUSE" | "DRIVER";
+  distance: number;
+  rank: number;
+  // Driver-specific fields
+  lat: number | null;
+  lng: number | null;
+  currentLocation: string | null;
+  status: string | null;
+  progress: number | null;
+  nearestDropOffId: string | null;
+  nearestDropOffName: string | null;
+  nearestDropOffDistance: number | null;
+  // Relations (only one populated based on candidateType)
+  serviceCenter: {
+    id: string;
+    name: string;
+    type: string;
+    lat: number;
+    lng: number;
+    phone: string;
+  } | null;
+  warehouse: {
+    id: string;
+    name: string;
+    type: string;
+    lat: number;
+    lng: number;
+  } | null;
+  truck: {
+    id: string;
+    driverName: string;
+  } | null;
+}
+
 // Unified resource type for discovery results
 interface DiscoveredResource {
   id: string;
@@ -13,6 +81,26 @@ interface DiscoveredResource {
   lng: number;
   phone?: string;
   distance: number;
+  rank?: number;
+}
+
+// Available driver for trailer relay
+interface DiscoveredDriver {
+  id: string;
+  orderId: string;
+  driverName: string;
+  truckId: string;
+  currentLocation: string;  // Where they are (delivery destination)
+  lat: number;
+  lng: number;
+  distance: number;         // From incident
+  status: "DELIVERED" | "COMPLETING";  // DELIVERED = done, COMPLETING = 90%+ progress
+  progress?: number;
+  nearestDropOff?: {        // Nearest Sysco hub for trailer drop
+    id: string;
+    name: string;
+    distance: number;
+  };
   rank?: number;
 }
 
@@ -39,7 +127,7 @@ export async function POST(
   try {
     const { id: incidentId } = await params;
 
-    // 1. Fetch incident with linked order
+    // 1. Fetch incident with linked order and candidates
     const incident = await prisma.incident.findUnique({
       where: { id: incidentId },
       include: {
@@ -48,6 +136,15 @@ export async function POST(
             truck: true,
           },
         },
+        // Include unified candidates for COMPLETED status
+        candidates: {
+          include: {
+            serviceCenter: true,
+            warehouse: true,
+            truck: true,
+          },
+          orderBy: { rank: "asc" },
+        },
       },
     });
 
@@ -55,14 +152,74 @@ export async function POST(
       return NextResponse.json({ error: "Incident not found" }, { status: 404 });
     }
 
-    // 2. If already COMPLETED, return cached resources from JSON field
+    // 2. If already COMPLETED, return cached resources from unified candidates table
     if (incident.discoveryStatus === "COMPLETED") {
-      const cachedResources = incident.discoveredResources as unknown as DiscoveredResource[];
-      console.log(`[Discovery] Incident ${incidentId} already completed, returning ${cachedResources.length} cached resources`);
+      // Filter candidates by type and transform to response format
+      const resourceCandidates = incident.candidates.filter(
+        (c: CandidateWithRelations) => c.candidateType === "SERVICE_CENTER" || c.candidateType === "WAREHOUSE"
+      );
+
+      const cachedResources: DiscoveredResource[] = resourceCandidates
+        .map((c: CandidateWithRelations): DiscoveredResource | null => {
+          if (c.candidateType === "SERVICE_CENTER" && c.serviceCenter) {
+            return {
+              id: c.serviceCenter.id,
+              name: c.serviceCenter.name,
+              type: c.serviceCenter.type,
+              resourceType: "SERVICE_CENTER" as const,
+              lat: c.serviceCenter.lat,
+              lng: c.serviceCenter.lng,
+              phone: c.serviceCenter.phone,
+              distance: c.distance,
+              rank: c.rank,
+            };
+          } else if (c.candidateType === "WAREHOUSE" && c.warehouse) {
+            return {
+              id: c.warehouse.id,
+              name: c.warehouse.name,
+              type: c.warehouse.type,
+              resourceType: "WAREHOUSE" as const,
+              lat: c.warehouse.lat,
+              lng: c.warehouse.lng,
+              distance: c.distance,
+              rank: c.rank,
+            };
+          }
+          return null;
+        })
+        .filter((r: DiscoveredResource | null): r is DiscoveredResource => r !== null)
+        .sort((a: DiscoveredResource, b: DiscoveredResource) => (a.rank ?? 99) - (b.rank ?? 99));
+
+      // Transform driver candidates to DiscoveredDriver format
+      const driverCandidates = incident.candidates.filter(
+        (c: CandidateWithRelations) => c.candidateType === "DRIVER" && c.truck
+      );
+
+      const cachedDrivers: DiscoveredDriver[] = driverCandidates.map((c: CandidateWithRelations) => ({
+        id: c.truck!.id,
+        orderId: "", // Not stored in candidate table
+        driverName: c.truck!.driverName,
+        truckId: c.truck!.id,
+        currentLocation: c.currentLocation ?? "",
+        lat: c.lat ?? 0,
+        lng: c.lng ?? 0,
+        distance: c.distance,
+        status: (c.status as "DELIVERED" | "COMPLETING") ?? "DELIVERED",
+        progress: c.progress ?? undefined,
+        nearestDropOff: c.nearestDropOffId ? {
+          id: c.nearestDropOffId,
+          name: c.nearestDropOffName ?? "",
+          distance: c.nearestDropOffDistance ?? 0,
+        } : undefined,
+        rank: c.rank,
+      }));
+
+      console.log(`[Discovery] Incident ${incidentId} already completed, returning ${cachedResources.length} cached resources and ${cachedDrivers.length} cached drivers`);
 
       return NextResponse.json({
         status: "COMPLETED",
         candidates: cachedResources,
+        drivers: cachedDrivers,
       });
     }
 
@@ -111,8 +268,8 @@ export async function POST(
 
     console.log(`[Discovery] Truck position: ${truckLat.toFixed(4)}, ${truckLng.toFixed(4)}`);
 
-    // C. Query service centers AND warehouses
-    const [serviceCenters, warehouses] = await Promise.all([
+    // C. Query service centers, warehouses, AND available drivers
+    const [serviceCenters, warehouses, availableOrders] = await Promise.all([
       prisma.serviceCenter.findMany({
         where: {
           type: {
@@ -121,10 +278,33 @@ export async function POST(
         },
       }),
       prisma.warehouse.findMany(),
+      // Phase 2: Find drivers who just finished or are arriving soon (ETA within 30 min)
+      prisma.order.findMany({
+        where: {
+          AND: [
+            // Exclude the incident truck
+            { id: { not: order.id } },
+            // Exclude AT_RISK orders
+            { status: { not: "AT_RISK" } },
+            // Must have a truck assigned
+            { truck: { isNot: null } },
+            // Either DELIVERED or ETA is within 30 minutes from now
+            {
+              OR: [
+                { status: "DELIVERED" },
+                { estimatedArrival: { lte: new Date(Date.now() + 30 * 60 * 1000) } }, // ETA within 30 min
+              ],
+            },
+          ],
+        },
+        include: {
+          truck: true,
+        },
+      }),
     ]);
 
     // D. Calculate distances for service centers
-    const serviceCenterResources: DiscoveredResource[] = serviceCenters.map(center => ({
+    const serviceCenterResources: DiscoveredResource[] = serviceCenters.map((center: ServiceCenterRow) => ({
       id: center.id,
       name: center.name,
       type: center.type,
@@ -136,7 +316,7 @@ export async function POST(
     }));
 
     // E. Calculate distances for warehouses
-    const warehouseResources: DiscoveredResource[] = warehouses.map(warehouse => ({
+    const warehouseResources: DiscoveredResource[] = warehouses.map((warehouse: WarehouseRow) => ({
       id: warehouse.id,
       name: warehouse.name,
       type: warehouse.type, // "BROADLINE_HUB" or "REGIONAL_HUB"
@@ -146,6 +326,63 @@ export async function POST(
       phone: undefined, // Warehouses don't have phone in our schema
       distance: haversineDistance(truckLat, truckLng, warehouse.lat, warehouse.lng),
     }));
+
+    // E2. Phase 2: Process available drivers for trailer relay
+    const availableDrivers: DiscoveredDriver[] = availableOrders
+      .filter((o: OrderWithTruck) => o.truck) // TypeScript safety
+      .map((driverOrder: OrderWithTruck) => {
+        // Driver is at their delivery destination (endLat/endLng)
+        const driverLat = driverOrder.endLat;
+        const driverLng = driverOrder.endLng;
+        const distanceFromIncident = haversineDistance(truckLat, truckLng, driverLat, driverLng);
+
+        // Find nearest Sysco hub (warehouse) for trailer drop-off
+        const nearestHub = warehouseResources
+          .map(wh => ({
+            id: wh.id,
+            name: wh.name,
+            distance: haversineDistance(driverLat, driverLng, wh.lat, wh.lng),
+          }))
+          .sort((a, b) => a.distance - b.distance)[0];
+
+        // Determine driver status based on order status and ETA
+        let driverStatus: "DELIVERED" | "COMPLETING";
+        if (driverOrder.status === "DELIVERED") {
+          driverStatus = "DELIVERED";
+        } else {
+          // "COMPLETING" = ETA within 30 min (arriving soon)
+          driverStatus = "COMPLETING";
+        }
+
+        return {
+          id: driverOrder.truck!.id,
+          orderId: driverOrder.id,
+          driverName: driverOrder.truck!.driverName,
+          truckId: driverOrder.truck!.id,
+          currentLocation: driverOrder.destination,
+          lat: driverLat,
+          lng: driverLng,
+          distance: distanceFromIncident,
+          status: driverStatus,
+          progress: driverOrder.progress ?? undefined,
+          nearestDropOff: nearestHub ? {
+            id: nearestHub.id,
+            name: nearestHub.name,
+            distance: nearestHub.distance,
+          } : undefined,
+        };
+      })
+      .sort((a: DiscoveredDriver, b: DiscoveredDriver) => a.distance - b.distance);
+
+    // Take top 3 drivers
+    const top3Drivers = availableDrivers.slice(0, 3).map((driver, index) => ({
+      ...driver,
+      rank: index + 1,
+    }));
+
+    console.log(`[Discovery] Found ${availableDrivers.length} available drivers, top 3:`,
+      top3Drivers.map(d => `${d.driverName} @ ${d.currentLocation} (${d.distance.toFixed(1)}mi, ${d.status})`).join(", ")
+    );
 
     // F. Combine and sort by distance, take top 3
     const allResources = [...serviceCenterResources, ...warehouseResources]
@@ -160,13 +397,43 @@ export async function POST(
       top3.map(r => `${r.name} [${r.resourceType}] (${r.distance.toFixed(1)}mi)`).join(", ")
     );
 
-    // G. Save to JSON field on Incident (handles both warehouses and service centers)
-    await prisma.incident.update({
-      where: { id: incidentId },
-      data: {
-        discoveredResources: top3,
-      },
-    });
+    // G. Save to unified IncidentCandidate table
+    await Promise.all([
+      // Save service center and warehouse candidates
+      ...top3.map(resource =>
+        prisma.incidentCandidate.create({
+          data: {
+            incidentId,
+            candidateType: resource.resourceType,
+            serviceCenterId: resource.resourceType === "SERVICE_CENTER" ? resource.id : null,
+            warehouseId: resource.resourceType === "WAREHOUSE" ? resource.id : null,
+            distance: resource.distance,
+            rank: resource.rank!,
+          },
+        })
+      ),
+      // Save driver candidates
+      ...top3Drivers.map(driver =>
+        prisma.incidentCandidate.create({
+          data: {
+            incidentId,
+            candidateType: "DRIVER",
+            truckId: driver.truckId,
+            distance: driver.distance,
+            rank: driver.rank!,
+            // Driver-specific snapshot fields
+            lat: driver.lat,
+            lng: driver.lng,
+            currentLocation: driver.currentLocation,
+            status: driver.status,
+            progress: driver.progress ?? null,
+            nearestDropOffId: driver.nearestDropOff?.id ?? null,
+            nearestDropOffName: driver.nearestDropOff?.name ?? null,
+            nearestDropOffDistance: driver.nearestDropOff?.distance ?? null,
+          },
+        })
+      ),
+    ]);
 
     // H. Fire-and-forget async workflow for cinematic reveal
     (async () => {
@@ -209,7 +476,7 @@ export async function POST(
           });
         }
 
-        // Final log: discovery complete
+        // Phase 1 summary log
         await delay(1000);
         const warehouseCount = top3.filter((r: DiscoveredResource) => r.resourceType === "WAREHOUSE").length;
         const serviceCenterCount = top3.filter((r: DiscoveredResource) => r.resourceType === "SERVICE_CENTER").length;
@@ -220,6 +487,62 @@ export async function POST(
           "DISCOVERY",
           "SUCCESS"
         );
+
+        // ==========================================
+        // PHASE 2: DRIVER DISCOVERY (Trailer Relay)
+        // ==========================================
+        if (top3Drivers.length > 0) {
+          await delay(1500);
+
+          await writeIncidentLog(
+            incidentId,
+            "Scanning fleet for available drivers near incident location...",
+            "DISCOVERY",
+            "INFO"
+          );
+
+          // Send driver discovery events with delays
+          for (let i = 0; i < top3Drivers.length; i++) {
+            await delay(1500);
+
+            const driver = top3Drivers[i];
+            const statusLabel = driver.status === "DELIVERED" ? "completed delivery" : `${driver.progress}% complete`;
+
+            console.log(`[Discovery] Sending driver event ${i + 1}: ${driver.driverName} [${driver.status}]`);
+
+            // Log message with trailer drop-off info
+            const dropOffInfo = driver.nearestDropOff
+              ? ` Trailer drop: ${driver.nearestDropOff.name} (${driver.nearestDropOff.distance.toFixed(1)} mi).`
+              : "";
+
+            await writeIncidentLog(
+              incidentId,
+              `Located driver: ${driver.driverName} (${driver.truckId}) at ${driver.currentLocation} (${driver.distance.toFixed(1)} mi). Status: ${statusLabel}.${dropOffInfo}`,
+              "DISCOVERY",
+              "SUCCESS"
+            );
+
+            // Send driver reveal event for map markers
+            await pusherServer.trigger("sysco-demo", "driver-located", {
+              incidentId: incidentId,
+              driver: driver,
+              rank: i + 1,
+              timestamp: new Date().toISOString(),
+            });
+          }
+
+          // Phase 2 summary
+          await delay(1000);
+          const deliveredCount = top3Drivers.filter(d => d.status === "DELIVERED").length;
+          const completingCount = top3Drivers.filter(d => d.status === "COMPLETING").length;
+
+          await writeIncidentLog(
+            incidentId,
+            `Identified ${top3Drivers.length} available driver${top3Drivers.length !== 1 ? 's' : ''} for trailer relay: ${deliveredCount} delivered, ${completingCount} completing. Nearest: ${top3Drivers[0]?.driverName} (${top3Drivers[0]?.distance.toFixed(1)} mi)`,
+            "DISCOVERY",
+            "SUCCESS"
+          );
+        }
 
         // Mark as completed
         await prisma.incident.update({
