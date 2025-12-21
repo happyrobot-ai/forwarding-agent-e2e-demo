@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef, useMemo } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { usePusher } from "@/components/PusherProvider";
@@ -8,18 +8,15 @@ import { useTheme } from "@/components/ThemeProvider";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import {
-  AlertCircle,
   TrendingUp,
   Package,
   ArrowRight,
   Activity,
-  RotateCcw,
   Search,
   X,
   DollarSign,
 } from "lucide-react";
 import { WarRoomModal } from "@/components/WarRoomModal";
-import { IncidentSelectionModal } from "@/components/IncidentSelectionModal";
 import { FilterDropdown } from "@/components/FilterDropdown";
 import { PriceRangeSlider } from "@/components/PriceRangeSlider";
 import { KPICardSkeleton, TableSkeleton, MapSkeleton } from "@/components/Skeletons";
@@ -60,7 +57,7 @@ export default function DashboardPage() {
 
   // --- STATE MANAGEMENT ---
   // 1. Server State via SWR (Source of Truth from DB)
-  const { orders: serverOrders, isLoading: ordersLoading, mutate: mutateOrders, updateOrder, addOrder } = useOrders();
+  const { orders: serverOrders, isLoading: ordersLoading, addOrder } = useOrders();
   const { warehouses, isLoading: warehousesLoading } = useWarehouses();
   const { activeIncident, isLoading: incidentsLoading } = useIncidents();
 
@@ -82,9 +79,6 @@ export default function DashboardPage() {
   // 3. UI State
   const [showWarRoom, setShowWarRoom] = useState(false);
   const [showBanner, setShowBanner] = useState(false);
-  const [showIncidentModal, setShowIncidentModal] = useState(false);
-  const [isTriggering, setIsTriggering] = useState(false);
-  const animationRef = useRef<NodeJS.Timeout | null>(null);
 
   // Combined loading state
   const isLoading = ordersLoading || warehousesLoading || incidentsLoading;
@@ -279,101 +273,6 @@ export default function DashboardPage() {
     };
   }, [pusher, addOrder]);
 
-  const handleTriggerDemo = () => {
-    setShowIncidentModal(true);
-  };
-
-  // Simulation Animation: Updates LOCAL state only (no server interaction)
-  const startSimulationAnimation = useCallback((orderId: string) => {
-    const ANIMATION_DURATION = 3000;
-    const STEPS = 60; // More steps for smoother animation
-    const INTERVAL = ANIMATION_DURATION / STEPS;
-    let step = 0;
-
-    // Reset any existing animation
-    if (animationRef.current) {
-      clearInterval(animationRef.current);
-    }
-
-    // Capture the current order data as a snapshot for the simulation
-    const currentOrder = serverOrders.find(o => o.id === orderId) || null;
-
-    // Initialize simulation state with the order data
-    setSimulation({ active: true, orderId, orderData: currentOrder, currentRiskScore: 0 });
-
-    animationRef.current = setInterval(() => {
-      step++;
-      const progress = step / STEPS;
-      const easeOut = 1 - Math.pow(1 - progress, 3); // Cubic ease out
-      const newScore = Math.floor(100 * easeOut);
-
-      // Update ONLY the simulation state, NOT the server orders
-      setSimulation(prev => ({
-        ...prev,
-        currentRiskScore: newScore
-      }));
-
-      if (step >= STEPS) {
-        if (animationRef.current) {
-          clearInterval(animationRef.current);
-          animationRef.current = null;
-        }
-      }
-    }, INTERVAL);
-  }, [serverOrders]);
-
-  const handleSelectOrder = async (orderId: string) => {
-    setShowIncidentModal(false);
-    setIsTriggering(true);
-    setHighlightedOrderId(orderId); // Trigger map zoom immediately
-
-    try {
-      // A. Visuals First (Optimistic UI) - Start local animation immediately
-      startSimulationAnimation(orderId);
-
-      // B. Server Call (Fire and Forget) - Pusher will handle the rest
-      await fetch("/api/demo/trigger", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderId }),
-      });
-    } catch (error) {
-      console.error("Error triggering demo:", error);
-    } finally {
-      setIsTriggering(false);
-    }
-  };
-
-  useEffect(() => {
-    return () => {
-      if (animationRef.current) {
-        clearInterval(animationRef.current);
-      }
-    };
-  }, []);
-
-  const handleResetDemo = async () => {
-    try {
-      // Stop any running animation
-      if (animationRef.current) {
-        clearInterval(animationRef.current);
-        animationRef.current = null;
-      }
-
-      // Reset all simulation and UI state
-      setSimulation({ active: false, orderId: null, orderData: null, currentRiskScore: 0 });
-      setShowBanner(false);
-      setLocalIncident(null);
-      setHighlightedOrderId(null);
-
-      await fetch("/api/demo/reset", { method: "POST" });
-
-      // Revalidate all data via SWR (service level is derived automatically)
-      await mutateOrders();
-    } catch (error) {
-      console.error("Error resetting demo:", error);
-    }
-  };
 
   const statusConfig: Record<
     string,
@@ -545,32 +444,6 @@ export default function DashboardPage() {
             <p className="text-sm text-zinc-500 mt-0.5 font-mono">
               REAL-TIME SUPPLY CHAIN MONITORING
             </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={handleResetDemo}
-              className={cn(
-                "px-5 py-2.5 rounded-lg font-medium text-sm transition-all duration-200",
-                "bg-zinc-600 hover:bg-zinc-700 text-white",
-                "shadow-lg shadow-zinc-500/20 hover:shadow-zinc-500/30",
-                "flex items-center gap-2 border border-zinc-500"
-              )}
-            >
-              <RotateCcw className="h-4 w-4" />
-              Reset
-            </button>
-            <button
-              onClick={handleTriggerDemo}
-              className={cn(
-                "px-5 py-2.5 rounded-lg font-medium text-sm transition-all duration-200",
-                "bg-red-600 hover:bg-red-700 text-white",
-                "shadow-lg shadow-red-500/20 hover:shadow-red-500/30",
-                "flex items-center gap-2 border border-red-500"
-              )}
-            >
-              <AlertCircle className="h-4 w-4" />
-              Simulate Incident
-            </button>
           </div>
         </div>
       </header>
@@ -1064,15 +937,6 @@ export default function DashboardPage() {
         />
       )}
 
-      {/* Incident Selection Modal */}
-      {showIncidentModal && (
-        <IncidentSelectionModal
-          orders={displayOrders}
-          onClose={() => setShowIncidentModal(false)}
-          onSelectOrder={handleSelectOrder}
-          isTriggering={isTriggering}
-        />
-      )}
     </div>
   );
 }

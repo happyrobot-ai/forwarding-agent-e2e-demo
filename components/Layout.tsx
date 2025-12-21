@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, ChevronRight, LucideIcon } from "lucide-react";
+import { LayoutDashboard, ChevronRight, LucideIcon, RotateCcw } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
 import { ThemeToggle } from "./ThemeToggle";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
@@ -226,6 +226,31 @@ export function Layout({ children }: { children: React.ReactNode }) {
             return navLink;
           })}
         </nav>
+
+        {/* Reset Button - Only visible when expanded */}
+        {!isCollapsed && (
+          <div className="px-3 py-2 border-t border-gray-200/60 dark:border-white/[0.08]">
+            <button
+              onClick={async () => {
+                try {
+                  await fetch("/api/demo/reset", { method: "POST" });
+                } catch (error) {
+                  console.error("Error resetting demo:", error);
+                }
+              }}
+              className={cn(
+                "w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg",
+                "text-sm font-medium transition-all duration-200",
+                "bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700",
+                "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white",
+                "border border-zinc-200 dark:border-zinc-700"
+              )}
+            >
+              <RotateCcw className="h-4 w-4" />
+              Reset Demo
+            </button>
+          </div>
+        )}
 
         {/* Theme Toggle */}
         <div

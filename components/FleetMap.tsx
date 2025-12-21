@@ -1055,7 +1055,7 @@ export function FleetMap({
         }
 
         return (
-          <div className="absolute top-4 left-1/2 -translate-x-1/2">
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50">
             <button
               onClick={() => handleMarkerClick(affectedOrder.id, affectedOrder.riskScore, targetLng, targetLat)}
               className={cn(

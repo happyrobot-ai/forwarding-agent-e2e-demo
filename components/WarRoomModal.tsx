@@ -248,10 +248,10 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
                   alt="HappyRobot"
                   width={24}
                   height={24}
-                  className="object-contain"
+                  className="object-contain animate-pulse"
                 />
                 <h2 className="text-lg font-bold text-red-400 tracking-tight">
-                  HappyRobot Incident Response
+                  HappyRobot War Room
                 </h2>
               </div>
               <p className="text-[10px] text-red-400/70 font-mono mt-0.5">
