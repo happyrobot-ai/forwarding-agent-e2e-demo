@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { pusherServer } from "@/lib/pusher-server";
+import { writeIncidentLog } from "@/lib/incident-logger";
 
 export async function POST(request: NextRequest) {
   try {
@@ -73,10 +74,32 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Create agent run placeholders with dynamic info
+    // Write initial incident logs (persisted to DB)
     const driverName = targetOrder.truck?.driverName || "Driver";
     const truckId = targetOrder.truck?.id || "Unknown";
 
+    await writeIncidentLog(
+      incident.id,
+      `CRITICAL: Equipment failure detected on ${truckId}. Driver ${driverName} reporting engine malfunction.`,
+      "SYSTEM",
+      "ERROR"
+    );
+
+    await writeIncidentLog(
+      incident.id,
+      `Affected shipment: ${targetOrder.itemName} → ${targetOrder.destination}. Estimated impact: $${(targetOrder.sellPrice || 0).toLocaleString()}.`,
+      "SYSTEM",
+      "WARNING"
+    );
+
+    await writeIncidentLog(
+      incident.id,
+      "Autonomous recovery protocols initiated. Spinning up agent swarm...",
+      "ORCHESTRATOR",
+      "INFO"
+    );
+
+    // Create agent run placeholders with dynamic info
     await prisma.agentRun.createMany({
       data: [
         {

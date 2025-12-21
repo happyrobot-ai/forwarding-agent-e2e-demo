@@ -44,6 +44,14 @@ export interface ServiceCenter {
   rank?: number; // 1 = closest, 2 = second closest, etc.
 }
 
+// Buyer type for affected clients
+interface Buyer {
+  id: string;
+  name: string;
+  segment: string;
+  trustScore?: number;
+}
+
 // Order type with geospatial data
 interface Order {
   id: string;
@@ -63,6 +71,12 @@ interface Order {
   riskScore: number;
   routeGeoJson?: number[][] | null; // Precomputed route from Mapbox
   progress?: number; // 0-100, position along route
+  // Financial fields for OrderDetailPanel
+  costPrice?: number;
+  sellPrice?: number;
+  internalBaseCost?: number;
+  actualLogisticsCost?: number;
+  buyers?: Buyer[];
 }
 
 // View states
@@ -894,8 +908,8 @@ export function FleetMap({
 
       </Map>
 
-      {/* Order Detail Panel - shows when order is selected (dashboard mode only) */}
-      {viewMode === "dashboard" && selectedOrderId && (() => {
+      {/* Order Detail Panel - shows when order is selected */}
+      {selectedOrderId && (() => {
         const selectedOrder = orders.find(o => o.id === selectedOrderId);
         if (!selectedOrder) return null;
         return (
@@ -908,6 +922,7 @@ export function FleetMap({
             isIncidentActive={incidentStatus === "ACTIVE"}
             incidentDescription={incidentDescription}
             onOpenWarRoom={onIncidentClick}
+            elevated={viewMode === "focused"}
           />
         );
       })()}

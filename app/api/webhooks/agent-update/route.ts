@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { pusherServer } from "@/lib/pusher-server";
+import { writeIncidentLog, LogStatus } from "@/lib/incident-logger";
 
 interface AgentUpdatePayload {
   run_id: string;
@@ -54,6 +55,26 @@ export async function POST(req: NextRequest) {
         logs: [...logs, newLog],
       },
     });
+
+    // Write to unified incident_logs table for War Room visibility
+    // Map agent status to log status
+    const logStatus: LogStatus = status === "success" ? "SUCCESS"
+      : status === "failed" ? "ERROR"
+      : "INFO";
+
+    // Determine source based on agent role
+    const logSource = agentRun.agentRole === "Supplier_Voice"
+      ? "AGENT:SUPPLIER"
+      : agentRun.agentRole === "Driver_Voice"
+      ? "AGENT:DRIVER"
+      : "AGENT:CUSTOMER";
+
+    await writeIncidentLog(
+      agentRun.incidentId,
+      reasoning || `[${stage}] ${agentRun.agentName} - ${status}`,
+      logSource as "AGENT:SUPPLIER" | "AGENT:DRIVER" | "AGENT:CUSTOMER",
+      logStatus
+    );
 
     // Handle specific stages
     if (stage === "supplier_negotiation" && status === "success") {

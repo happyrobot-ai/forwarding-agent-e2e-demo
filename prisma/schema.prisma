@@ -33,7 +33,27 @@ model Incident {
   // Stored as JSON for flexibility: [{ id, name, type, resourceType, lat, lng, phone?, distance, rank }]
   discoveredResources Json @default("[]") @map("discovered_resources")
 
+  // Unified incident timeline logs (System, Discovery, Agent events)
+  logs        IncidentLog[]
+
   @@map("incidents")
+}
+
+// Unified log model for incident timeline
+model IncidentLog {
+  id          String   @id @default(uuid())
+
+  incidentId  String   @map("incident_id")
+  incident    Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+
+  timestamp   DateTime @default(now())
+  message     String   // e.g., "Identified 3 repair shops", "Calling Driver..."
+  source      String   // "SYSTEM", "ORCHESTRATOR", "DISCOVERY", "AGENT:SUPPLIER", "AGENT:DRIVER"
+  status      String   @default("INFO") // "INFO", "SUCCESS", "WARNING", "ERROR"
+
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("incident_logs")
 }
 
 enum DiscoveryStatus {

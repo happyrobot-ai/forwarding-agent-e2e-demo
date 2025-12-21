@@ -56,6 +56,7 @@ interface OrderDetailPanelProps {
   isIncidentActive?: boolean;
   incidentDescription?: string | null;
   onOpenWarRoom?: () => void;
+  elevated?: boolean; // When true, uses higher z-index to float above War Room backdrop
 }
 
 // Reuse your existing helpers
@@ -76,7 +77,7 @@ function formatDistance(meters: number): string {
   return `${(meters / 1609.34).toFixed(0)} mi`;
 }
 
-export function OrderDetailPanel({ order, onClose, isIncidentActive, incidentDescription, onOpenWarRoom }: OrderDetailPanelProps) {
+export function OrderDetailPanel({ order, onClose, isIncidentActive, incidentDescription, onOpenWarRoom, elevated }: OrderDetailPanelProps) {
   // State to toggle views: 'impact' (Crisis view) vs 'logistics' (Normal view)
   // If order is at risk, default to 'impact', otherwise 'logistics'
   const isAtRisk = order.status === "AT_RISK" || order.riskScore >= 80 || order.status === "CANCELLED";
@@ -127,7 +128,10 @@ export function OrderDetailPanel({ order, onClose, isIncidentActive, incidentDes
 
 
   return (
-    <div className="absolute top-4 left-4 bottom-4 z-30 w-[340px] animate-in slide-in-from-left-2 duration-200 flex flex-col">
+    <div className={cn(
+      "absolute top-4 left-4 bottom-4 w-[340px] animate-in slide-in-from-left-2 duration-200 flex flex-col",
+      elevated ? "z-50" : "z-30" // z-50 floats above War Room backdrop (z-40)
+    )}>
       <div className={cn(
         "backdrop-blur-xl border rounded-xl shadow-2xl overflow-hidden flex flex-col transition-colors duration-300 max-h-full",
         // Dynamic border color based on tab state
@@ -141,21 +145,19 @@ export function OrderDetailPanel({ order, onClose, isIncidentActive, incidentDes
             <span className="font-mono text-sm text-white font-semibold">{order.id}</span>
           </div>
           <div className="flex items-center gap-2">
-            {/* War Room Button + HappyRobot Logo (only when incident active) */}
-            {isIncidentActive && onOpenWarRoom && isAtRisk && (
-              <>
-                <button
-                  onClick={onOpenWarRoom}
-                  className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-red-900/30 border border-red-800/50 text-red-300 hover:bg-red-900/50 transition-all text-[10px] font-medium animate-pulse"
-                >
-                  <img
-                    src="/happyrobot/Footer-logo-white.png"
-                    alt="HappyRobot"
-                    className="h-3 w-auto opacity-70"
-                  />
-                  War Room
-                </button>
-              </>
+            {/* War Room Button + HappyRobot Logo (only when incident active and NOT already in War Room) */}
+            {isIncidentActive && onOpenWarRoom && isAtRisk && !elevated && (
+              <button
+                onClick={onOpenWarRoom}
+                className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-red-900/30 border border-red-800/50 text-red-300 hover:bg-red-900/50 transition-all text-[10px] font-medium animate-pulse cursor-pointer"
+              >
+                <img
+                  src="/happyrobot/Footer-logo-white.png"
+                  alt="HappyRobot"
+                  className="h-3 w-auto opacity-70"
+                />
+                War Room
+              </button>
             )}
             <button onClick={onClose} className="p-1 hover:bg-zinc-800 rounded transition-colors">
               <X className="h-4 w-4 text-zinc-500 hover:text-white" />

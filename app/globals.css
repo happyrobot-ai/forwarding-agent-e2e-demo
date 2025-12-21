@@ -281,6 +281,12 @@ body {
   background: rgba(59, 130, 246, 0.4);
 }
 
+/* Button cursor - ensure all buttons show pointer cursor */
+button,
+[role="button"] {
+  cursor: pointer;
+}
+
 /* Focus ring styling - only for buttons and links, not form inputs */
 button:focus-visible,
 a:focus-visible,

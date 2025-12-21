@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { pusherServer } from "@/lib/pusher-server";
+import { writeIncidentLog } from "@/lib/incident-logger";
 
 // Unified resource type for discovery results
 interface DiscoveredResource {
@@ -173,15 +174,13 @@ export async function POST(
         // Initial delay before starting discovery
         await delay(1500);
 
-        // Send "analyzing" log event
-        await pusherServer.trigger("sysco-demo", "agent-update", {
-          run_id: incidentId,
-          stage: "RESOURCE_SCAN",
-          status: "running",
-          reasoning: "Initiating geospatial scan for recovery assets and Sysco facilities...",
-          agentRole: "Driver_Voice",
-          timestamp: new Date().toISOString(),
-        });
+        // Send "analyzing" log event - persisted to DB
+        await writeIncidentLog(
+          incidentId,
+          "Initiating geospatial scan for recovery assets and Sysco facilities...",
+          "DISCOVERY",
+          "INFO"
+        );
 
         // Send discovery events with delays (1.5s between each)
         for (let i = 0; i < top3.length; i++) {
@@ -194,17 +193,12 @@ export async function POST(
 
           console.log(`[Discovery] Sending discovery event ${i + 1}: ${resource.name} [${resource.resourceType}]`);
 
-          // Send log update with resource-type-specific messaging
-          await pusherServer.trigger("sysco-demo", "agent-update", {
-            run_id: incidentId,
-            stage: "DISCOVERY",
-            status: "success",
-            reasoning: resource.resourceType === "WAREHOUSE"
-              ? `Located Sysco ${resource.type.replace(/_/g, ' ')}: ${resource.name} (${resource.distance.toFixed(1)} mi). Backup inventory available.`
-              : `Located ${resourceLabel}: ${resource.name} (${resource.distance.toFixed(1)} mi). Capability match: 98%.`,
-            agentRole: "Driver_Voice",
-            timestamp: new Date().toISOString(),
-          });
+          // Send log update with resource-type-specific messaging - persisted to DB
+          const message = resource.resourceType === "WAREHOUSE"
+            ? `Located Sysco ${resource.type.replace(/_/g, ' ')}: ${resource.name} (${resource.distance.toFixed(1)} mi). Backup inventory available.`
+            : `Located ${resourceLabel}: ${resource.name} (${resource.distance.toFixed(1)} mi). Capability match: 98%.`;
+
+          await writeIncidentLog(incidentId, message, "DISCOVERY", "SUCCESS");
 
           // Send map reveal event (tagged with incidentId for filtering)
           await pusherServer.trigger("sysco-demo", "resource-located", {
@@ -217,17 +211,15 @@ export async function POST(
 
         // Final log: discovery complete
         await delay(1000);
-        const warehouseCount = top3.filter(r => r.resourceType === "WAREHOUSE").length;
-        const serviceCenterCount = top3.filter(r => r.resourceType === "SERVICE_CENTER").length;
+        const warehouseCount = top3.filter((r: DiscoveredResource) => r.resourceType === "WAREHOUSE").length;
+        const serviceCenterCount = top3.filter((r: DiscoveredResource) => r.resourceType === "SERVICE_CENTER").length;
 
-        await pusherServer.trigger("sysco-demo", "agent-update", {
-          run_id: incidentId,
-          stage: "RESOURCE_SCAN",
-          status: "success",
-          reasoning: `Identified ${top3.length} recovery options: ${serviceCenterCount} service center${serviceCenterCount !== 1 ? 's' : ''}, ${warehouseCount} Sysco facilit${warehouseCount !== 1 ? 'ies' : 'y'}. Nearest: ${top3[0]?.name} (${top3[0]?.distance.toFixed(1)} mi)`,
-          agentRole: "Driver_Voice",
-          timestamp: new Date().toISOString(),
-        });
+        await writeIncidentLog(
+          incidentId,
+          `Identified ${top3.length} recovery options: ${serviceCenterCount} service center${serviceCenterCount !== 1 ? 's' : ''}, ${warehouseCount} Sysco facilit${warehouseCount !== 1 ? 'ies' : 'y'}. Nearest: ${top3[0]?.name} (${top3[0]?.distance.toFixed(1)} mi)`,
+          "DISCOVERY",
+          "SUCCESS"
+        );
 
         // Mark as completed
         await prisma.incident.update({

@@ -34,6 +34,7 @@ export function getPrisma(): PrismaClient {
 // For backward compatibility - use getPrisma() in API routes
 export const prisma = {
   get incident() { return getPrisma().incident; },
+  get incidentLog() { return getPrisma().incidentLog; },
   get order() { return getPrisma().order; },
   get agentRun() { return getPrisma().agentRun; },
   get truck() { return getPrisma().truck; },
