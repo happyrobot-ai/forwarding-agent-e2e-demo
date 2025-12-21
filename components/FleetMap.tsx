@@ -479,10 +479,11 @@ export function FleetMap({
 
       setTimeout(() => {
         // Use fitBounds which properly accounts for container aspect ratio
+        // Left padding accounts for OrderDetailPanel (340px) that opens on marker click
         map.fitBounds(
           [[minLng, minLat], [maxLng, maxLat]],
           {
-            padding: { top: 80, bottom: 80, left: 40, right: 40 },
+            padding: { top: 80, bottom: 80, left: 380, right: 40 },
             maxZoom: 8,
             duration: 800,
           }
@@ -616,9 +617,11 @@ export function FleetMap({
         zoom: 10,
         duration: 2000,
         essential: true,
+        // In focused mode (War Room), add left padding to account for OrderDetailPanel (340px)
+        padding: viewMode === "focused" ? { left: 380, top: 0, bottom: 0, right: 0 } : undefined,
       });
     }
-  }, [selectedOrderId, onOrderSelect]);
+  }, [selectedOrderId, onOrderSelect, viewMode]);
 
   return (
     <div className={cn(

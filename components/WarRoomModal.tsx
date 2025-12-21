@@ -231,7 +231,7 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
   return (
     <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
       <div className={cn(
-        "rounded-xl w-full max-w-7xl h-[90vh] overflow-hidden flex flex-col shadow-2xl",
+        "rounded-xl w-[90vw] h-[90vh] overflow-hidden flex flex-col shadow-2xl",
         "bg-zinc-950 border border-zinc-800 ring-1 ring-white/5"
       )}>
         {/* Header */}
