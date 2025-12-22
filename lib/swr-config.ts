@@ -38,5 +38,6 @@ export const SWR_KEYS = {
   INCIDENTS: "/api/incidents",
   AGENTS: "/api/agents",
   WAREHOUSES: "/api/warehouses",
+  TRUCKS: "/api/trucks",
   INCIDENT_LOGS: (id: string) => `/api/incidents/${id}/logs`,
 } as const;

@@ -127,8 +127,27 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
 
     const initDiscovery = async () => {
       try {
-        await fetch(`/api/incidents/${incident.id}/discover`, { method: "POST" });
-        // We rely on Pusher for the visual updates to keep it cinematic
+        const res = await fetch(`/api/incidents/${incident.id}/discover`, { method: "POST" });
+        const data = await res.json();
+
+        // If discovery was already completed, load cached candidates
+        if (data.status === "COMPLETED") {
+          console.log("[War Room] Discovery already complete, loading cached candidates");
+
+          // Load cached service centers/warehouses
+          if (data.candidates && Array.isArray(data.candidates)) {
+            setFoundServiceCenters(data.candidates);
+          }
+
+          // Load cached drivers
+          if (data.drivers && Array.isArray(data.drivers)) {
+            setFoundDrivers(data.drivers);
+          }
+
+          // Mark discovery as complete so swarm can trigger
+          setDiscoveryComplete(true);
+        }
+        // For STARTED/RUNNING, we rely on Pusher events for cinematic reveal
       } catch (error) {
         console.error("[War Room] Error initiating discovery:", error);
       }
@@ -142,9 +161,28 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
     if (!pusher) return;
     const channel = pusher.subscribe("sysco-demo");
 
-    channel.bind("incident-log", (data: { incidentId: string; log: IncidentLog }) => {
+    channel.bind("incident-log", (data: {
+      incidentId: string;
+      log: IncidentLog;
+      selected_facility_id?: string;
+      selected_driver_id?: string;
+    }) => {
       if (data.incidentId !== incident.id) return;
       addLog(data.log);
+
+      // If a facility was selected, filter to only show that one
+      if (data.selected_facility_id) {
+        setFoundServiceCenters((prev) =>
+          prev.filter((sc) => sc.id === data.selected_facility_id)
+        );
+      }
+
+      // If a driver was selected, filter to only show that one
+      if (data.selected_driver_id) {
+        setFoundDrivers((prev) =>
+          prev.filter((d) => d.id === data.selected_driver_id)
+        );
+      }
     });
 
     channel.bind("agent-update", (data: { agentRole: string; status: string }) => {
@@ -225,9 +263,9 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
   // Helper styles
   const getSourceColor = (source: string) => {
     if (source === "SYSTEM") return "text-zinc-500";
-    if (source === "ORCHESTRATOR") return "text-purple-400";
     if (source === "DISCOVERY") return "text-blue-400";
-    if (source.startsWith("AGENT:")) return "text-emerald-400";
+    // ORCHESTRATOR and all AGENT:* sources are purple (HappyRobot agents)
+    if (source === "ORCHESTRATOR" || source.startsWith("AGENT:")) return "text-purple-400";
     return "text-zinc-400";
   };
 

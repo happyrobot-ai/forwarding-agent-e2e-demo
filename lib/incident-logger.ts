@@ -19,15 +19,25 @@ export interface IncidentLogEntry {
   status: string;
 }
 
+// Optional metadata for resource selection events
+export interface SelectionMetadata {
+  selected_facility_id?: string;
+  selected_driver_id?: string;
+}
+
 /**
  * Writes a log entry to the database and broadcasts it via Pusher.
  * This is the single source of truth for all incident logging.
+ *
+ * @param selection - Optional metadata to indicate a resource was selected
+ *                    (triggers UI to filter down to just that resource)
  */
 export async function writeIncidentLog(
   incidentId: string,
   message: string,
   source: LogSource,
-  status: LogStatus = "INFO"
+  status: LogStatus = "INFO",
+  selection?: SelectionMetadata
 ): Promise<IncidentLogEntry> {
   // 1. Persist to database
   const log = await prisma.incidentLog.create({
@@ -47,10 +57,12 @@ export async function writeIncidentLog(
     status: log.status,
   };
 
-  // 2. Broadcast to all connected clients
+  // 2. Broadcast to all connected clients (include selection metadata if present)
   await pusherServer.trigger("sysco-demo", "incident-log", {
     incidentId,
     log: logEntry,
+    ...(selection?.selected_facility_id && { selected_facility_id: selection.selected_facility_id }),
+    ...(selection?.selected_driver_id && { selected_driver_id: selection.selected_driver_id }),
   });
 
   return logEntry;

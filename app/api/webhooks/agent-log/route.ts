@@ -18,6 +18,9 @@ interface AgentLogPayload {
   message: string;
   source: LogSource;
   status?: LogStatus;
+  // Optional: when a specific resource is selected/confirmed
+  selected_facility_id?: string;
+  selected_driver_id?: string;
 }
 
 // POST /api/webhooks/agent-log
@@ -38,7 +41,7 @@ export async function POST(request: NextRequest) {
 
     // Parse request body
     const body = await request.json() as AgentLogPayload;
-    const { incident_id, message, source, status = "INFO" } = body;
+    const { incident_id, message, source, status = "INFO", selected_facility_id, selected_driver_id } = body;
 
     // Validate required fields
     if (!incident_id) {
@@ -91,12 +94,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Build selection metadata if provided
+    const selection = (selected_facility_id || selected_driver_id)
+      ? { selected_facility_id, selected_driver_id }
+      : undefined;
+
     // Write log entry (persists to DB + broadcasts via Pusher)
     const logEntry = await writeIncidentLog(
       incident_id,
       message,
       source,
-      status
+      status,
+      selection
     );
 
     console.log(`[agent-log] Log written for incident ${incident_id}: ${message.substring(0, 50)}...`);
@@ -126,6 +135,8 @@ export async function GET() {
       message: "string (required)",
       source: `string (required) - one of: ${VALID_SOURCES.join(", ")}`,
       status: `string (optional) - one of: ${VALID_STATUSES.join(", ")} (default: INFO)`,
+      selected_facility_id: "string (optional) - ID of selected facility (filters UI to show only this one)",
+      selected_driver_id: "string (optional) - ID of selected driver (filters UI to show only this one)",
     },
   });
 }

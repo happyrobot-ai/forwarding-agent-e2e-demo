@@ -1,87 +1,118 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
 import { useTheme } from "@/components/ThemeProvider";
-import { Truck, MapPin, Clock, Fuel, AlertTriangle, CheckCircle } from "lucide-react";
+import { useTrucks, revalidateTrucks } from "@/hooks";
+import { FilterDropdown } from "@/components/FilterDropdown";
+import { usePusher } from "@/components/PusherProvider";
+import {
+  Truck as TruckIcon,
+  MapPin,
+  Clock,
+  AlertTriangle,
+  CheckCircle,
+  Package,
+  RefreshCw,
+  Loader2,
+  Snowflake,
+  Box,
+  Layers,
+  Droplet,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
-interface Vehicle {
-  id: string;
-  name: string;
-  driver: string;
-  status: "active" | "idle" | "maintenance" | "offline";
-  location: string;
-  fuelLevel: number;
-  lastUpdate: string;
-  currentRoute?: string;
-}
+// Vehicle type display configuration
+const vehicleTypeConfig: Record<string, { label: string; icon: typeof Snowflake; color: string }> = {
+  REFRIGERATED: {
+    label: "Refrigerated",
+    icon: Snowflake,
+    color: "text-cyan-500",
+  },
+  DRY_VAN: {
+    label: "Dry Van",
+    icon: Box,
+    color: "text-amber-500",
+  },
+  FLATBED: {
+    label: "Flatbed",
+    icon: Layers,
+    color: "text-zinc-500",
+  },
+  TANKER: {
+    label: "Tanker",
+    icon: Droplet,
+    color: "text-blue-500",
+  },
+};
 
-// Mock fleet data for demo
-const mockFleet: Vehicle[] = [
-  {
-    id: "TRK-001",
-    name: "Sysco Truck 001",
-    driver: "John Smith",
-    status: "active",
-    location: "Houston, TX",
-    fuelLevel: 78,
-    lastUpdate: "2 min ago",
-    currentRoute: "Houston → Dallas",
+// Status display configuration
+const statusConfig: Record<string, { bg: string; text: string; icon: typeof CheckCircle; border: string; label: string }> = {
+  ACTIVE: {
+    bg: "bg-[var(--status-success-bg)]",
+    text: "text-[var(--status-success-text)]",
+    icon: CheckCircle,
+    border: "border-[var(--status-success-border)]",
+    label: "Active",
   },
-  {
-    id: "TRK-002",
-    name: "Sysco Truck 002",
-    driver: "Maria Garcia",
-    status: "active",
-    location: "San Antonio, TX",
-    fuelLevel: 92,
-    lastUpdate: "5 min ago",
-    currentRoute: "San Antonio → Austin",
+  IDLE: {
+    bg: "bg-[var(--status-info-bg)]",
+    text: "text-[var(--status-info-text)]",
+    icon: Clock,
+    border: "border-[var(--status-info-border)]",
+    label: "Idle",
   },
-  {
-    id: "TRK-003",
-    name: "Sysco Truck 003",
-    driver: "Robert Johnson",
-    status: "idle",
-    location: "Dallas, TX",
-    fuelLevel: 45,
-    lastUpdate: "15 min ago",
+  MAINTENANCE: {
+    bg: "bg-[var(--status-warn-bg)]",
+    text: "text-[var(--status-warn-text)]",
+    icon: AlertTriangle,
+    border: "border-[var(--status-warn-border)]",
+    label: "Maintenance",
   },
-  {
-    id: "TRK-004",
-    name: "Sysco Truck 004",
-    driver: "Emily Davis",
-    status: "maintenance",
-    location: "Houston Depot",
-    fuelLevel: 30,
-    lastUpdate: "1 hour ago",
+  INCIDENT: {
+    bg: "bg-[var(--status-error-bg)]",
+    text: "text-[var(--status-error-text)]",
+    icon: AlertTriangle,
+    border: "border-[var(--status-error-border)]",
+    label: "Incident",
   },
-  {
-    id: "TRK-005",
-    name: "Sysco Truck 005",
-    driver: "Michael Wilson",
-    status: "active",
-    location: "Fort Worth, TX",
-    fuelLevel: 65,
-    lastUpdate: "3 min ago",
-    currentRoute: "Fort Worth → Waco",
-  },
-  {
-    id: "TRK-006",
-    name: "Sysco Truck 006",
-    driver: "Sarah Brown",
-    status: "offline",
-    location: "Unknown",
-    fuelLevel: 0,
-    lastUpdate: "3 hours ago",
-  },
-];
+};
 
 export default function FleetPage() {
   const { theme } = useTheme();
-  const [fleet] = useState<Vehicle[]>(mockFleet);
-  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const { trucks, isLoading, isError, error } = useTrucks();
+  const { pusher } = usePusher();
+
+  // Filter states
+  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [vehicleTypeFilter, setVehicleTypeFilter] = useState<string>("");
+  const [driverFilter, setDriverFilter] = useState<string>("");
+
+  // Subscribe to Pusher events for real-time updates
+  useEffect(() => {
+    if (!pusher) return;
+
+    const channel = pusher.subscribe("sysco-demo");
+
+    // Listen for truck-related events
+    channel.bind("truck:updated", () => {
+      revalidateTrucks();
+    });
+
+    channel.bind("order:updated", () => {
+      // Revalidate trucks when orders change (affects currentOrder)
+      revalidateTrucks();
+    });
+
+    channel.bind("orders:bulk-updated", () => {
+      revalidateTrucks();
+    });
+
+    return () => {
+      channel.unbind_all();
+      pusher.unsubscribe("sysco-demo");
+    };
+  }, [pusher]);
 
   const getSamsaraLogo = () => {
     return theme === "dark"
@@ -89,47 +120,79 @@ export default function FleetPage() {
       : "/samsara/Samsara_logo_primary_vertical_blk.png";
   };
 
-  const statusConfig: Record<string, { bg: string; text: string; icon: typeof CheckCircle; border: string }> = {
-    active: {
-      bg: "bg-[var(--status-success-bg)]",
-      text: "text-[var(--status-success-text)]",
-      icon: CheckCircle,
-      border: "border-[var(--status-success-border)]",
-    },
-    idle: {
-      bg: "bg-[var(--status-info-bg)]",
-      text: "text-[var(--status-info-text)]",
-      icon: Clock,
-      border: "border-[var(--status-info-border)]",
-    },
-    maintenance: {
-      bg: "bg-[var(--status-warn-bg)]",
-      text: "text-[var(--status-warn-text)]",
-      icon: AlertTriangle,
-      border: "border-[var(--status-warn-border)]",
-    },
-    offline: {
-      bg: "bg-[var(--status-error-bg)]",
-      text: "text-[var(--status-error-text)]",
-      icon: AlertTriangle,
-      border: "border-[var(--status-error-border)]",
-    },
-  };
-
   const getStatusConfig = (status: string) =>
-    statusConfig[status] || statusConfig.idle;
+    statusConfig[status] || statusConfig.IDLE;
 
-  const filteredFleet = fleet.filter((vehicle) =>
-    statusFilter === "all" ? true : vehicle.status === statusFilter
-  );
+  const getVehicleTypeConfig = (type: string) =>
+    vehicleTypeConfig[type] || vehicleTypeConfig.DRY_VAN;
 
-  const stats = {
-    total: fleet.length,
-    active: fleet.filter((v) => v.status === "active").length,
-    idle: fleet.filter((v) => v.status === "idle").length,
-    maintenance: fleet.filter((v) => v.status === "maintenance").length,
-    offline: fleet.filter((v) => v.status === "offline").length,
-  };
+  // Extract unique values for filter dropdowns
+  const uniqueStatuses = useMemo(() => {
+    const statuses = [...new Set(trucks.map((t) => t.status))];
+    return statuses.sort();
+  }, [trucks]);
+
+  const uniqueVehicleTypes = useMemo(() => {
+    const types = [...new Set(trucks.map((t) => t.vehicleType))];
+    return types.sort();
+  }, [trucks]);
+
+  const uniqueDrivers = useMemo(() => {
+    const drivers = [...new Set(trucks.map((t) => t.driverName))];
+    return drivers.sort();
+  }, [trucks]);
+
+  // Apply filters
+  const filteredTrucks = useMemo(() => {
+    return trucks.filter((truck) => {
+      if (statusFilter && truck.status !== statusFilter) return false;
+      // vehicleTypeFilter uses labels, need to match against the label
+      if (vehicleTypeFilter && getVehicleTypeConfig(truck.vehicleType).label !== vehicleTypeFilter) return false;
+      if (driverFilter && truck.driverName !== driverFilter) return false;
+      return true;
+    });
+  }, [trucks, statusFilter, vehicleTypeFilter, driverFilter]);
+
+  // Calculate stats from real data
+  const stats = useMemo(() => ({
+    total: trucks.length,
+    active: trucks.filter((t) => t.status === "ACTIVE").length,
+    idle: trucks.filter((t) => t.status === "IDLE").length,
+    maintenance: trucks.filter((t) => t.status === "MAINTENANCE").length,
+    incident: trucks.filter((t) => t.status === "INCIDENT").length,
+  }), [trucks]);
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[var(--sysco-bg)] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 text-blue-500 animate-spin" />
+          <p className="text-zinc-500 font-mono text-sm">Loading fleet data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (isError) {
+    return (
+      <div className="min-h-screen bg-[var(--sysco-bg)] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4 text-center">
+          <AlertTriangle className="h-8 w-8 text-red-500" />
+          <p className="text-zinc-400">Failed to load fleet data</p>
+          <p className="text-zinc-500 text-sm font-mono">{error?.message}</p>
+          <button
+            onClick={() => revalidateTrucks()}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <RefreshCw className="h-4 w-4" />
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[var(--sysco-bg)]">
@@ -153,6 +216,13 @@ export default function FleetPage() {
               </span>
             </div>
           </div>
+          <button
+            onClick={() => revalidateTrucks()}
+            className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-md border transition-all duration-200 bg-zinc-900/50 hover:bg-zinc-800 border-zinc-800 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200"
+          >
+            <RefreshCw className="h-3.5 w-3.5" />
+            Refresh
+          </button>
         </div>
       </header>
 
@@ -212,31 +282,38 @@ export default function FleetPage() {
             "bg-[var(--sysco-card)] border border-[var(--sysco-border)]"
           )}>
             <p className="text-xs font-medium text-red-500 uppercase tracking-wider">
-              Offline
+              Incident
             </p>
             <p className="text-3xl font-bold text-red-500 mt-1 font-mono">
-              {stats.offline}
+              {stats.incident}
             </p>
             <div className="absolute -right-4 -top-4 h-16 w-16 rounded-full bg-red-500/10 blur-xl" />
           </div>
         </div>
 
-        {/* Filter Tabs */}
-        <div className="flex gap-2">
-          {["all", "active", "idle", "maintenance", "offline"].map((status) => (
-            <button
-              key={status}
-              onClick={() => setStatusFilter(status)}
-              className={cn(
-                "px-4 py-2 rounded-lg text-sm font-medium transition-all border",
-                statusFilter === status
-                  ? "bg-blue-600 text-white border-blue-500"
-                  : "bg-[var(--sysco-card)] text-zinc-400 border-[var(--sysco-border)] hover:bg-[var(--sysco-surface)] hover:text-zinc-200"
-              )}
-            >
-              {status.charAt(0).toUpperCase() + status.slice(1)}
-            </button>
-          ))}
+        {/* Filter Row */}
+        <div className="flex flex-wrap gap-3">
+          <FilterDropdown
+            value={statusFilter}
+            onChange={setStatusFilter}
+            options={uniqueStatuses}
+            placeholder="Status"
+            label="Status"
+          />
+          <FilterDropdown
+            value={vehicleTypeFilter}
+            onChange={setVehicleTypeFilter}
+            options={uniqueVehicleTypes.map((t) => getVehicleTypeConfig(t).label)}
+            placeholder="Vehicle Type"
+            label="Type"
+          />
+          <FilterDropdown
+            value={driverFilter}
+            onChange={setDriverFilter}
+            options={uniqueDrivers}
+            placeholder="Driver"
+            label="Driver"
+          />
         </div>
 
         {/* Fleet Table */}
@@ -250,7 +327,7 @@ export default function FleetPage() {
               Vehicle Fleet
             </h2>
             <p className="text-xs text-zinc-500 font-mono mt-0.5">
-              {filteredFleet.length} VEHICLES
+              {filteredTrucks.length} VEHICLES
             </p>
           </div>
 
@@ -260,91 +337,125 @@ export default function FleetPage() {
                 <tr>
                   <th className="px-6 py-3">Vehicle</th>
                   <th className="px-6 py-3">Driver</th>
+                  <th className="px-6 py-3">Type</th>
                   <th className="px-6 py-3">Status</th>
-                  <th className="px-6 py-3">Location</th>
-                  <th className="px-6 py-3">Route</th>
-                  <th className="px-6 py-3">Fuel</th>
-                  <th className="px-6 py-3">Last Update</th>
+                  <th className="px-6 py-3">Current Route</th>
+                  <th className="px-6 py-3">Progress</th>
+                  <th className="px-6 py-3">Last Updated</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--sysco-border)]">
-                {filteredFleet.map((vehicle) => {
-                  const config = getStatusConfig(vehicle.status);
-                  const StatusIcon = config.icon;
-                  return (
-                    <tr
-                      key={vehicle.id}
-                      className="group hover:bg-[var(--sysco-surface)] transition-colors"
-                    >
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-lg bg-[var(--sysco-surface)] border border-[var(--sysco-border)] flex items-center justify-center">
-                            <Truck className="h-5 w-5 text-zinc-500" />
+                {filteredTrucks.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-12 text-center">
+                      <div className="flex flex-col items-center gap-2">
+                        <TruckIcon className="h-8 w-8 text-zinc-600" />
+                        <p className="text-zinc-500">No vehicles found</p>
+                        <p className="text-zinc-600 text-xs">Try adjusting your filters</p>
+                      </div>
+                    </td>
+                  </tr>
+                ) : (
+                  filteredTrucks.map((truck) => {
+                    const config = getStatusConfig(truck.status);
+                    const typeConfig = getVehicleTypeConfig(truck.vehicleType);
+                    const StatusIcon = config.icon;
+                    const TypeIcon = typeConfig.icon;
+                    const currentOrder = truck.currentOrder;
+
+                    return (
+                      <tr
+                        key={truck.id}
+                        className="group hover:bg-[var(--sysco-surface)] transition-colors"
+                      >
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-lg bg-[var(--sysco-surface)] border border-[var(--sysco-border)] flex items-center justify-center">
+                              <TruckIcon className="h-5 w-5 text-zinc-500" />
+                            </div>
+                            <div>
+                              <p className="font-mono text-zinc-700 dark:text-zinc-300">
+                                {truck.id}
+                              </p>
+                              <p className="text-xs text-zinc-500">
+                                Sysco Fleet
+                              </p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="font-mono text-zinc-700 dark:text-zinc-300">
-                              {vehicle.id}
-                            </p>
-                            <p className="text-xs text-zinc-500">
-                              {vehicle.name}
-                            </p>
+                        </td>
+                        <td className="px-6 py-4 text-zinc-700 dark:text-zinc-300">
+                          {truck.driverName}
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-1.5">
+                            <TypeIcon className={cn("h-4 w-4", typeConfig.color)} />
+                            <span className="text-zinc-700 dark:text-zinc-300 text-xs">
+                              {typeConfig.label}
+                            </span>
                           </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-zinc-700 dark:text-zinc-300">
-                        {vehicle.driver}
-                      </td>
-                      <td className="px-6 py-4">
-                        <span
-                          className={cn(
-                            "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border",
-                            config.bg,
-                            config.text,
-                            config.border
+                        </td>
+                        <td className="px-6 py-4">
+                          <span
+                            className={cn(
+                              "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border",
+                              config.bg,
+                              config.text,
+                              config.border
+                            )}
+                          >
+                            <StatusIcon className="h-3 w-3" />
+                            {config.label}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          {currentOrder ? (
+                            <div className="flex items-center gap-1.5">
+                              <MapPin className="h-3.5 w-3.5 text-zinc-500" />
+                              <span className="text-zinc-700 dark:text-zinc-300 font-mono text-xs">
+                                {currentOrder.origin} → {currentOrder.destination}
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="text-zinc-500 text-xs">—</span>
                           )}
-                        >
-                          <StatusIcon className="h-3 w-3" />
-                          {vehicle.status.charAt(0).toUpperCase() + vehicle.status.slice(1)}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-1.5">
-                          <MapPin className="h-3.5 w-3.5 text-zinc-500" />
-                          <span className="text-zinc-700 dark:text-zinc-300">
-                            {vehicle.location}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-zinc-500 dark:text-zinc-400 font-mono text-xs">
-                        {vehicle.currentRoute || "—"}
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <Fuel className="h-3.5 w-3.5 text-zinc-500" />
-                          <div className="w-16 h-2 bg-[var(--sysco-surface)] rounded-full overflow-hidden">
-                            <div
-                              className={cn(
-                                "h-full rounded-full",
-                                vehicle.fuelLevel > 50
-                                  ? "bg-emerald-500"
-                                  : vehicle.fuelLevel > 25
-                                  ? "bg-amber-500"
-                                  : "bg-red-500"
-                              )}
-                              style={{ width: `${vehicle.fuelLevel}%` }}
-                            />
-                          </div>
-                          <span className="text-xs text-zinc-500 font-mono">
-                            {vehicle.fuelLevel}%
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-zinc-500 font-mono text-xs">
-                        {vehicle.lastUpdate}
-                      </td>
-                    </tr>
-                  );
-                })}
+                        </td>
+                        <td className="px-6 py-4">
+                          {currentOrder ? (
+                            <div className="flex items-center gap-2">
+                              <Package className="h-3.5 w-3.5 text-zinc-500" />
+                              <div className="w-16 h-2 bg-[var(--sysco-surface)] rounded-full overflow-hidden">
+                                <div
+                                  className={cn(
+                                    "h-full rounded-full transition-all",
+                                    currentOrder.riskScore >= 80
+                                      ? "bg-red-500"
+                                      : currentOrder.riskScore >= 40
+                                      ? "bg-amber-500"
+                                      : "bg-emerald-500"
+                                  )}
+                                  style={{ width: `${currentOrder.progress || 0}%` }}
+                                />
+                              </div>
+                              <span className="text-xs text-zinc-500 font-mono">
+                                {currentOrder.progress || 0}%
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="text-zinc-500 text-xs">—</span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 text-zinc-500 font-mono text-xs">
+                          {new Date(truck.updatedAt).toLocaleString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
               </tbody>
             </table>
           </div>

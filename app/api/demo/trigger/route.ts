@@ -74,7 +74,6 @@ export async function POST(request: NextRequest) {
     });
 
     // Write initial incident logs (persisted to DB)
-    const driverName = targetOrder.truck?.driverName || "Driver";
     const truckId = targetOrder.truck?.id || "Unknown";
 
     // Use the description from API request (or fallback to default)
@@ -93,29 +92,8 @@ export async function POST(request: NextRequest) {
       "WARNING"
     );
 
-    // Create agent run placeholders with dynamic info
-    await prisma.agentRun.createMany({
-      data: [
-        {
-          runId: "supplier-agent-" + Date.now(),
-          incidentId: incident.id,
-          agentRole: "Supplier_Voice",
-          agentName: "Supplier Negotiation Agent",
-          summary: `Contact suppliers for emergency ${targetOrder.itemName} inventory`,
-          status: "IDLE",
-          link: "https://example.com/agent/supplier",
-        },
-        {
-          runId: "driver-agent-" + Date.now(),
-          incidentId: incident.id,
-          agentRole: "Driver_Voice",
-          agentName: "Driver Coordination Agent",
-          summary: `Reroute ${driverName} (${truckId}) for emergency pickup`,
-          status: "IDLE",
-          link: "https://example.com/agent/driver",
-        },
-      ],
-    });
+    // NOTE: Agents are created dynamically via webhooks from HappyRobot AI
+    // The agents page subscribes to Pusher "agent-update" events for real-time updates
 
     // Trigger Pusher event for real-time dashboard update
     // IMPORTANT: Send the COMPLETE order object so the War Room has all data it needs

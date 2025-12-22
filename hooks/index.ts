@@ -1,6 +1,6 @@
 // SWR Data Hooks
 export { useOrders, revalidateOrders, mutateOrder } from "./useOrders";
-export type { Order, Truck, Buyer } from "./useOrders";
+export type { Order, Truck as OrderTruck, Buyer } from "./useOrders";
 
 export { useIncidents, revalidateIncidents, mutateIncident } from "./useIncidents";
 export type { Incident } from "./useIncidents";
@@ -13,6 +13,9 @@ export type { Agent } from "./useAgents";
 
 export { useIncidentLogs, addIncidentLog, revalidateIncidentLogs } from "./useIncidentLogs";
 export type { IncidentLog } from "./useIncidentLogs";
+
+export { useTrucks, revalidateTrucks, mutateTruck } from "./useTrucks";
+export type { Truck, CurrentOrder } from "./useTrucks";
 
 // Legacy hooks
 export { useAgentPolling } from "./useAgentPolling";

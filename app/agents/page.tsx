@@ -5,7 +5,6 @@ import Image from "next/image";
 import { usePusher } from "@/components/PusherProvider";
 import { useTheme } from "@/components/ThemeProvider";
 import {
-  Brain,
   Clock,
   ExternalLink,
   RefreshCw,
@@ -231,7 +230,13 @@ export default function AgentsPage() {
           )}>
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-[var(--sysco-surface)] border border-[var(--sysco-border)] flex items-center justify-center">
-                <Brain className="h-5 w-5 text-zinc-500" />
+                <Image
+                  src={getHappyRobotLogo()}
+                  alt="HappyRobot"
+                  width={20}
+                  height={20}
+                  className="object-contain"
+                />
               </div>
               <div>
                 <p className="text-xs font-medium text-zinc-500 uppercase tracking-wider">
@@ -366,7 +371,13 @@ export default function AgentsPage() {
           {filteredAgents.length === 0 ? (
             <div className="px-6 py-16 text-center">
               <div className="w-12 h-12 rounded-full bg-[var(--sysco-surface)] flex items-center justify-center mx-auto mb-3">
-                <Brain className="h-6 w-6 text-zinc-500" />
+                <Image
+                  src={getHappyRobotLogo()}
+                  alt="HappyRobot"
+                  width={24}
+                  height={24}
+                  className="object-contain"
+                />
               </div>
               <p className="text-zinc-400 font-medium">No agents found</p>
               <p className="text-sm text-zinc-600 mt-1">
@@ -400,7 +411,13 @@ export default function AgentsPage() {
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
-                              <Brain className="h-5 w-5 text-violet-500" />
+                              <Image
+                                src={getHappyRobotLogo()}
+                                alt="HappyRobot"
+                                width={20}
+                                height={20}
+                                className="object-contain"
+                              />
                             </div>
                             <span className="font-medium text-zinc-200">
                               {agent.agent_name}
