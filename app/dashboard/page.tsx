@@ -484,7 +484,12 @@ export default function DashboardPage() {
                       </p>
                     </div>
                   </div>
-                  <button className="group flex items-center gap-2 rounded-lg border border-[var(--status-error-border)] bg-red-500/10 dark:bg-red-900/50 px-4 py-2 text-xs font-medium text-[var(--status-error-text)] hover:bg-red-500/20 dark:hover:bg-red-900 transition-colors">
+                  <button className="group flex items-center gap-2 rounded-lg border border-[var(--status-error-border)] bg-red-500/10 dark:bg-red-900/50 px-4 py-2 text-xs font-medium text-[var(--status-error-text)] hover:bg-red-500/20 dark:hover:bg-red-900 transition-colors animate-pulse">
+                    <img
+                      src="/happyrobot/Footer-logo-white.png"
+                      alt="HappyRobot"
+                      className="h-3 w-auto opacity-70" 
+                    />
                     Launch HappyRobot War Room
                     <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
                   </button>

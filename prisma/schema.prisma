@@ -261,6 +261,7 @@ model IncidentCandidate {
   rank            Int      // 1 = closest, 2 = second, etc.
 
   // Driver-specific snapshot (null for non-drivers)
+  orderId         String?  @map("order_id")  // Driver's current order ID (for fetching route/details)
   lat             Float?   // Driver's current lat at discovery time
   lng             Float?   // Driver's current lng at discovery time
   currentLocation String?  @map("current_location")  // Delivery destination name

@@ -1,19 +1,143 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, ChevronRight, LucideIcon, RotateCcw } from "lucide-react";
+import { LayoutDashboard, ChevronRight, LucideIcon, RotateCcw, Settings, X, Phone } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
 import { ThemeToggle } from "./ThemeToggle";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+
+// Demo Config Modal Component
+function DemoConfigModal({
+  isOpen,
+  onClose,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+}) {
+  const [centerPhone, setCenterPhone] = useState("");
+  const [truckerPhone, setTruckerPhone] = useState("");
+
+  // Load saved values from localStorage on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setCenterPhone(localStorage.getItem("demo_center_phone") || "");
+      setTruckerPhone(localStorage.getItem("demo_trucker_phone") || "");
+    }
+  }, [isOpen]);
+
+  const handleSave = () => {
+    localStorage.setItem("demo_center_phone", centerPhone);
+    localStorage.setItem("demo_trucker_phone", truckerPhone);
+    onClose();
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        onClick={onClose}
+      />
+
+      {/* Modal */}
+      <div className="relative bg-white dark:bg-zinc-900 rounded-xl shadow-2xl border border-zinc-200 dark:border-zinc-700 w-full max-w-md mx-4 overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-200 dark:border-zinc-700">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
+              <Settings className="h-5 w-5 text-blue-500" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-zinc-900 dark:text-white">
+                Demo Configuration
+              </h2>
+              <p className="text-sm text-zinc-500">
+                Set phone numbers for roleplay
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="h-8 w-8 rounded-lg flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+          >
+            <X className="h-4 w-4 text-zinc-500" />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="px-6 py-5 space-y-5">
+          {/* Service Centers Phone */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              Service Centers & Warehouses Phone
+            </label>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+              This number will be assigned to all 3 discovered facilities
+            </p>
+            <div className="relative">
+              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
+              <input
+                type="tel"
+                value={centerPhone}
+                onChange={(e) => setCenterPhone(e.target.value)}
+                placeholder="+1 (555) 123-4567"
+                className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+          </div>
+
+          {/* Truckers Phone */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              Available Drivers Phone
+            </label>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+              This number will be assigned to all 3 discovered drivers
+            </p>
+            <div className="relative">
+              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
+              <input
+                type="tel"
+                value={truckerPhone}
+                onChange={(e) => setTruckerPhone(e.target.value)}
+                placeholder="+1 (555) 987-6543"
+                className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="px-6 py-4 border-t border-zinc-200 dark:border-zinc-700 flex justify-end gap-3">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            className="px-4 py-2 rounded-lg text-sm font-medium bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+          >
+            Save Configuration
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { theme } = useTheme();
   const [isHovered, setIsHovered] = useState(false);
+  const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
 
   const isCollapsed = !isHovered;
 
@@ -227,9 +351,25 @@ export function Layout({ children }: { children: React.ReactNode }) {
           })}
         </nav>
 
-        {/* Reset Button - Hidden until hovered */}
+        {/* Config & Reset Buttons - Hidden until hovered */}
         {!isCollapsed && (
-          <div className="px-3 py-2 border-t border-transparent hover:border-gray-200/60 dark:hover:border-white/[0.08] transition-all duration-300 group">
+          <div className="px-3 py-2 border-t border-transparent hover:border-gray-200/60 dark:hover:border-white/[0.08] transition-all duration-300 group space-y-1">
+            {/* Config Button - Above Reset */}
+            <button
+              onClick={() => setIsConfigModalOpen(true)}
+              className={cn(
+                "w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg",
+                "text-sm font-medium transition-all duration-300",
+                "opacity-0 group-hover:opacity-100",
+                "bg-transparent hover:bg-blue-100 dark:hover:bg-blue-900/30",
+                "text-transparent group-hover:text-zinc-600 dark:group-hover:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400",
+                "border border-transparent hover:border-blue-200 dark:hover:border-blue-800"
+              )}
+            >
+              <Settings className="h-4 w-4" />
+              Configure Demo
+            </button>
+            {/* Reset Button */}
             <button
               onClick={async () => {
                 try {
@@ -313,6 +453,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
       >
         {children}
       </main>
+
+      {/* Demo Configuration Modal */}
+      <DemoConfigModal
+        isOpen={isConfigModalOpen}
+        onClose={() => setIsConfigModalOpen(false)}
+      />
     </div>
   );
 }

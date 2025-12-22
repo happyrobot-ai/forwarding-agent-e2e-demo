@@ -197,6 +197,9 @@ export function FleetMap({
   const animationFrameRef = useRef<number | null>(null);
   const dashOffsetRef = useRef(0);
 
+  // Cache for fetched driver orders (when clicking on discovered drivers)
+  const [driverOrders, setDriverOrders] = useState<Record<string, Order>>({});
+
   const getSamsaraLogo = () => {
     return theme === "dark"
       ? "/samsara/Samsara_logo_primary_vertical_wht.png"
@@ -281,10 +284,22 @@ export function FleetMap({
     };
   }, [orders, selectedOrderId]);
 
-  // Selected route for highlighting (when truck is clicked)
+  // Combine passed orders with fetched driver orders
+  const allOrders = useMemo(() => {
+    const combined = [...orders];
+    Object.values(driverOrders).forEach(order => {
+      if (!combined.find(o => o.id === order.id)) {
+        combined.push(order);
+      }
+    });
+    return combined;
+  }, [orders, driverOrders]);
+
+  // Selected route for highlighting (when truck or driver is clicked)
+  // Uses allOrders to include fetched driver orders
   const selectedRouteData = useMemo(() => {
     if (!selectedOrderId) return null;
-    const order = orders.find(o => o.id === selectedOrderId);
+    const order = allOrders.find(o => o.id === selectedOrderId);
     if (!order) return null;
 
     const coordinates = order.routeGeoJson && Array.isArray(order.routeGeoJson)
@@ -304,7 +319,7 @@ export function FleetMap({
         },
       }],
     };
-  }, [selectedOrderId, orders]);
+  }, [selectedOrderId, allOrders]);
 
   // Helper: Interpolate position along straight line based on progress
   const getPositionAlongStraightLine = (
@@ -645,10 +660,78 @@ export function FleetMap({
     }
   }, [selectedOrderId, onOrderSelect, viewMode]);
 
+  // Handle driver marker clicks - fetch their order and show it
+  const handleDriverClick = useCallback(async (driver: AvailableDriver) => {
+    console.log("[FleetMap] Driver clicked:", driver.driverName, "orderId:", driver.orderId);
+
+    // Guard: If orderId is empty, we can't fetch the order (stale cached data)
+    if (!driver.orderId) {
+      console.warn("[FleetMap] Driver has no orderId - please reset the demo to fix");
+      return;
+    }
+
+    // If already selected, deselect
+    if (selectedOrderId === driver.orderId) {
+      setSelectedOrderId(null);
+      onOrderSelect?.(null);
+      return;
+    }
+
+    // Check if we already have this order cached
+    if (driverOrders[driver.orderId]) {
+      setSelectedOrderId(driver.orderId);
+      onOrderSelect?.(driver.orderId);
+      // Fly to driver location
+      if (mapRef.current) {
+        mapRef.current.flyTo({
+          center: [driver.lng, driver.lat],
+          zoom: 10,
+          duration: 2000,
+          essential: true,
+          padding: viewMode === "focused" ? { left: 380, top: 0, bottom: 0, right: 0 } : undefined,
+        });
+      }
+      return;
+    }
+
+    // Fetch the driver's order
+    try {
+      console.log("[FleetMap] Fetching order:", driver.orderId);
+      const response = await fetch(`/api/orders/${driver.orderId}`);
+      if (response.ok) {
+        const orderData = await response.json();
+        console.log("[FleetMap] Order fetched successfully:", orderData.id);
+        // Cache the fetched order
+        setDriverOrders(prev => ({
+          ...prev,
+          [driver.orderId]: orderData,
+        }));
+        setSelectedOrderId(driver.orderId);
+        onOrderSelect?.(driver.orderId);
+
+        // Fly to driver location
+        if (mapRef.current) {
+          mapRef.current.flyTo({
+            center: [driver.lng, driver.lat],
+            zoom: 10,
+            duration: 2000,
+            essential: true,
+            padding: viewMode === "focused" ? { left: 380, top: 0, bottom: 0, right: 0 } : undefined,
+          });
+        }
+      } else {
+        console.error("[FleetMap] Failed to fetch order:", response.status);
+      }
+    } catch (error) {
+      console.error("[FleetMap] Failed to fetch driver order:", error);
+    }
+  }, [selectedOrderId, onOrderSelect, viewMode, driverOrders]);
+
   return (
     <div className={cn(
-      "h-full w-full overflow-hidden rounded-xl border shadow-lg relative",
-      "bg-[var(--sysco-card)] border-[var(--sysco-border)]"
+      "h-full w-full overflow-hidden border shadow-lg relative",
+      "bg-[var(--sysco-card)] border-[var(--sysco-border)]",
+      viewMode === "focused" ? "rounded-none" : "rounded-xl"
     )}>
       <Map
         ref={mapRef}
@@ -697,10 +780,10 @@ export function FleetMap({
               longitude={truck.lng}
               latitude={truck.lat}
               style={{ zIndex: isHovered ? 100 : 20 }} // Trucks above service centers (10)
-              onClick={() => handleMarkerClick(truck.orderId, truck.riskScore, truck.lng, truck.lat)}
             >
               <div
                 className="relative group cursor-pointer"
+                onClick={() => handleMarkerClick(truck.orderId, truck.riskScore, truck.lng, truck.lat)}
                 onMouseEnter={() => setHoveredTruckId(truck.orderId)}
                 onMouseLeave={() => setHoveredTruckId(null)}
               >
@@ -786,7 +869,7 @@ export function FleetMap({
 
         {/* Destination marker for selected route */}
         {selectedOrderId && (() => {
-          const order = orders.find(o => o.id === selectedOrderId);
+          const order = allOrders.find(o => o.id === selectedOrderId);
           if (!order) return null;
           return (
             <Marker longitude={order.endLng} latitude={order.endLat}>
@@ -974,21 +1057,32 @@ export function FleetMap({
         {/* Available Driver Markers - Purple markers for trailer relay drivers */}
         {availableDrivers.map((driver) => {
           const isHovered = hoveredServiceCenterId === `driver-${driver.id}`;
+          // Only mark as selected if orderId exists and matches (prevents all drivers highlighting when orderId is empty)
+          const isSelected = driver.orderId && selectedOrderId === driver.orderId;
 
           return (
             <Marker
               key={`driver-${driver.id}`}
               longitude={driver.lng}
               latitude={driver.lat}
-              style={{ zIndex: isHovered ? 100 : 10 }}
+              style={{ zIndex: isHovered || isSelected ? 100 : 10 }}
             >
               <div
                 className="group relative flex flex-col items-center cursor-pointer"
                 onMouseEnter={() => setHoveredServiceCenterId(`driver-${driver.id}`)}
                 onMouseLeave={() => setHoveredServiceCenterId(null)}
+                onClick={() => handleDriverClick(driver)}
               >
+                {/* Selection ring */}
+                {isSelected && (
+                  <div className="absolute -top-1 -left-1 h-11 w-11 rounded-full border-2 border-blue-400 animate-pulse" />
+                )}
+
                 {/* Main icon - purple truck for available drivers */}
-                <div className="relative flex h-9 w-9 items-center justify-center rounded-full bg-purple-600 border-2 border-purple-400 text-white shadow-xl transition-all hover:scale-110">
+                <div className={cn(
+                  "relative flex h-9 w-9 items-center justify-center rounded-full bg-purple-600 border-2 border-purple-400 text-white shadow-xl transition-all hover:scale-110",
+                  isSelected && "ring-2 ring-blue-400 ring-offset-1"
+                )}>
                   <TruckIcon className="h-4 w-4" />
                 </div>
 
@@ -1029,11 +1123,6 @@ export function FleetMap({
                   <div className="text-purple-400 text-[10px] mt-1 font-bold">
                     {driver.distance.toFixed(1)} miles from incident
                   </div>
-                  {driver.nearestDropOff && (
-                    <div className="text-zinc-500 text-[10px] mt-1 border-t border-zinc-700 pt-1">
-                      🏭 Drop trailer: {driver.nearestDropOff.name} ({driver.nearestDropOff.distance.toFixed(1)}mi)
-                    </div>
-                  )}
                 </div>
               </div>
             </Marker>
@@ -1042,9 +1131,9 @@ export function FleetMap({
 
       </Map>
 
-      {/* Order Detail Panel - shows when order is selected */}
+      {/* Order Detail Panel - shows when order is selected (includes fetched driver orders) */}
       {selectedOrderId && (() => {
-        const selectedOrder = orders.find(o => o.id === selectedOrderId);
+        const selectedOrder = allOrders.find(o => o.id === selectedOrderId);
         if (!selectedOrder) return null;
         return (
           <OrderDetailPanel

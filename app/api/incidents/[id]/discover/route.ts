@@ -24,11 +24,14 @@ interface WarehouseRow {
 interface OrderWithTruck {
   id: string;
   destination: string;
+  startLat: number;
+  startLng: number;
   endLat: number;
   endLng: number;
   status: string;
   progress: number | null;
   estimatedArrival: Date | null;
+  routeGeoJson: unknown; // Array of [lng, lat] coordinates
   truck: {
     id: string;
     driverName: string;
@@ -41,6 +44,7 @@ interface CandidateWithRelations {
   distance: number;
   rank: number;
   // Driver-specific fields
+  orderId: string | null;
   lat: number | null;
   lng: number | null;
   currentLocation: string | null;
@@ -197,7 +201,7 @@ export async function POST(
 
       const cachedDrivers: DiscoveredDriver[] = driverCandidates.map((c: CandidateWithRelations) => ({
         id: c.truck!.id,
-        orderId: "", // Not stored in candidate table
+        orderId: c.orderId ?? "", // Stored in candidate table for route/details fetching
         driverName: c.truck!.driverName,
         truckId: c.truck!.id,
         currentLocation: c.currentLocation ?? "",
@@ -278,7 +282,9 @@ export async function POST(
         },
       }),
       prisma.warehouse.findMany(),
-      // Phase 2: Find drivers who just finished or are arriving soon (ETA within 30 min)
+      // Phase 2: Find drivers who just finished or are arriving soon
+      // NOTE: We filter by PROGRESS (>= 85%) instead of ETA timestamps because
+      // demo timestamps are stale (calculated at seed time, not current time)
       prisma.order.findMany({
         where: {
           AND: [
@@ -288,11 +294,11 @@ export async function POST(
             { status: { not: "AT_RISK" } },
             // Must have a truck assigned
             { truck: { isNot: null } },
-            // Either DELIVERED or ETA is within 30 minutes from now
+            // Either DELIVERED or nearly complete (progress >= 85%)
             {
               OR: [
                 { status: "DELIVERED" },
-                { estimatedArrival: { lte: new Date(Date.now() + 30 * 60 * 1000) } }, // ETA within 30 min
+                { progress: { gte: 85 } }, // 85%+ complete = arriving soon
               ],
             },
           ],
@@ -331,9 +337,24 @@ export async function POST(
     const availableDrivers: DiscoveredDriver[] = availableOrders
       .filter((o: OrderWithTruck) => o.truck) // TypeScript safety
       .map((driverOrder: OrderWithTruck) => {
-        // Driver is at their delivery destination (endLat/endLng)
-        const driverLat = driverOrder.endLat;
-        const driverLng = driverOrder.endLng;
+        // Calculate driver's CURRENT position based on progress along their route
+        const driverProgress = driverOrder.progress ?? 50;
+        const routePoints = driverOrder.routeGeoJson as number[][] | null;
+
+        let driverLat: number, driverLng: number;
+
+        if (routePoints && routePoints.length > 0) {
+          // Interpolate position along route based on progress
+          const pointIndex = Math.floor((driverProgress / 100) * (routePoints.length - 1));
+          const point = routePoints[Math.min(pointIndex, routePoints.length - 1)];
+          driverLng = point[0];
+          driverLat = point[1];
+        } else {
+          // Fallback: interpolate between start and end
+          driverLat = driverOrder.startLat + (driverOrder.endLat - driverOrder.startLat) * (driverProgress / 100);
+          driverLng = driverOrder.startLng + (driverOrder.endLng - driverOrder.startLng) * (driverProgress / 100);
+        }
+
         const distanceFromIncident = haversineDistance(truckLat, truckLng, driverLat, driverLng);
 
         // Find nearest Sysco hub (warehouse) for trailer drop-off
@@ -345,21 +366,16 @@ export async function POST(
           }))
           .sort((a, b) => a.distance - b.distance)[0];
 
-        // Determine driver status based on order status and ETA
-        let driverStatus: "DELIVERED" | "COMPLETING";
-        if (driverOrder.status === "DELIVERED") {
-          driverStatus = "DELIVERED";
-        } else {
-          // "COMPLETING" = ETA within 30 min (arriving soon)
-          driverStatus = "COMPLETING";
-        }
+        // Determine driver status based on order status
+        const driverStatus: "DELIVERED" | "COMPLETING" =
+          driverOrder.status === "DELIVERED" ? "DELIVERED" : "COMPLETING";
 
         return {
           id: driverOrder.truck!.id,
           orderId: driverOrder.id,
           driverName: driverOrder.truck!.driverName,
           truckId: driverOrder.truck!.id,
-          currentLocation: driverOrder.destination,
+          currentLocation: driverOrder.destination, // Where they're heading (shown in logs)
           lat: driverLat,
           lng: driverLng,
           distance: distanceFromIncident,
@@ -422,6 +438,7 @@ export async function POST(
             distance: driver.distance,
             rank: driver.rank!,
             // Driver-specific snapshot fields
+            orderId: driver.orderId, // Store order ID for fetching route/details
             lat: driver.lat,
             lng: driver.lng,
             currentLocation: driver.currentLocation,
@@ -515,9 +532,11 @@ export async function POST(
               ? ` Trailer drop: ${driver.nearestDropOff.name} (${driver.nearestDropOff.distance.toFixed(1)} mi).`
               : "";
 
+            // Log message: "at" for delivered, "en route to" for completing
+            const locationPrefix = driver.status === "DELIVERED" ? "at" : "en route to";
             await writeIncidentLog(
               incidentId,
-              `Located driver: ${driver.driverName} (${driver.truckId}) at ${driver.currentLocation} (${driver.distance.toFixed(1)} mi). Status: ${statusLabel}.${dropOffInfo}`,
+              `Located driver: ${driver.driverName} (${driver.truckId}) ${locationPrefix} ${driver.currentLocation} (${driver.distance.toFixed(1)} mi). Status: ${statusLabel}.${dropOffInfo}`,
               "DISCOVERY",
               "SUCCESS"
             );
@@ -548,6 +567,12 @@ export async function POST(
         await prisma.incident.update({
           where: { id: incidentId },
           data: { discoveryStatus: "COMPLETED" },
+        });
+
+        // Notify clients that discovery is complete and swarm can be triggered
+        await pusherServer.trigger("sysco-demo", "discovery-complete", {
+          incidentId: incidentId,
+          timestamp: new Date().toISOString(),
         });
 
         console.log(`[Discovery] Completed for incident ${incidentId}`);

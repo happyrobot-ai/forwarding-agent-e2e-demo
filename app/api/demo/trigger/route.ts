@@ -93,13 +93,6 @@ export async function POST(request: NextRequest) {
       "WARNING"
     );
 
-    await writeIncidentLog(
-      incident.id,
-      "Autonomous recovery protocols initiated. Spinning up agent swarm...",
-      "ORCHESTRATOR",
-      "INFO"
-    );
-
     // Create agent run placeholders with dynamic info
     await prisma.agentRun.createMany({
       data: [

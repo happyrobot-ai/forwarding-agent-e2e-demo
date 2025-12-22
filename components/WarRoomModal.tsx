@@ -1,17 +1,15 @@
 "use client";
 
-import { useEffect, useState, useRef, useMemo } from "react";
+import { useEffect, useState, useRef, useMemo, useCallback } from "react";
 import Image from "next/image";
-import { X, AlertTriangle, Terminal } from "lucide-react";
+import { X, AlertTriangle, Terminal, Activity } from "lucide-react";
 import { usePusher } from "./PusherProvider";
 import { useTheme } from "./ThemeProvider";
 import { FleetMap, ServiceCenter } from "./FleetMap";
-import { AgentCard } from "./AgentCard";
 import { EmailToast } from "./EmailToast";
 import { cn } from "@/lib/utils";
 import { useIncidentLogs, useAgents } from "@/hooks";
 import type { IncidentLog } from "@/hooks";
-import { AgentCardSkeleton } from "./Skeletons";
 
 // --- TYPES ---
 interface Incident {
@@ -86,16 +84,21 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
   const { pusher } = usePusher();
   const { theme } = useTheme();
 
-  // SWR hooks for data fetching
+  // SWR hooks
   const { logs, isLoading: logsLoading, addLog } = useIncidentLogs(incident.id);
-  const { agents, isLoading: agentsLoading, updateAgentStatus } = useAgents({ incidentId: incident.id });
+  const { updateAgentStatus } = useAgents({ incidentId: incident.id });
 
   // Local UI state
   const [showEmailToast, setShowEmailToast] = useState(false);
   const [foundServiceCenters, setFoundServiceCenters] = useState<ServiceCenter[]>([]);
   const [foundDrivers, setFoundDrivers] = useState<DiscoveredDriver[]>([]);
+  
+  // Swarm State
+  const [swarmActivated, setSwarmActivated] = useState(false);
+  const [discoveryComplete, setDiscoveryComplete] = useState(false);
+  
   const logsEndRef = useRef<HTMLDivElement>(null);
-  const discoveryInitiatedRef = useRef(false); // Prevent double-trigger in Strict Mode
+  const discoveryInitiatedRef = useRef(false);
 
   const getHappyRobotLogo = () => {
     return theme === "dark"
@@ -117,36 +120,15 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
     logsEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [logs]);
 
-  // Note: Logs and agents are now fetched via SWR hooks (useIncidentLogs, useAgents)
-
-  // Smart Recovery: Trigger discovery when War Room opens
+  // 1. Trigger Discovery on Mount
   useEffect(() => {
-    // Prevent double-trigger in React Strict Mode
     if (discoveryInitiatedRef.current) return;
     discoveryInitiatedRef.current = true;
 
     const initDiscovery = async () => {
       try {
-        console.log("[War Room] Initiating discovery for incident:", incident.id);
-        const response = await fetch(`/api/incidents/${incident.id}/discover`, {
-          method: "POST",
-        });
-        const data = await response.json();
-
-        console.log("[War Room] Discovery response:", data.status);
-
-        // If discovery already completed, load candidates and drivers immediately
-        if (data.status === "COMPLETED") {
-          if (data.candidates) {
-            console.log("[War Room] Loading cached candidates:", data.candidates.length);
-            setFoundServiceCenters(data.candidates);
-          }
-          if (data.drivers) {
-            console.log("[War Room] Loading cached drivers:", data.drivers.length);
-            setFoundDrivers(data.drivers);
-          }
-        }
-        // If "STARTED" or "RUNNING", wait for Pusher events
+        await fetch(`/api/incidents/${incident.id}/discover`, { method: "POST" });
+        // We rely on Pusher for the visual updates to keep it cinematic
       } catch (error) {
         console.error("[War Room] Error initiating discovery:", error);
       }
@@ -155,68 +137,92 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
     initDiscovery();
   }, [incident.id]);
 
-  // Subscribe to Pusher for real-time updates
+  // 2. Pusher Listeners
   useEffect(() => {
     if (!pusher) return;
-
     const channel = pusher.subscribe("sysco-demo");
 
-    // Listen for new incident logs (from writeIncidentLog helper)
     channel.bind("incident-log", (data: { incidentId: string; log: IncidentLog }) => {
-      // Only process logs for THIS incident
       if (data.incidentId !== incident.id) return;
-
-      console.log("[War Room] New log received:", data.log.message);
-      // Use SWR's addLog for optimistic cache update
       addLog(data.log);
     });
 
-    // Listen for agent status updates
     channel.bind("agent-update", (data: { agentRole: string; status: string }) => {
-      // Use SWR's updateAgentStatus for optimistic cache update
       updateAgentStatus(data.agentRole, data.status);
     });
 
-    // Listen for resource discovery (for map markers)
-    channel.bind("resource-located", (data: {
-      incidentId: string;
-      serviceCenter: ServiceCenter;
-    }) => {
+    channel.bind("resource-located", (data: { incidentId: string; serviceCenter: ServiceCenter }) => {
       if (data.incidentId !== incident.id) return;
-
-      console.log("[War Room] Resource located:", data.serviceCenter.name);
       setFoundServiceCenters((prev) => {
         if (prev.find((sc) => sc.id === data.serviceCenter.id)) return prev;
         return [...prev, data.serviceCenter];
       });
     });
 
-    // Listen for driver discovery (for purple map markers)
-    channel.bind("driver-located", (data: {
-      incidentId: string;
-      driver: DiscoveredDriver;
-    }) => {
+    channel.bind("driver-located", (data: { incidentId: string; driver: DiscoveredDriver }) => {
       if (data.incidentId !== incident.id) return;
-
-      console.log("[War Room] Driver located:", data.driver.driverName);
       setFoundDrivers((prev) => {
         if (prev.find((d) => d.id === data.driver.id)) return prev;
         return [...prev, data.driver];
       });
     });
 
-    // Listen for demo completion
     channel.bind("demo-complete", () => {
       setShowEmailToast(true);
+    });
+
+    channel.bind("discovery-complete", (data: { incidentId: string }) => {
+      if (data.incidentId !== incident.id) return;
+      console.log("[War Room] Discovery complete, ready to trigger swarm");
+      setDiscoveryComplete(true);
     });
 
     return () => {
       channel.unbind_all();
       pusher.unsubscribe("sysco-demo");
     };
-  }, [pusher, incident.id]);
+  }, [pusher, incident.id, addLog, updateAgentStatus]);
 
-  // Get log source color
+  // 3. Automatic Swarm Trigger
+  // Wait for the server to confirm discovery is complete via Pusher event
+  useEffect(() => {
+    const triggerSwarm = async () => {
+      if (!discoveryComplete || swarmActivated) return;
+      
+      setSwarmActivated(true); // Prevent double firing
+      
+      try {
+        const centerPhone = typeof window !== "undefined" ? localStorage.getItem("demo_center_phone") || "" : "";
+        const truckerPhone = typeof window !== "undefined" ? localStorage.getItem("demo_trucker_phone") || "" : "";
+
+        // Log the auto-trigger
+        addLog({
+          id: Math.random().toString(),
+          timestamp: new Date().toISOString(),
+          message: "Resources identified. Deploying HappyRobot AI Agent.",
+          source: "ORCHESTRATOR",
+          status: "INFO"
+        });
+
+        await fetch("/api/happyrobot/trigger_workflow", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            incident_id: incident.id,
+            center_phone: centerPhone,
+            trucker_phone: truckerPhone,
+          }),
+        });
+      } catch (error) {
+        console.error("Swarm trigger failed", error);
+      }
+    };
+
+    triggerSwarm();
+  }, [discoveryComplete, swarmActivated, incident.id, addLog]);
+
+
+  // Helper styles
   const getSourceColor = (source: string) => {
     if (source === "SYSTEM") return "text-zinc-500";
     if (source === "ORCHESTRATOR") return "text-purple-400";
@@ -225,7 +231,6 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
     return "text-zinc-400";
   };
 
-  // Get log status color
   const getStatusColor = (status: string) => {
     if (status === "SUCCESS") return "text-emerald-300";
     if (status === "WARNING") return "text-amber-300";
@@ -233,12 +238,6 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
     return "text-zinc-300";
   };
 
-  // Find specific agents
-  const supplierAgent = agents.find((a) => a.agentRole === "Supplier_Voice");
-  const driverAgent = agents.find((a) => a.agentRole === "Driver_Voice");
-
-  // Memoize orders array to prevent FleetMap re-renders when service centers are discovered
-  // This creates a stable reference that only changes when actual order data changes
   const memoizedOrders = useMemo(() => {
     if (!affectedOrder) return [];
     return [{
@@ -270,13 +269,13 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
   }, [affectedOrder]);
 
   return (
-    <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
+    <div className="fixed inset-0 bg-black/95 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
       <div className={cn(
-        "rounded-xl w-[90vw] h-[90vh] overflow-hidden flex flex-col shadow-2xl",
-        "bg-zinc-950 border border-zinc-800 ring-1 ring-white/5"
+        "w-[95vw] h-[90vh] overflow-hidden flex flex-col shadow-2xl",
+        "bg-zinc-950 border border-zinc-800 rounded-xl" 
       )}>
         {/* Header */}
-        <div className="px-6 py-4 border-b border-red-900/50 bg-red-950/20 flex items-center justify-between shrink-0">
+        <div className="px-6 py-4 border-b border-red-900/30 bg-red-950/10 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-4">
             <div className="relative flex h-3 w-3">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75" />
@@ -289,14 +288,14 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
                   alt="HappyRobot"
                   width={24}
                   height={24}
-                  className="object-contain animate-pulse"
+                  className="object-contain"
                 />
-                <h2 className="text-lg font-bold text-red-400 tracking-tight">
-                  HappyRobot War Room
+                <h2 className="text-lg font-bold text-red-500 tracking-tight">
+                  AUTONOMOUS RESOLUTION
                 </h2>
               </div>
               <p className="text-[10px] text-red-400/70 font-mono mt-0.5">
-                ID: {incident.id.slice(0, 8).toUpperCase()} • {incident.title.toUpperCase()}
+                INCIDENT ID: {incident.id.slice(0, 8).toUpperCase()}
               </p>
             </div>
           </div>
@@ -310,21 +309,12 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
 
         {/* Main Content - Grid Layout */}
         <div className="flex-1 overflow-hidden grid grid-cols-12">
-          {/* Left: Map (8 cols) */}
-          <div className="col-span-8 border-r border-zinc-800 relative bg-zinc-900/50 flex flex-col">
-            {/* Map Header */}
-            <div className="flex items-center justify-between px-4 py-2 border-b border-zinc-800 shrink-0">
-              <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider">
-                SAMSARA FLEET TRACKING
-              </span>
-              <div className="flex items-center gap-2 text-[10px] text-zinc-500 font-mono">
-                <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span>LIVE</span>
-              </div>
-            </div>
-
+          
+          {/* Left: Map (8 cols) - Styling Updated for Square corners except bottom-left */}
+          <div className="col-span-8 border-r border-zinc-800 relative bg-zinc-900/20 flex flex-col">
+            
             {/* Map Container */}
-            <div className="flex-1 relative">
+            <div className="flex-1 relative rounded-bl-xl overflow-hidden">
               {memoizedOrders.length > 0 ? (
                 <FleetMap
                   orders={memoizedOrders}
@@ -338,28 +328,27 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
                   highlightedOrderId={affectedOrder?.id}
                 />
               ) : (
-                <div className="flex items-center justify-center h-full">
-                  <div className="text-center">
-                    <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-3 animate-pulse" />
-                    <p className="text-zinc-400 font-mono text-sm">
-                      {affectedOrder ? "ACQUIRING SATELLITE LOCK..." : "WAITING FOR TELEMETRY..."}
-                    </p>
-                  </div>
+                <div className="flex items-center justify-center h-full flex-col gap-3">
+                  <Activity className="h-10 w-10 text-red-500/50 animate-pulse" />
+                  <p className="text-zinc-500 font-mono text-xs tracking-widest">
+                    AWAITING TELEMETRY LINK...
+                  </p>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Right: Intelligence Console (4 cols) */}
+          {/* Right: Intelligence Console (4 cols) - Fixed height, scrollable logs */}
           <div className="col-span-4 flex flex-col bg-zinc-950 overflow-hidden">
+            
             {/* Situation Report */}
             {incident.description && (
-              <div className="p-4 border-b border-zinc-800 bg-red-950/10 shrink-0">
+              <div className="p-5 border-b border-zinc-900 bg-zinc-900/30 shrink-0">
                 <div className="flex items-start gap-3">
-                  <AlertTriangle className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
+                  <AlertTriangle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
                   <div>
-                    <div className="text-[10px] text-red-400 uppercase tracking-wider mb-1 font-mono font-bold">
-                      Situation Analysis
+                    <div className="text-[10px] text-red-400 uppercase tracking-widest mb-2 font-mono font-bold">
+                      Critical Failure
                     </div>
                     <p className="text-sm text-zinc-300 leading-relaxed">
                       {incident.description}
@@ -369,77 +358,41 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
               </div>
             )}
 
-            {/* Agent Status Cards */}
-            <div className="p-4 border-b border-zinc-800 shrink-0">
-              <div className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider mb-3 flex items-center gap-2">
-                <div className="h-1.5 w-1.5 rounded-full bg-purple-500" />
-                Active Agents
-              </div>
-              <div className="space-y-2">
-                {agentsLoading ? (
-                  <>
-                    <AgentCardSkeleton />
-                    <AgentCardSkeleton />
-                  </>
-                ) : (
-                  <>
-                    {supplierAgent ? (
-                      <AgentCard agent={supplierAgent} />
-                    ) : (
-                      <div className="h-16 rounded-lg border border-dashed border-zinc-800 flex items-center justify-center text-xs text-zinc-600">
-                        Assistance Agent Standby...
-                      </div>
-                    )}
-                    {driverAgent ? (
-                      <AgentCard agent={driverAgent} />
-                    ) : (
-                      <div className="h-16 rounded-lg border border-dashed border-zinc-800 flex items-center justify-center text-xs text-zinc-600">
-                        Driver Agent Standby...
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-            </div>
-
-            {/* Live Logs Terminal */}
+            {/* Live Logs Terminal - Now takes up ALL remaining space */}
             <div className="flex-1 flex flex-col min-h-0 bg-black">
               {/* Terminal Header */}
-              <div className="px-4 py-2 border-b border-zinc-900 bg-zinc-900/50 flex items-center justify-between shrink-0">
+              <div className="px-4 py-3 border-b border-zinc-900 bg-zinc-900/50 flex items-center justify-between shrink-0">
                 <div className="flex items-center gap-2">
-                  <Terminal className="h-3 w-3 text-zinc-500" />
-                  <span className="text-[10px] font-mono text-zinc-400">
-                    INCIDENT_LOGS // {incident.id.slice(0, 8).toUpperCase()}
+                  <Terminal className="h-4 w-4 text-zinc-500" />
+                  <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider">
+                    Execution Log
                   </span>
                 </div>
-                <div className="flex gap-1">
-                  <div className="h-2 w-2 rounded-full bg-zinc-700" />
-                  <div className="h-2 w-2 rounded-full bg-zinc-700" />
-                  <div className="h-2 w-2 rounded-full bg-emerald-500/50" />
+                {/* Activity Indicator */}
+                <div className="flex gap-1.5">
+                   <div className="h-1.5 w-1.5 rounded-full bg-zinc-700 animate-pulse" />
+                   <div className="h-1.5 w-1.5 rounded-full bg-zinc-700 animate-pulse delay-75" />
+                   <div className="h-1.5 w-1.5 rounded-full bg-zinc-700 animate-pulse delay-150" />
                 </div>
               </div>
 
-              {/* Log Stream */}
-              <div className="flex-1 p-3 overflow-y-auto font-mono text-[11px] space-y-1.5 scrollbar-thin scrollbar-thumb-zinc-800">
+              {/* Log Stream - scrollable container */}
+              <div className="flex-1 min-h-0 p-4 overflow-y-auto font-mono text-[11px] space-y-3 scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-transparent">
                 {logsLoading ? (
-                  <div className="space-y-2">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <div key={i} className="flex gap-2 items-start animate-pulse">
-                        <div className="h-3 w-16 bg-zinc-800 rounded shrink-0" />
-                        <div className="h-3 w-20 bg-zinc-800 rounded shrink-0" />
-                        <div className="h-3 bg-zinc-800 rounded flex-1" style={{ maxWidth: `${50 + Math.random() * 40}%` }} />
-                      </div>
-                    ))}
+                  <div className="space-y-3 opacity-50">
+                    <div className="h-4 bg-zinc-800 rounded w-3/4" />
+                    <div className="h-4 bg-zinc-800 rounded w-1/2" />
+                    <div className="h-4 bg-zinc-800 rounded w-2/3" />
                   </div>
                 ) : logs.length === 0 ? (
-                  <div className="text-zinc-600 flex items-center gap-2">
-                    <span className="animate-pulse">_</span>
-                    <span>Waiting for incident data...</span>
+                  <div className="text-zinc-600 flex items-center gap-2 mt-2">
+                    <span className="text-emerald-500 animate-pulse">{">"}</span>
+                    <span>System ready. Waiting for event stream...</span>
                   </div>
                 ) : (
                   logs.map((log) => (
-                    <div key={log.id} className="flex gap-2 items-start hover:bg-zinc-900/50 px-1 py-0.5 rounded transition-colors">
-                      <span className="text-zinc-600 shrink-0 w-16">
+                    <div key={log.id} className="group flex gap-3 items-start opacity-90 hover:opacity-100 transition-opacity">
+                      <span className="text-zinc-600 shrink-0 w-[60px] tabular-nums text-[10px] pt-0.5">
                         {new Date(log.timestamp).toLocaleTimeString([], {
                           hour12: false,
                           hour: "2-digit",
@@ -447,18 +400,23 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
                           second: "2-digit",
                         })}
                       </span>
-                      <span className={cn("shrink-0 font-bold text-[10px] uppercase", getSourceColor(log.source))}>
-                        {log.source}:
-                      </span>
-                      <span className={getStatusColor(log.status)}>
-                        {log.message}
-                      </span>
+                      <div className="flex-1 border-l-2 border-zinc-800 pl-3 group-hover:border-zinc-700 transition-colors">
+                        <div className={cn("font-bold text-[9px] uppercase tracking-wider mb-0.5", getSourceColor(log.source))}>
+                          {log.source}
+                        </div>
+                        <div className={cn("leading-relaxed", getStatusColor(log.status))}>
+                          {log.message}
+                        </div>
+                      </div>
                     </div>
                   ))
                 )}
                 <div ref={logsEndRef} />
-                {/* Blinking cursor */}
-                <div className="text-emerald-500 animate-pulse mt-2">_</div>
+                
+                {/* Active cursor at bottom */}
+                <div className="flex items-center gap-2 text-zinc-600 pt-2">
+                   <span className="text-emerald-500 animate-pulse">_</span>
+                </div>
               </div>
             </div>
           </div>
