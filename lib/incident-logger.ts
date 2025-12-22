@@ -5,9 +5,8 @@ export type LogSource =
   | "SYSTEM"
   | "ORCHESTRATOR"
   | "DISCOVERY"
-  | "AGENT:SUPPLIER"
-  | "AGENT:DRIVER"
-  | "AGENT:CUSTOMER";
+  | "AGENT:FACILITY"  // For service centers & warehouses
+  | "AGENT:DRIVER";   // For available drivers
 
 export type LogStatus = "INFO" | "SUCCESS" | "WARNING" | "ERROR";
 

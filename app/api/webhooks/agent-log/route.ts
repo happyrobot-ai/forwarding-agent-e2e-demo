@@ -5,9 +5,8 @@ import { writeIncidentLog, LogSource, LogStatus } from "@/lib/incident-logger";
 // Valid source values for agent logs
 const VALID_SOURCES: LogSource[] = [
   "ORCHESTRATOR",
-  "AGENT:SUPPLIER",
-  "AGENT:DRIVER",
-  "AGENT:CUSTOMER",
+  "AGENT:FACILITY",  // For service centers & warehouses
+  "AGENT:DRIVER",    // For available drivers
 ];
 
 // Valid status values

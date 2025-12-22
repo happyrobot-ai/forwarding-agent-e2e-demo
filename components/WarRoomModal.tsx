@@ -6,7 +6,6 @@ import { X, AlertTriangle, Terminal, Activity } from "lucide-react";
 import { usePusher } from "./PusherProvider";
 import { useTheme } from "./ThemeProvider";
 import { FleetMap, ServiceCenter } from "./FleetMap";
-import { EmailToast } from "./EmailToast";
 import { cn } from "@/lib/utils";
 import { useIncidentLogs, useAgents } from "@/hooks";
 import type { IncidentLog } from "@/hooks";
@@ -89,7 +88,6 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
   const { updateAgentStatus } = useAgents({ incidentId: incident.id });
 
   // Local UI state
-  const [showEmailToast, setShowEmailToast] = useState(false);
   const [foundServiceCenters, setFoundServiceCenters] = useState<ServiceCenter[]>([]);
   const [foundDrivers, setFoundDrivers] = useState<DiscoveredDriver[]>([]);
   
@@ -203,10 +201,6 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
         if (prev.find((d) => d.id === data.driver.id)) return prev;
         return [...prev, data.driver];
       });
-    });
-
-    channel.bind("demo-complete", () => {
-      setShowEmailToast(true);
     });
 
     channel.bind("discovery-complete", (data: { incidentId: string }) => {
@@ -459,11 +453,6 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
             </div>
           </div>
         </div>
-
-        {/* Email Toast */}
-        {showEmailToast && (
-          <EmailToast onClose={() => setShowEmailToast(false)} />
-        )}
       </div>
     </div>
   );

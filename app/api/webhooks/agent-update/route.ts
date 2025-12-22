@@ -63,16 +63,14 @@ export async function POST(req: NextRequest) {
       : "INFO";
 
     // Determine source based on agent role
-    const logSource = agentRun.agentRole === "Supplier_Voice"
-      ? "AGENT:SUPPLIER"
-      : agentRun.agentRole === "Driver_Voice"
+    const logSource = agentRun.agentRole === "Driver_Voice"
       ? "AGENT:DRIVER"
-      : "AGENT:CUSTOMER";
+      : "AGENT:FACILITY";  // Supplier/Customer agents contact facilities
 
     await writeIncidentLog(
       agentRun.incidentId,
       reasoning || `[${stage}] ${agentRun.agentName} - ${status}`,
-      logSource as "AGENT:SUPPLIER" | "AGENT:DRIVER" | "AGENT:CUSTOMER",
+      logSource,
       logStatus
     );
 

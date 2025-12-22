@@ -4,11 +4,6 @@ import { pusherServer } from "@/lib/pusher-server";
 
 interface ResolutionPayload {
   incident_id: string;
-  email_content?: {
-    to: string;
-    subject: string;
-    body: string;
-  };
   cost_savings?: {
     avoided_loss: number;
     additional_cost: number;
@@ -20,7 +15,7 @@ interface ResolutionPayload {
 export async function POST(req: NextRequest) {
   try {
     const payload: ResolutionPayload = await req.json();
-    const { incident_id, email_content, cost_savings, summary } = payload;
+    const { incident_id, cost_savings, summary } = payload;
 
     // Update incident to RESOLVED
     const incident = await prisma.incident.update({
@@ -50,11 +45,6 @@ export async function POST(req: NextRequest) {
     // Trigger Pusher event for demo completion
     await pusherServer.trigger("sysco-demo", "demo-complete", {
       incident,
-      email_content: email_content || {
-        to: "texas.quality.meats@example.com",
-        subject: "Pickup Confirmation - Load #9901",
-        body: "Driver Marcus (Fleet #882) is en route to your facility for pickup of 5 pallets Prime Rib. ETA: 15 minutes. Please have loading dock ready. Contact: dispatch@sysco.com",
-      },
       cost_savings: cost_savings || {
         avoided_loss: 45000,
         additional_cost: 250,

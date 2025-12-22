@@ -178,7 +178,7 @@ X-API-KEY: your_webhook_key
 {
   "incident_id": "uuid",
   "message": "Contacting service center...",
-  "source": "AGENT:SUPPLIER",  // ORCHESTRATOR, DISCOVERY, AGENT:SUPPLIER, AGENT:DRIVER, AGENT:CUSTOMER
+  "source": "AGENT:FACILITY",  // ORCHESTRATOR, AGENT:FACILITY, AGENT:DRIVER
   "status": "INFO"             // INFO, SUCCESS, WARNING, ERROR
 }
 ```
@@ -228,7 +228,7 @@ Content-Type: application/json
 
 ### Incident Logs
 - Persisted timeline for each incident
-- Sources: `SYSTEM`, `ORCHESTRATOR`, `DISCOVERY`, `AGENT:SUPPLIER`, `AGENT:DRIVER`, `AGENT:CUSTOMER`
+- Sources: `SYSTEM`, `ORCHESTRATOR`, `DISCOVERY`, `AGENT:FACILITY`, `AGENT:DRIVER`
 - Status levels: `INFO`, `SUCCESS`, `WARNING`, `ERROR`
 - Real-time broadcasting via Pusher
 
@@ -304,7 +304,6 @@ curl -X POST http://localhost:3000/api/demo/trigger \
 - Log shows successful coordination messages
 - Service level recovers to 99.9%+
 - Order status updates to "RECOVERED"
-- Email confirmation toast appears
 
 **Presenter:** "Crisis resolved autonomously. This is the future of supply chain orchestration."
 
