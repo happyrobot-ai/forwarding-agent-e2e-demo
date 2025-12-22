@@ -14,16 +14,21 @@ This application showcases a "Self-Healing Supply Chain" where AI agents don't j
 - **68 Roadside Assistance Centers** - Strategic service network across major Texas interstates
 - **Real-time Updates** - Pusher WebSocket integration for instant dashboard updates
 - **Service Level Monitoring** - Live tracking against 99.9% SLA target
+- **SWR Data Fetching** - Optimistic updates with automatic revalidation
+- **HappyRobot AI Integration** - External AI agent orchestration via webhooks
+- **Driver Discovery** - Automatic detection of available drivers for trailer relay
+- **Incident Logging** - Persisted timeline with real-time Pusher broadcasting
 
 ## Tech Stack
 
 - **Frontend:** Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS
+- **Data Fetching:** SWR with optimistic updates and Pusher integration
 - **Maps:** Mapbox GL JS with custom clustering and route visualization
 - **Backend:** Next.js API Routes
 - **Database:** PostgreSQL via Prisma ORM
 - **Real-time:** Pusher (WebSockets)
 - **Deployment:** Railway / Vercel
-- **AI Agents:** External agent platform integration via webhooks
+- **AI Agents:** HappyRobot integration via webhooks
 
 ## Getting Started
 
@@ -64,6 +69,13 @@ NEXT_PUBLIC_PUSHER_CLUSTER="us2"
 # Mapbox (get from https://account.mapbox.com)
 NEXT_PUBLIC_MAPBOX_TOKEN="your_mapbox_token"
 MAPBOX_ACCESS_TOKEN="your_mapbox_token"
+
+# HappyRobot AI Integration
+HAPPYROBOT_WEBHOOK_URL="https://your-happyrobot-endpoint.com/webhook"
+WEBHOOK_API_KEY="your_shared_secret"
+
+# App URL (for callback URLs)
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
 ```
 
 3. **Set up the database:**
@@ -124,9 +136,52 @@ Reset the demo state (clears incidents, restores orders):
 curl -X POST http://localhost:3000/api/demo/reset
 ```
 
+### Discovery & Workflow
+
+**Trigger Resource Discovery:**
+```bash
+POST /api/incidents/{id}/discover
+
+# Response: { "status": "STARTED" | "RUNNING" | "COMPLETED" }
+# Pusher events: resource-located, driver-located, discovery-complete
+```
+
+**Trigger HappyRobot AI Workflow:**
+```bash
+POST /api/happyrobot/trigger_workflow
+Content-Type: application/json
+
+{
+  "incident_id": "uuid",
+  "center_phone": "+1555123456",  // Optional: override for demo
+  "trucker_phone": "+1555654321"  // Optional: override for demo
+}
+```
+
+**Get Incident Logs:**
+```bash
+GET /api/incidents/{id}/logs
+
+# Returns array of IncidentLog entries with timestamp, message, source, status
+```
+
 ### Webhook Endpoints
 
 For AI agent platform integration:
+
+**Agent Log (Real-time Updates):**
+```bash
+POST /api/webhooks/agent-log
+Content-Type: application/json
+X-API-KEY: your_webhook_key
+
+{
+  "incident_id": "uuid",
+  "message": "Contacting service center...",
+  "source": "AGENT:SUPPLIER",  // ORCHESTRATOR, DISCOVERY, AGENT:SUPPLIER, AGENT:DRIVER, AGENT:CUSTOMER
+  "status": "INFO"             // INFO, SUCCESS, WARNING, ERROR
+}
+```
 
 **Agent Update:**
 ```bash
@@ -159,11 +214,31 @@ Content-Type: application/json
 - 50+ active orders with real Mapbox routes across Texas
 - Status: `PENDING`, `IN_TRANSIT`, `AT_RISK`, `DELIVERED`, `CANCELLED`
 - Risk scoring (0-100) with visual indicators
+- Full financial data: costPrice, sellPrice, internalBaseCost, actualLogisticsCost
 
 ### Trucks (Samsara Integration)
 - Fleet of refrigerated, dry van, flatbed, and tanker trucks
 - Real GPS coordinates along route paths
 - Driver assignments with contact info
+
+### Incidents
+- Links to affected order with full context
+- Discovery status: `PENDING`, `RUNNING`, `COMPLETED`
+- Status: `ACTIVE`, `RESOLVED`, `FAILED`
+
+### Incident Logs
+- Persisted timeline for each incident
+- Sources: `SYSTEM`, `ORCHESTRATOR`, `DISCOVERY`, `AGENT:SUPPLIER`, `AGENT:DRIVER`, `AGENT:CUSTOMER`
+- Status levels: `INFO`, `SUCCESS`, `WARNING`, `ERROR`
+- Real-time broadcasting via Pusher
+
+### Incident Candidates (Unified Discovery)
+Polymorphic table linking incidents to discovered resources:
+- **Service Centers** - Nearby repair shops, towing, mobile mechanics
+- **Warehouses** - Sysco hubs for backup inventory
+- **Drivers** - Available trucks for trailer relay (DELIVERED or 85%+ progress)
+
+Each candidate stores distance, rank, and type-specific data (driver location, progress, nearest drop-off).
 
 ### Service Centers (Roadside Assistance Network)
 68 locations across Texas interstates:
@@ -207,14 +282,26 @@ curl -X POST http://localhost:3000/api/demo/trigger \
 **Action:** Click on the red alert to open War Room Modal
 
 **What You See:**
-- Left side: Focused map showing incident truck, nearby service centers
-- Right side: Two Agent Cards (Supplier & Driver coordination)
-- Bottom: Live Reasoning Log with timestamps
+- Left side: Focused map showing incident truck location
+- Right side: Live execution log with timestamps
 
-### Phase 4: The Resolution
+**Discovery Flow (Automatic):**
+1. "Initiating geospatial scan for recovery assets..."
+2. Service centers and warehouses appear on map one by one
+3. Available drivers are discovered (trucks that completed or nearly completed deliveries)
+4. "Discovery complete" triggers automatic AI swarm activation
+
+### Phase 4: The AI Swarm
+
+**HappyRobot Integration:**
+- Workflow payload sent with incident context, facilities, and drivers
+- Real-time log updates stream via webhook → Pusher
+- Agent coordinates calls to service centers and drivers
+
+### Phase 5: The Resolution
 
 **Visual Payoff:**
-- Agent cards animate through stages (IDLE → RUNNING → SUCCESS)
+- Log shows successful coordination messages
 - Service level recovers to 99.9%+
 - Order status updates to "RECOVERED"
 - Email confirmation toast appears
@@ -225,10 +312,11 @@ curl -X POST http://localhost:3000/api/demo/trigger \
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  Frontend (Next.js + React)                                 │
+│  Frontend (Next.js + React + SWR)                           │
 │  ├── Dashboard Page (real-time order/fleet view)           │
 │  ├── FleetMap Component (Mapbox GL JS)                     │
-│  └── WarRoomModal (incident command center)                │
+│  ├── WarRoomModal (incident command center)                │
+│  └── SWR Hooks (useOrders, useIncidents, useAgents, etc.)  │
 └─────────────────────────────────────────────────────────────┘
                               │
                               ▼
@@ -236,21 +324,30 @@ curl -X POST http://localhost:3000/api/demo/trigger \
 │  API Routes (Next.js)                                       │
 │  ├── /api/demo/trigger - Create incidents                  │
 │  ├── /api/demo/reset - Reset demo state                    │
-│  ├── /api/orders - List/manage orders                      │
-│  ├── /api/service-centers - Roadside network               │
-│  └── /api/webhooks/* - Agent platform callbacks            │
+│  ├── /api/incidents/{id}/discover - Resource discovery     │
+│  ├── /api/incidents/{id}/logs - Incident timeline          │
+│  ├── /api/happyrobot/trigger_workflow - AI orchestration   │
+│  └── /api/webhooks/agent-log - Real-time agent updates     │
 └─────────────────────────────────────────────────────────────┘
                               │
               ┌───────────────┴───────────────┐
               ▼                               ▼
 ┌─────────────────────────┐     ┌─────────────────────────────┐
 │  PostgreSQL (Prisma)    │     │  Pusher (WebSockets)        │
-│  ├── Orders             │     │  ├── demo-started event     │
-│  ├── Trucks             │     │  ├── agent-update event     │
-│  ├── Incidents          │     │  └── demo-complete event    │
+│  ├── Orders             │     │  ├── incident-log event     │
+│  ├── Trucks             │     │  ├── resource-located event │
+│  ├── Incidents          │     │  ├── driver-located event   │
+│  ├── IncidentLogs       │     │  ├── discovery-complete     │
+│  ├── IncidentCandidates │     │  └── demo-complete event    │
 │  ├── ServiceCenters     │     └─────────────────────────────┘
-│  └── Warehouses         │
-└─────────────────────────┘
+│  └── Warehouses         │                   │
+└─────────────────────────┘                   ▼
+                              ┌─────────────────────────────┐
+                              │  HappyRobot AI Platform     │
+                              │  ├── Receives workflow POST │
+                              │  ├── Calls facilities/drivers│
+                              │  └── Posts logs via webhook │
+                              └─────────────────────────────┘
 ```
 
 ## Deployment
@@ -319,17 +416,33 @@ ngrok http 3000
 │   ├── api/
 │   │   ├── demo/trigger/       # Incident trigger API
 │   │   ├── demo/reset/         # Reset API
-│   │   └── webhooks/           # Agent callbacks
+│   │   ├── incidents/[id]/
+│   │   │   ├── discover/       # Resource discovery workflow
+│   │   │   └── logs/           # Incident timeline API
+│   │   ├── happyrobot/
+│   │   │   └── trigger_workflow/  # HappyRobot AI integration
+│   │   └── webhooks/
+│   │       └── agent-log/      # Real-time agent log updates
 │   └── globals.css             # Animations (radar-ping, etc.)
 ├── components/
 │   ├── FleetMap.tsx            # Mapbox fleet visualization
-│   └── WarRoomModal.tsx        # Incident command center
+│   ├── WarRoomModal.tsx        # Incident command center
+│   └── SWRProvider.tsx         # Global SWR configuration
+├── hooks/
+│   ├── index.ts                # Hook exports
+│   ├── useOrders.ts            # Orders with optimistic updates
+│   ├── useIncidents.ts         # Incidents with active detection
+│   ├── useIncidentLogs.ts      # Real-time log streaming
+│   ├── useAgents.ts            # Agent status tracking
+│   └── useWarehouses.ts        # Warehouse data
 ├── prisma/
 │   ├── schema.prisma           # Database schema
 │   └── seed.ts                 # Demo data generator
 └── lib/
     ├── prisma.ts               # Database client
-    └── pusher-server.ts        # Pusher server instance
+    ├── pusher-server.ts        # Pusher server instance
+    ├── incident-logger.ts      # Unified incident logging
+    └── swr-config.ts           # SWR global configuration
 ```
 
 ### Adding New Service Centers

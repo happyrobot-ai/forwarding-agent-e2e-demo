@@ -28,14 +28,22 @@ interface DriverPayload {
   phone: string;
 }
 
+interface IncidentLocation {
+  lat: number;
+  lng: number;
+  googleMapsUrl: string;
+}
+
 interface WorkflowPayload {
   incident_id: string;
   incident: {
     title: string;
     description: string | null;
+    location: IncidentLocation | null;
     order: {
       id: string;
       itemName: string;
+      origin: string;
       destination: string;
       sellPrice: number;
       costPrice: number;
@@ -145,24 +153,55 @@ export async function POST(request: NextRequest) {
     }
 
     // Build drivers array from candidates
-    const drivers: DriverPayload[] = incident.candidates
-      .filter(c => c.candidateType === "DRIVER" && c.truck)
-      .map(c => ({
-        id: c.truck!.id,
-        driverName: c.truck!.driverName,
-        truckId: c.truck!.id,
-        currentLocation: c.currentLocation || "",
-        lat: c.lat || 0,
-        lng: c.lng || 0,
-        distance: c.distance,
-        status: (c.status as "DELIVERED" | "COMPLETING") || "COMPLETING",
-        progress: c.progress || undefined,
-        phone: trucker_phone || "",
-      }));
+    const drivers: DriverPayload[] = [];
+    for (const c of incident.candidates) {
+      if (c.candidateType === "DRIVER" && c.truck) {
+        drivers.push({
+          id: c.truck.id,
+          driverName: c.truck.driverName,
+          truckId: c.truck.id,
+          currentLocation: c.currentLocation || "",
+          lat: c.lat || 0,
+          lng: c.lng || 0,
+          distance: c.distance,
+          status: (c.status as "DELIVERED" | "COMPLETING") || "COMPLETING",
+          progress: c.progress || undefined,
+          phone: trucker_phone || "",
+        });
+      }
+    }
 
     // Build callback URL (use request origin or env var)
-    const origin = request.headers.get("origin") || process.env.NEXT_PUBLIC_APP_URL || "";
-    const callback_url = `${origin}/api/webhooks/agent-log`;
+    const appOrigin = request.headers.get("origin") || process.env.NEXT_PUBLIC_APP_URL || "";
+    const callback_url = `${appOrigin}/api/webhooks/agent-log`;
+
+    // Calculate incident location (where the truck got stuck)
+    let incidentLocation: IncidentLocation | null = null;
+    if (incident.order) {
+      const order = incident.order;
+      const progress = order.progress ?? 50;
+      const routePoints = order.routeGeoJson as number[][] | null;
+
+      let truckLat: number, truckLng: number;
+
+      if (routePoints && routePoints.length > 0) {
+        // Interpolate position along route based on progress
+        const pointIndex = Math.floor((progress / 100) * (routePoints.length - 1));
+        const point = routePoints[Math.min(pointIndex, routePoints.length - 1)];
+        truckLng = point[0];
+        truckLat = point[1];
+      } else {
+        // Fallback: interpolate between start and end
+        truckLat = order.startLat + (order.endLat - order.startLat) * (progress / 100);
+        truckLng = order.startLng + (order.endLng - order.startLng) * (progress / 100);
+      }
+
+      incidentLocation = {
+        lat: truckLat,
+        lng: truckLng,
+        googleMapsUrl: `https://www.google.com/maps?q=${truckLat},${truckLng}`,
+      };
+    }
 
     // Construct the workflow payload
     const payload: WorkflowPayload = {
@@ -170,9 +209,11 @@ export async function POST(request: NextRequest) {
       incident: {
         title: incident.title,
         description: incident.description,
+        location: incidentLocation,
         order: incident.order ? {
           id: incident.order.id,
           itemName: incident.order.itemName,
+          origin: incident.order.origin,
           destination: incident.order.destination,
           sellPrice: incident.order.sellPrice,
           costPrice: incident.order.costPrice,
@@ -198,7 +239,7 @@ export async function POST(request: NextRequest) {
     // Log that we're triggering the workflow
     await writeIncidentLog(
       incident_id,
-      "Activating HappyRobot AI Agent swarm for autonomous recovery...",
+      "Activating HappyRobot AI Agent...",
       "ORCHESTRATOR",
       "INFO"
     );
@@ -236,7 +277,7 @@ export async function POST(request: NextRequest) {
     // Log success
     await writeIncidentLog(
       incident_id,
-      `AI Agent swarm activated. ${facilities.length} facilities and ${drivers.length} drivers queued for contact.`,
+      `AI Agent activated. ${facilities.length} facilities and ${drivers.length} drivers queued for contact.`,
       "ORCHESTRATOR",
       "SUCCESS"
     );
