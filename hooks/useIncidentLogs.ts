@@ -5,7 +5,7 @@ export interface IncidentLog {
   id: string;
   timestamp: string;
   message: string;
-  source: string; // "SYSTEM" | "ORCHESTRATOR" | "DISCOVERY" | "AGENT:SUPPLIER" | "AGENT:DRIVER" | "AGENT:CUSTOMER"
+  source: string; // "SYSTEM" | "ORCHESTRATOR" | "DISCOVERY" | "AGENT:FACILITY" | "AGENT:DRIVER"
   status: string; // "INFO" | "SUCCESS" | "WARNING" | "ERROR"
 }
 

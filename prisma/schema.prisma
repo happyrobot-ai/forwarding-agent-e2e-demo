@@ -44,7 +44,7 @@ model IncidentLog {
 
   timestamp   DateTime @default(now())
   message     String   // e.g., "Identified 3 repair shops", "Calling Driver..."
-  source      String   // "SYSTEM", "ORCHESTRATOR", "DISCOVERY", "AGENT:SUPPLIER", "AGENT:DRIVER"
+  source      String   // "SYSTEM", "ORCHESTRATOR", "DISCOVERY", "AGENT:FACILITY", "AGENT:DRIVER"
   status      String   @default("INFO") // "INFO", "SUCCESS", "WARNING", "ERROR"
 
   createdAt   DateTime @default(now()) @map("created_at")

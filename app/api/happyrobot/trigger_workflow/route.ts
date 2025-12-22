@@ -274,6 +274,50 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Parse HappyRobot response to get queued run IDs
+    const happyRobotResponse = await response.json() as {
+      queued_run_ids?: string[];
+      status?: string;
+    };
+
+    console.log(`[HappyRobot] Response:`, happyRobotResponse);
+
+    // Create AgentRun records for each queued run
+    const createdAgents: Array<{ run_id: string; agent_role: string }> = [];
+
+    if (happyRobotResponse.queued_run_ids && happyRobotResponse.queued_run_ids.length > 0) {
+      for (let i = 0; i < happyRobotResponse.queued_run_ids.length; i++) {
+        const runId = happyRobotResponse.queued_run_ids[i];
+
+        // Determine agent role based on index (first is facility, second is driver if exists)
+        // This matches HappyRobot's parallel sequence structure
+        const agentRole = i === 0 ? "Facility_Voice" : "Driver_Voice";
+        const agentName = i === 0 ? "Facility Coordinator" : "Driver Coordinator";
+        const summary = i === 0
+          ? `Coordinating with ${facilities.length} service centers/warehouses`
+          : `Coordinating with ${drivers.length} available drivers`;
+
+        try {
+          await prisma.agentRun.create({
+            data: {
+              runId: runId,
+              incidentId: incident_id,
+              agentRole: agentRole,
+              agentName: agentName,
+              summary: summary,
+              status: "RUNNING",
+              logs: [],
+            },
+          });
+
+          createdAgents.push({ run_id: runId, agent_role: agentRole });
+          console.log(`[HappyRobot] Created AgentRun for ${agentRole}: ${runId}`);
+        } catch (dbError) {
+          console.error(`[HappyRobot] Failed to create AgentRun for ${runId}:`, dbError);
+        }
+      }
+    }
+
     // Log success
     await writeIncidentLog(
       incident_id,
@@ -288,6 +332,8 @@ export async function POST(request: NextRequest) {
       success: true,
       facilities_count: facilities.length,
       drivers_count: drivers.length,
+      queued_run_ids: happyRobotResponse.queued_run_ids || [],
+      agents: createdAgents,
     });
   } catch (error) {
     console.error("[HappyRobot] Error triggering workflow:", error);
