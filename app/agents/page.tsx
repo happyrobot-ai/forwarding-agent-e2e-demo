@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import { usePusher } from "@/components/PusherProvider";
 import { useTheme } from "@/components/ThemeProvider";
+import { useAgents, revalidateAgents } from "@/hooks";
 import {
   Clock,
   ExternalLink,
@@ -16,26 +17,28 @@ import {
   Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useEffect } from "react";
 
-interface Agent {
-  id: number;
-  agent_id: string;
-  agent_name: string;
-  summary: string;
-  status: string;
-  link: string;
-  run_id: string;
-  created_at: string;
-  updated_at: string;
-}
+// HappyRobot Platform configuration (from env)
+const HAPPYROBOT_ORG = process.env.NEXT_PUBLIC_HAPPYROBOT_ORG || "sysco";
+const HAPPYROBOT_WORKFLOW_ID = process.env.NEXT_PUBLIC_HAPPYROBOT_WORKFLOW_ID || "3mz6dek05ofl";
+
+// HappyRobot run URL helper - links to individual run in platform
+const getRunUrl = (runId: string) =>
+  `https://v2.platform.happyrobot.ai/${HAPPYROBOT_ORG}/workflow/${HAPPYROBOT_WORKFLOW_ID}/runs?run_id=${runId}`;
 
 export default function AgentsPage() {
   const { pusher } = usePusher();
   const { theme } = useTheme();
-  const [agents, setAgents] = useState<Agent[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+
+  // Use SWR hook with HappyRobot polling enabled
+  const { agents, isLoading, refetch, stats } = useAgents({
+    pollRunning: true,
+    pollInterval: 5000,
+    debug: true,
+  });
 
   const getHappyRobotLogo = () => {
     return theme === "dark"
@@ -43,45 +46,22 @@ export default function AgentsPage() {
       : "/happyrobot/Footer-logo-black.png";
   };
 
-  useEffect(() => {
-    const fetchAgents = async () => {
-      try {
-        const res = await fetch("/api/agents");
-        const data = await res.json();
-        if (Array.isArray(data)) {
-          setAgents(data);
-        }
-        setIsLoading(false);
-      } catch (error) {
-        console.error("Error fetching agents:", error);
-        setIsLoading(false);
-      }
-    };
-
-    fetchAgents();
-  }, []);
-
+  // Listen for Pusher events to trigger revalidation
   useEffect(() => {
     if (!pusher) return;
 
     const channel = pusher.subscribe("sysco-demo");
 
     channel.bind("agent-update", () => {
-      fetch("/api/agents")
-        .then((res) => res.json())
-        .then((data) => Array.isArray(data) && setAgents(data));
+      revalidateAgents();
     });
 
     channel.bind("demo-started", () => {
-      fetch("/api/agents")
-        .then((res) => res.json())
-        .then((data) => Array.isArray(data) && setAgents(data));
+      revalidateAgents();
     });
 
     channel.bind("demo-complete", () => {
-      fetch("/api/agents")
-        .then((res) => res.json())
-        .then((data) => Array.isArray(data) && setAgents(data));
+      revalidateAgents();
     });
 
     return () => {
@@ -90,18 +70,8 @@ export default function AgentsPage() {
     };
   }, [pusher]);
 
-  const handleRefresh = async () => {
-    setIsLoading(true);
-    try {
-      const res = await fetch("/api/agents");
-      const data = await res.json();
-      if (Array.isArray(data)) {
-        setAgents(data);
-      }
-    } catch (error) {
-      console.error("Error refreshing agents:", error);
-    }
-    setIsLoading(false);
+  const handleRefresh = () => {
+    refetch();
   };
 
   const statusConfig: Record<
@@ -151,26 +121,15 @@ export default function AgentsPage() {
 
   const filteredAgents = agents.filter((agent) => {
     const matchesSearch =
-      agent.agent_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      agent.agentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       agent.summary.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      agent.run_id.toLowerCase().includes(searchQuery.toLowerCase());
+      agent.runId.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus =
       statusFilter === "all" || agent.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
   const uniqueStatuses = Array.from(new Set(agents.map((a) => a.status)));
-
-  const stats = {
-    total: agents.length,
-    running: agents.filter(
-      (a) => a.status === "RUNNING" || a.status === "ACTIVE"
-    ).length,
-    completed: agents.filter(
-      (a) => a.status === "COMPLETED" || a.status === "FINISHED"
-    ).length,
-    failed: agents.filter((a) => a.status === "FAILED").length,
-  };
 
   if (isLoading) {
     return (
@@ -419,9 +378,16 @@ export default function AgentsPage() {
                                 className="object-contain"
                               />
                             </div>
-                            <span className="font-medium text-zinc-200">
-                              {agent.agent_name}
-                            </span>
+                            <div>
+                              <span className="font-medium text-zinc-900 dark:text-zinc-200">
+                                {agent.agentName}
+                              </span>
+                              {agent.agentRole && (
+                                <p className="text-xs text-zinc-500 font-mono">
+                                  {agent.agentRole}
+                                </p>
+                              )}
+                            </div>
                           </div>
                         </td>
                         <td className="px-6 py-4">
@@ -443,22 +409,24 @@ export default function AgentsPage() {
                           </span>
                         </td>
                         <td className="px-6 py-4 max-w-xs">
-                          <span className="text-zinc-400 line-clamp-2">
+                          <span className="text-zinc-600 dark:text-zinc-400 line-clamp-2">
                             {agent.summary}
                           </span>
                         </td>
                         <td className="px-6 py-4">
                           <span className="text-zinc-500 font-mono text-xs">
-                            {agent.run_id.slice(0, 8)}...
+                            {agent.runId.slice(0, 8)}...
                           </span>
                         </td>
                         <td className="px-6 py-4 text-zinc-500 font-mono text-xs">
-                          {new Date(agent.created_at).toLocaleString()}
+                          {agent.createdAt
+                            ? new Date(agent.createdAt).toLocaleString()
+                            : "—"}
                         </td>
                         <td className="px-6 py-4">
-                          {agent.link ? (
+                          {agent.runId ? (
                             <a
-                              href={agent.link}
+                              href={getRunUrl(agent.runId)}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="inline-flex items-center gap-1 text-blue-500 hover:text-blue-400 font-medium text-xs"

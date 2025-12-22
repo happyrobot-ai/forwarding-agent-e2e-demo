@@ -16,6 +16,3 @@ export type { IncidentLog } from "./useIncidentLogs";
 
 export { useTrucks, revalidateTrucks, mutateTruck } from "./useTrucks";
 export type { Truck, CurrentOrder } from "./useTrucks";
-
-// Legacy hooks
-export { useAgentPolling } from "./useAgentPolling";
