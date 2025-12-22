@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { usePusher } from "@/components/PusherProvider";
 import { useTheme } from "@/components/ThemeProvider";
+import { WarRoomModal } from "@/components/WarRoomModal";
 import { useAgents, revalidateAgents } from "@/hooks";
+import type { Agent } from "@/hooks";
 import {
   Clock,
   ExternalLink,
@@ -15,9 +17,51 @@ import {
   CheckCircle,
   XCircle,
   Loader2,
+  AlertTriangle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useEffect } from "react";
+
+// Types for incident data when opening War Room
+interface IncidentData {
+  id: string;
+  title: string;
+  description?: string | null;
+  status: string;
+  orderId?: string | null;
+}
+
+interface OrderData {
+  id: string;
+  itemName: string;
+  origin: string;
+  destination: string;
+  status?: string;
+  carrier?: string;
+  startLat?: number;
+  startLng?: number;
+  endLat?: number;
+  endLng?: number;
+  riskScore?: number;
+  routeGeoJson?: number[][] | null;
+  progress?: number;
+  costPrice?: number;
+  sellPrice?: number;
+  internalBaseCost?: number;
+  actualLogisticsCost?: number;
+  buyers?: Array<{
+    id: string;
+    name: string;
+    segment: string;
+    trustScore: number;
+    totalSpend: number;
+  }>;
+  truck?: {
+    id: string;
+    driverName: string;
+    vehicleType?: string;
+    status?: string;
+  } | null;
+}
 
 // HappyRobot Platform configuration (from env)
 const HAPPYROBOT_ORG = process.env.NEXT_PUBLIC_HAPPYROBOT_ORG || "sysco";
@@ -33,12 +77,61 @@ export default function AgentsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
+  // State for historical War Room modal
+  const [selectedIncident, setSelectedIncident] = useState<IncidentData | null>(
+    null
+  );
+  const [selectedOrder, setSelectedOrder] = useState<OrderData | null>(null);
+  const [showWarRoom, setShowWarRoom] = useState(false);
+  const [loadingIncident, setLoadingIncident] = useState<string | null>(null);
+
   // Use SWR hook with HappyRobot polling enabled
   const { agents, isLoading, refetch, stats } = useAgents({
     pollRunning: true,
     pollInterval: 5000,
     debug: true,
   });
+
+  // Handle clicking an agent with an incident - opens historical War Room
+  const handleAgentClick = async (agent: Agent) => {
+    if (!agent.incidentId) return;
+
+    setLoadingIncident(agent.incidentId);
+    try {
+      const res = await fetch(`/api/incidents/${agent.incidentId}`);
+      if (!res.ok) throw new Error("Failed to fetch incident");
+
+      const incidentData = await res.json();
+
+      // Set incident data
+      setSelectedIncident({
+        id: incidentData.id,
+        title: incidentData.title,
+        description: incidentData.description,
+        status: incidentData.status,
+        orderId: incidentData.orderId,
+      });
+
+      // Set order data if available
+      if (incidentData.order) {
+        setSelectedOrder(incidentData.order);
+      } else {
+        setSelectedOrder(null);
+      }
+
+      setShowWarRoom(true);
+    } catch (error) {
+      console.error("Error fetching incident:", error);
+    } finally {
+      setLoadingIncident(null);
+    }
+  };
+
+  const handleCloseWarRoom = () => {
+    setShowWarRoom(false);
+    setSelectedIncident(null);
+    setSelectedOrder(null);
+  };
 
   const getHappyRobotLogo = () => {
     return theme === "dark"
@@ -362,14 +455,23 @@ export default function AgentsPage() {
                   {filteredAgents.map((agent) => {
                     const config = getStatusConfig(agent.status);
                     const StatusIcon = config.icon;
+                    const hasIncident = !!agent.incidentId;
+                    const isLoadingThisIncident =
+                      loadingIncident === agent.incidentId;
+
                     return (
                       <tr
                         key={agent.id}
-                        className="group hover:bg-[var(--sysco-surface)] transition-colors"
+                        onClick={() => hasIncident && handleAgentClick(agent)}
+                        className={cn(
+                          "group hover:bg-[var(--sysco-surface)] transition-colors",
+                          hasIncident && "cursor-pointer",
+                          isLoadingThisIncident && "opacity-70"
+                        )}
                       >
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
+                            <div className="w-10 h-10 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center relative">
                               <Image
                                 src={getHappyRobotLogo()}
                                 alt="HappyRobot"
@@ -377,12 +479,26 @@ export default function AgentsPage() {
                                 height={20}
                                 className="object-contain"
                               />
+                              {isLoadingThisIncident && (
+                                <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg">
+                                  <Loader2 className="h-4 w-4 text-white animate-spin" />
+                                </div>
+                              )}
                             </div>
                             <div>
                               <span className="font-medium text-zinc-900 dark:text-zinc-200">
                                 {agent.agentName}
                               </span>
-                              {agent.agentRole && (
+                              {/* Incident Badge */}
+                              {hasIncident && (
+                                <div className="flex items-center gap-1.5 mt-0.5">
+                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-medium bg-violet-500/10 text-violet-400 border border-violet-500/20">
+                                    <AlertTriangle className="h-2.5 w-2.5" />
+                                    INC-{agent.incidentId?.slice(0, 6).toUpperCase()}
+                                  </span>
+                                </div>
+                              )}
+                              {agent.agentRole && !hasIncident && (
                                 <p className="text-xs text-zinc-500 font-mono">
                                   {agent.agentRole}
                                 </p>
@@ -429,6 +545,7 @@ export default function AgentsPage() {
                               href={getRunUrl(agent.runId)}
                               target="_blank"
                               rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
                               className="inline-flex items-center gap-1 text-blue-500 hover:text-blue-400 font-medium text-xs"
                             >
                               View
@@ -447,6 +564,16 @@ export default function AgentsPage() {
           )}
         </div>
       </div>
+
+      {/* Historical War Room Modal */}
+      {showWarRoom && selectedIncident && (
+        <WarRoomModal
+          incident={selectedIncident}
+          affectedOrder={selectedOrder}
+          onClose={handleCloseWarRoom}
+          mode="historical"
+        />
+      )}
     </div>
   );
 }

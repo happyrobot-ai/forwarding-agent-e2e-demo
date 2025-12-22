@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState, useRef, useMemo, useCallback } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import Image from "next/image";
-import { X, AlertTriangle, Terminal, Activity } from "lucide-react";
+import { X, AlertTriangle, Terminal, Activity, CheckCircle, XCircle, Clock } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { usePusher } from "./PusherProvider";
 import { useTheme } from "./ThemeProvider";
 import { FleetMap, ServiceCenter } from "./FleetMap";
@@ -77,11 +78,27 @@ interface WarRoomModalProps {
   incident: Incident;
   affectedOrder?: AffectedOrder | null;
   onClose: () => void;
+  mode?: "live" | "historical"; // "live" for active incidents, "historical" for viewing from Agents page
 }
 
-export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalProps) {
+// Resolution state for animated transition
+interface ResolutionState {
+  resolved: boolean;
+  outcome: "SUCCESS" | "FAILED" | null;
+  summary: string | null;
+}
+
+export function WarRoomModal({
+  incident,
+  affectedOrder,
+  onClose,
+  mode = "live",
+}: WarRoomModalProps) {
   const { pusher } = usePusher();
   const { theme } = useTheme();
+
+  // Determine if we're in historical mode (from prop or after resolution)
+  const isInitiallyHistorical = mode === "historical" || incident.status !== "ACTIVE";
 
   // SWR hooks
   const { logs, isLoading: logsLoading, addLog } = useIncidentLogs(incident.id);
@@ -90,11 +107,25 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
   // Local UI state
   const [foundServiceCenters, setFoundServiceCenters] = useState<ServiceCenter[]>([]);
   const [foundDrivers, setFoundDrivers] = useState<DiscoveredDriver[]>([]);
-  
+
   // Swarm State
   const [swarmActivated, setSwarmActivated] = useState(false);
   const [discoveryComplete, setDiscoveryComplete] = useState(false);
-  
+
+  // Resolution state for animated transition (live → historical)
+  const [resolution, setResolution] = useState<ResolutionState>({
+    resolved: isInitiallyHistorical,
+    outcome: isInitiallyHistorical
+      ? incident.status === "RESOLVED"
+        ? "SUCCESS"
+        : "FAILED"
+      : null,
+    summary: null,
+  });
+
+  // Derived state: are we showing historical view?
+  const isHistorical = resolution.resolved || isInitiallyHistorical;
+
   const logsEndRef = useRef<HTMLDivElement>(null);
   const discoveryInitiatedRef = useRef(false);
 
@@ -118,14 +149,17 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
     logsEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [logs]);
 
-  // 1. Trigger Discovery on Mount
+  // 1. Trigger Discovery on Mount (skip in historical mode)
   useEffect(() => {
+    if (isInitiallyHistorical) return; // Skip discovery for historical viewing
     if (discoveryInitiatedRef.current) return;
     discoveryInitiatedRef.current = true;
 
     const initDiscovery = async () => {
       try {
-        const res = await fetch(`/api/incidents/${incident.id}/discover`, { method: "POST" });
+        const res = await fetch(`/api/incidents/${incident.id}/discover`, {
+          method: "POST",
+        });
         const data = await res.json();
 
         // If discovery was already completed, load cached candidates
@@ -152,56 +186,70 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
     };
 
     initDiscovery();
-  }, [incident.id]);
+  }, [incident.id, isInitiallyHistorical]);
 
-  // 2. Pusher Listeners
+  // 2. Pusher Listeners (skip in historical mode)
   useEffect(() => {
     if (!pusher) return;
+    if (isInitiallyHistorical) return; // No real-time updates needed for historical viewing
+
     const channel = pusher.subscribe("sysco-demo");
 
-    channel.bind("incident-log", (data: {
-      incidentId: string;
-      log: IncidentLog;
-      selected_facility_id?: string;
-      selected_driver_id?: string;
-    }) => {
-      if (data.incidentId !== incident.id) return;
-      addLog(data.log);
+    channel.bind(
+      "incident-log",
+      (data: {
+        incidentId: string;
+        log: IncidentLog;
+        selected_facility_id?: string;
+        selected_driver_id?: string;
+      }) => {
+        if (data.incidentId !== incident.id) return;
+        addLog(data.log);
 
-      // If a facility was selected, filter to only show that one
-      if (data.selected_facility_id) {
-        setFoundServiceCenters((prev) =>
-          prev.filter((sc) => sc.id === data.selected_facility_id)
-        );
+        // If a facility was selected, filter to only show that one
+        if (data.selected_facility_id) {
+          setFoundServiceCenters((prev) =>
+            prev.filter((sc) => sc.id === data.selected_facility_id)
+          );
+        }
+
+        // If a driver was selected, filter to only show that one
+        if (data.selected_driver_id) {
+          setFoundDrivers((prev) =>
+            prev.filter((d) => d.id === data.selected_driver_id)
+          );
+        }
       }
+    );
 
-      // If a driver was selected, filter to only show that one
-      if (data.selected_driver_id) {
-        setFoundDrivers((prev) =>
-          prev.filter((d) => d.id === data.selected_driver_id)
-        );
+    channel.bind(
+      "agent-update",
+      (data: { agentRole: string; status: string }) => {
+        updateAgentStatus(data.agentRole, data.status);
       }
-    });
+    );
 
-    channel.bind("agent-update", (data: { agentRole: string; status: string }) => {
-      updateAgentStatus(data.agentRole, data.status);
-    });
+    channel.bind(
+      "resource-located",
+      (data: { incidentId: string; serviceCenter: ServiceCenter }) => {
+        if (data.incidentId !== incident.id) return;
+        setFoundServiceCenters((prev) => {
+          if (prev.find((sc) => sc.id === data.serviceCenter.id)) return prev;
+          return [...prev, data.serviceCenter];
+        });
+      }
+    );
 
-    channel.bind("resource-located", (data: { incidentId: string; serviceCenter: ServiceCenter }) => {
-      if (data.incidentId !== incident.id) return;
-      setFoundServiceCenters((prev) => {
-        if (prev.find((sc) => sc.id === data.serviceCenter.id)) return prev;
-        return [...prev, data.serviceCenter];
-      });
-    });
-
-    channel.bind("driver-located", (data: { incidentId: string; driver: DiscoveredDriver }) => {
-      if (data.incidentId !== incident.id) return;
-      setFoundDrivers((prev) => {
-        if (prev.find((d) => d.id === data.driver.id)) return prev;
-        return [...prev, data.driver];
-      });
-    });
+    channel.bind(
+      "driver-located",
+      (data: { incidentId: string; driver: DiscoveredDriver }) => {
+        if (data.incidentId !== incident.id) return;
+        setFoundDrivers((prev) => {
+          if (prev.find((d) => d.id === data.driver.id)) return prev;
+          return [...prev, data.driver];
+        });
+      }
+    );
 
     channel.bind("discovery-complete", (data: { incidentId: string }) => {
       if (data.incidentId !== incident.id) return;
@@ -209,23 +257,52 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
       setDiscoveryComplete(true);
     });
 
+    // Handle demo completion - animate transition to historical mode
+    channel.bind(
+      "demo-complete",
+      (data: {
+        incident: { id: string; status: string };
+        outcome: "SUCCESS" | "FAILED";
+        summary: string;
+        timestamp: string;
+      }) => {
+        if (data.incident.id !== incident.id) return;
+        console.log(`[War Room] Resolution received - Outcome: ${data.outcome}`);
+
+        // Trigger animated transition to historical mode
+        setResolution({
+          resolved: true,
+          outcome: data.outcome,
+          summary: data.summary,
+        });
+      }
+    );
+
     return () => {
       channel.unbind_all();
       pusher.unsubscribe("sysco-demo");
     };
-  }, [pusher, incident.id, addLog, updateAgentStatus]);
+  }, [pusher, incident.id, addLog, updateAgentStatus, isInitiallyHistorical]);
 
-  // 3. Automatic Swarm Trigger
+  // 3. Automatic Swarm Trigger (skip in historical mode)
   // Wait for the server to confirm discovery is complete via Pusher event
   useEffect(() => {
+    if (isInitiallyHistorical) return; // Don't trigger swarm for historical viewing
+
     const triggerSwarm = async () => {
       if (!discoveryComplete || swarmActivated) return;
-      
+
       setSwarmActivated(true); // Prevent double firing
-      
+
       try {
-        const centerPhone = typeof window !== "undefined" ? localStorage.getItem("demo_center_phone") || "" : "";
-        const truckerPhone = typeof window !== "undefined" ? localStorage.getItem("demo_trucker_phone") || "" : "";
+        const centerPhone =
+          typeof window !== "undefined"
+            ? localStorage.getItem("demo_center_phone") || ""
+            : "";
+        const truckerPhone =
+          typeof window !== "undefined"
+            ? localStorage.getItem("demo_trucker_phone") || ""
+            : "";
 
         // Log the auto-trigger
         addLog({
@@ -233,7 +310,7 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
           timestamp: new Date().toISOString(),
           message: "Resources identified. Deploying HappyRobot AI Agent.",
           source: "ORCHESTRATOR",
-          status: "INFO"
+          status: "INFO",
         });
 
         await fetch("/api/happyrobot/trigger_workflow", {
@@ -251,7 +328,7 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
     };
 
     triggerSwarm();
-  }, [discoveryComplete, swarmActivated, incident.id, addLog]);
+  }, [discoveryComplete, swarmActivated, incident.id, addLog, isInitiallyHistorical]);
 
 
   // Helper styles
@@ -306,13 +383,53 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
         "w-[95vw] h-[90vh] overflow-hidden flex flex-col shadow-2xl",
         "bg-zinc-950 border border-zinc-800 rounded-xl" 
       )}>
-        {/* Header */}
-        <div className="px-6 py-4 border-b border-red-900/30 bg-red-950/10 flex items-center justify-between shrink-0">
+        {/* Header - Animated transition between live and resolved states */}
+        <motion.div
+          className={cn(
+            "px-6 py-4 border-b flex items-center justify-between shrink-0 transition-colors duration-500",
+            isHistorical
+              ? resolution.outcome === "SUCCESS"
+                ? "border-emerald-900/30 bg-emerald-950/10"
+                : resolution.outcome === "FAILED"
+                ? "border-red-900/30 bg-red-950/10"
+                : "border-zinc-800 bg-zinc-900/20"
+              : "border-red-900/30 bg-red-950/10"
+          )}
+          layout
+        >
           <div className="flex items-center gap-4">
-            <div className="relative flex h-3 w-3">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75" />
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-red-600" />
-            </div>
+            {/* Status Indicator - Animated */}
+            <AnimatePresence mode="wait">
+              {isHistorical ? (
+                <motion.div
+                  key="resolved"
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0, opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {resolution.outcome === "SUCCESS" ? (
+                    <CheckCircle className="h-5 w-5 text-emerald-500" />
+                  ) : resolution.outcome === "FAILED" ? (
+                    <XCircle className="h-5 w-5 text-red-500" />
+                  ) : (
+                    <Clock className="h-5 w-5 text-zinc-500" />
+                  )}
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="live"
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0, opacity: 0 }}
+                  className="relative flex h-3 w-3"
+                >
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-red-600" />
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             <div>
               <div className="flex items-center gap-2">
                 <Image
@@ -322,12 +439,42 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
                   height={24}
                   className="object-contain"
                 />
-                <h2 className="text-lg font-bold text-red-500 tracking-tight">
-                  AUTONOMOUS RESOLUTION
-                </h2>
+                <motion.h2
+                  className={cn(
+                    "text-lg font-bold tracking-tight transition-colors duration-500",
+                    isHistorical
+                      ? resolution.outcome === "SUCCESS"
+                        ? "text-emerald-500"
+                        : resolution.outcome === "FAILED"
+                        ? "text-red-500"
+                        : "text-zinc-400"
+                      : "text-red-500"
+                  )}
+                  layout
+                >
+                  {isHistorical
+                    ? resolution.outcome === "SUCCESS"
+                      ? "INCIDENT RESOLVED"
+                      : resolution.outcome === "FAILED"
+                      ? "RESOLUTION FAILED"
+                      : "INCIDENT ARCHIVE"
+                    : "AUTONOMOUS RESOLUTION"}
+                </motion.h2>
               </div>
-              <p className="text-[10px] text-red-400/70 font-mono mt-0.5">
+              <p
+                className={cn(
+                  "text-[10px] font-mono mt-0.5 transition-colors duration-500",
+                  isHistorical
+                    ? resolution.outcome === "SUCCESS"
+                      ? "text-emerald-400/70"
+                      : resolution.outcome === "FAILED"
+                      ? "text-red-400/70"
+                      : "text-zinc-500"
+                    : "text-red-400/70"
+                )}
+              >
                 INCIDENT ID: {incident.id.slice(0, 8).toUpperCase()}
+                {isHistorical && ` • ${incident.status}`}
               </p>
             </div>
           </div>
@@ -337,7 +484,41 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
           >
             <X className="h-5 w-5" />
           </button>
-        </div>
+        </motion.div>
+
+        {/* Resolution Banner - Shows when resolved */}
+        <AnimatePresence>
+          {isHistorical && resolution.summary && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className={cn(
+                "px-6 py-3 flex items-center gap-3 border-b overflow-hidden",
+                resolution.outcome === "SUCCESS"
+                  ? "bg-emerald-950/20 border-emerald-900/30"
+                  : "bg-red-950/20 border-red-900/30"
+              )}
+            >
+              {resolution.outcome === "SUCCESS" ? (
+                <CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />
+              ) : (
+                <XCircle className="h-4 w-4 text-red-500 shrink-0" />
+              )}
+              <span
+                className={cn(
+                  "text-sm",
+                  resolution.outcome === "SUCCESS"
+                    ? "text-emerald-300"
+                    : "text-red-300"
+                )}
+              >
+                {resolution.summary}
+              </span>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Main Content - Grid Layout */}
         <div className="flex-1 overflow-hidden grid grid-cols-12">
@@ -350,7 +531,7 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
               {memoizedOrders.length > 0 ? (
                 <FleetMap
                   orders={memoizedOrders}
-                  incidentStatus="ACTIVE"
+                  incidentStatus={isHistorical ? "RESOLVED" : "ACTIVE"}
                   incidentDescription={incident.description}
                   onIncidentClick={() => {}}
                   viewMode="focused"
@@ -400,11 +581,30 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
                     Execution Log
                   </span>
                 </div>
-                {/* Activity Indicator */}
+                {/* Activity Indicator - Static in historical mode */}
                 <div className="flex gap-1.5">
-                   <div className="h-1.5 w-1.5 rounded-full bg-zinc-700 animate-pulse" />
-                   <div className="h-1.5 w-1.5 rounded-full bg-zinc-700 animate-pulse delay-75" />
-                   <div className="h-1.5 w-1.5 rounded-full bg-zinc-700 animate-pulse delay-150" />
+                  <div
+                    className={cn(
+                      "h-1.5 w-1.5 rounded-full",
+                      isHistorical ? "bg-zinc-700" : "bg-zinc-700 animate-pulse"
+                    )}
+                  />
+                  <div
+                    className={cn(
+                      "h-1.5 w-1.5 rounded-full",
+                      isHistorical
+                        ? "bg-zinc-700"
+                        : "bg-zinc-700 animate-pulse delay-75"
+                    )}
+                  />
+                  <div
+                    className={cn(
+                      "h-1.5 w-1.5 rounded-full",
+                      isHistorical
+                        ? "bg-zinc-700"
+                        : "bg-zinc-700 animate-pulse delay-150"
+                    )}
+                  />
                 </div>
               </div>
 
@@ -444,11 +644,13 @@ export function WarRoomModal({ incident, affectedOrder, onClose }: WarRoomModalP
                   ))
                 )}
                 <div ref={logsEndRef} />
-                
-                {/* Active cursor at bottom */}
-                <div className="flex items-center gap-2 text-zinc-600 pt-2">
-                   <span className="text-emerald-500 animate-pulse">_</span>
-                </div>
+
+                {/* Active cursor at bottom - Hidden in historical mode */}
+                {!isHistorical && (
+                  <div className="flex items-center gap-2 text-zinc-600 pt-2">
+                    <span className="text-emerald-500 animate-pulse">_</span>
+                  </div>
+                )}
               </div>
             </div>
           </div>

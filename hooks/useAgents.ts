@@ -26,6 +26,13 @@ interface AgentApiResponse {
   summary: string;
   status: string;
   link: string;
+  incident_id?: string;
+  incident?: {
+    id: string;
+    title: string;
+    status: string;
+    order_id?: string | null;
+  } | null;
   created_at: string;
   updated_at: string;
 }
@@ -63,7 +70,7 @@ function transformAgent(apiAgent: AgentApiResponse): Agent {
   return {
     id: apiAgent.id,
     runId: apiAgent.run_id || apiAgent.agent_id,
-    incidentId: "", // Not returned by list API
+    incidentId: apiAgent.incident_id || "",
     agentRole: apiAgent.agent_role || "",
     agentName: apiAgent.agent_name,
     summary: apiAgent.summary,

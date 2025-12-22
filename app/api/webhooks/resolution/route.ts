@@ -4,55 +4,56 @@ import { pusherServer } from "@/lib/pusher-server";
 
 interface ResolutionPayload {
   incident_id: string;
-  cost_savings?: {
-    avoided_loss: number;
-    additional_cost: number;
-    net_savings: number;
-  };
+  outcome?: "SUCCESS" | "FAILED"; // From HappyRobot - defaults to SUCCESS for backward compatibility
   summary: string;
 }
 
 export async function POST(req: NextRequest) {
   try {
     const payload: ResolutionPayload = await req.json();
-    const { incident_id, cost_savings, summary } = payload;
+    const { incident_id, outcome = "SUCCESS", summary } = payload;
 
-    // Update incident to RESOLVED
+    // Map outcome to incident status
+    const incidentStatus = outcome === "SUCCESS" ? "RESOLVED" : "FAILED";
+    const agentStatus = outcome === "SUCCESS" ? "FINISHED" : "FAILED";
+
+    // Update incident status based on outcome
     const incident = await prisma.incident.update({
       where: { id: incident_id },
       data: {
-        status: "RESOLVED",
+        status: incidentStatus,
       },
     });
 
-    // Update all agent runs for this incident to COMPLETED
+    // Update all agent runs for this incident based on outcome
     await prisma.agentRun.updateMany({
       where: { incidentId: incident_id },
       data: {
-        status: "FINISHED",
+        status: agentStatus,
       },
     });
 
-    // Ensure order is marked as IN_TRANSIT
-    await prisma.order.update({
-      where: { id: "8821" },
-      data: {
-        status: "IN_TRANSIT",
-        carrier: "Sysco Fleet #882",
-      },
-    });
+    // Update order status based on outcome
+    if (outcome === "SUCCESS" && incident.orderId) {
+      await prisma.order.update({
+        where: { id: incident.orderId },
+        data: {
+          status: "IN_TRANSIT",
+          carrier: "Sysco Fleet #882",
+        },
+      });
+    }
+    // On FAILED, order remains AT_RISK
 
-    // Trigger Pusher event for demo completion
+    // Trigger Pusher event for demo completion with outcome
     await pusherServer.trigger("sysco-demo", "demo-complete", {
       incident,
-      cost_savings: cost_savings || {
-        avoided_loss: 45000,
-        additional_cost: 250,
-        net_savings: 44750,
-      },
+      outcome,
       summary:
         summary ||
-        "Crisis resolved. Prime Rib secured from Texas Quality Meats. Driver Marcus rerouted for pickup. Expected delivery to DFW by 6:00 PM.",
+        (outcome === "SUCCESS"
+          ? "Crisis resolved. Delivery rerouted successfully."
+          : "Resolution failed. Manual intervention required."),
       timestamp: new Date().toISOString(),
     });
 

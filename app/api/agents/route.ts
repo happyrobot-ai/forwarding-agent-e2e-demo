@@ -13,20 +13,40 @@ export async function GET(req: NextRequest) {
 
     const agents = await prisma.agentRun.findMany({
       where,
+      include: {
+        incident: {
+          select: {
+            id: true,
+            title: true,
+            status: true,
+            orderId: true,
+          },
+        },
+      },
       orderBy: {
         createdAt: "desc",
       },
     });
 
     // Transform to match the expected Agent interface
-    const formattedAgents = agents.map((agent: typeof agents[number]) => ({
+    const formattedAgents = agents.map((agent) => ({
       id: agent.id,
       agent_id: agent.runId,
       agent_name: agent.agentName,
+      agent_role: agent.agentRole,
       summary: agent.summary,
       status: agent.status,
       link: agent.link,
       run_id: agent.runId,
+      incident_id: agent.incidentId,
+      incident: agent.incident
+        ? {
+            id: agent.incident.id,
+            title: agent.incident.title,
+            status: agent.incident.status,
+            order_id: agent.incident.orderId,
+          }
+        : null,
       created_at: agent.createdAt.toISOString(),
       updated_at: agent.updatedAt.toISOString(),
     }));

@@ -225,16 +225,35 @@ export default function DashboardPage() {
       revalidateOrders();
     });
 
-    channel.bind("demo-complete", () => {
-      setLocalIncident(null);
-      setShowBanner(false);
-      // Reset simulation state completely
-      setSimulation({ active: false, orderId: null, orderData: null, currentRiskScore: 0 });
-      setHighlightedOrderId(null);
-      // Revalidate orders via SWR (service level is now derived automatically)
-      revalidateOrders();
-      revalidateIncidents();
-    });
+    channel.bind(
+      "demo-complete",
+      (data: {
+        incident: Incident;
+        outcome: "SUCCESS" | "FAILED";
+        summary: string;
+        timestamp: string;
+      }) => {
+        console.log(`[Pusher] Demo complete - Outcome: ${data.outcome}`);
+
+        // Clear war mode state on dashboard (banner, simulation, highlighting)
+        setLocalIncident(null);
+        setShowBanner(false);
+        setSimulation({
+          active: false,
+          orderId: null,
+          orderData: null,
+          currentRiskScore: 0,
+        });
+        setHighlightedOrderId(null);
+
+        // NOTE: Do NOT close showWarRoom - let WarRoomModal handle its own
+        // animated transition from live to historical mode
+
+        // Revalidate data via SWR
+        revalidateOrders();
+        revalidateIncidents();
+      }
+    );
 
     // --- Prisma Middleware Events (auto-broadcast from DB changes) ---
     // These ensure real-time sync even when explicit events aren't sent
