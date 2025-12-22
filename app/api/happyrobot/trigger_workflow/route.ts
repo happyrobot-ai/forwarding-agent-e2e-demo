@@ -115,37 +115,34 @@ export async function POST(request: NextRequest) {
       )
     );
 
-    const facilities: FacilityPayload[] = incident.candidates
-      .filter(c => c.candidateType === "SERVICE_CENTER" || c.candidateType === "WAREHOUSE")
-      .map(c => {
-        if (c.candidateType === "SERVICE_CENTER" && c.serviceCenter) {
-          return {
-            id: c.serviceCenter.id,
-            name: c.serviceCenter.name,
-            type: c.serviceCenter.type,
-            resourceType: "SERVICE_CENTER" as const,
-            lat: c.serviceCenter.lat,
-            lng: c.serviceCenter.lng,
-            distance: c.distance,
-            rank: c.rank,
-            phone: center_phone || "",
-          };
-        } else if (c.candidateType === "WAREHOUSE" && c.warehouse) {
-          return {
-            id: c.warehouse.id,
-            name: c.warehouse.name,
-            type: c.warehouse.type,
-            resourceType: "WAREHOUSE" as const,
-            lat: c.warehouse.lat,
-            lng: c.warehouse.lng,
-            distance: c.distance,
-            rank: c.rank,
-            phone: center_phone || "",
-          };
-        }
-        return null;
-      })
-      .filter((f): f is FacilityPayload => f !== null);
+    const facilities: FacilityPayload[] = [];
+    for (const c of incident.candidates) {
+      if (c.candidateType === "SERVICE_CENTER" && c.serviceCenter) {
+        facilities.push({
+          id: c.serviceCenter.id,
+          name: c.serviceCenter.name,
+          type: c.serviceCenter.type,
+          resourceType: "SERVICE_CENTER",
+          lat: c.serviceCenter.lat,
+          lng: c.serviceCenter.lng,
+          distance: c.distance,
+          rank: c.rank,
+          phone: center_phone || "",
+        });
+      } else if (c.candidateType === "WAREHOUSE" && c.warehouse) {
+        facilities.push({
+          id: c.warehouse.id,
+          name: c.warehouse.name,
+          type: c.warehouse.type,
+          resourceType: "WAREHOUSE",
+          lat: c.warehouse.lat,
+          lng: c.warehouse.lng,
+          distance: c.distance,
+          rank: c.rank,
+          phone: center_phone || "",
+        });
+      }
+    }
 
     // Build drivers array from candidates
     const drivers: DriverPayload[] = incident.candidates
