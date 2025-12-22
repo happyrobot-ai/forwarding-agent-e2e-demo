@@ -102,7 +102,10 @@ export function WarRoomModal({
 
   // SWR hooks
   const { logs, isLoading: logsLoading, addLog } = useIncidentLogs(incident.id);
-  const { updateAgentStatus } = useAgents({ incidentId: incident.id });
+  const { agents, updateAgentStatus } = useAgents({ incidentId: incident.id });
+
+  // Check if agents already exist for this incident (workflow already triggered)
+  const hasExistingAgents = agents.length > 0;
 
   // Local UI state
   const [foundServiceCenters, setFoundServiceCenters] = useState<ServiceCenter[]>([]);
@@ -149,7 +152,7 @@ export function WarRoomModal({
     logsEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [logs]);
 
-  // 1. Trigger Discovery on Mount (skip in historical mode)
+  // 1. Check incident state and trigger discovery if needed (skip in historical mode)
   useEffect(() => {
     if (isInitiallyHistorical) return; // Skip discovery for historical viewing
     if (discoveryInitiatedRef.current) return;
@@ -157,26 +160,79 @@ export function WarRoomModal({
 
     const initDiscovery = async () => {
       try {
+        // First, check the incident's current discovery status
+        const incidentRes = await fetch(`/api/incidents/${incident.id}`);
+        if (!incidentRes.ok) {
+          console.error("[War Room] Failed to fetch incident state");
+          return;
+        }
+        const incidentData = await incidentRes.json();
+        const discoveryStatus = incidentData.discoveryStatus;
+
+        console.log(`[War Room] Current discovery status: ${discoveryStatus}`);
+
+        // If discovery is already running or completed, don't trigger again
+        if (discoveryStatus === "RUNNING") {
+          console.log("[War Room] Discovery already running, waiting for Pusher events");
+          return;
+        }
+
+        if (discoveryStatus === "COMPLETED") {
+          console.log("[War Room] Discovery already complete, loading cached candidates");
+
+          // Load cached candidates from incident data
+          if (incidentData.candidates && Array.isArray(incidentData.candidates)) {
+            const serviceCenters = incidentData.candidates
+              .filter((c: { candidateType: string }) => c.candidateType === "SERVICE_CENTER" || c.candidateType === "WAREHOUSE")
+              .map((c: { serviceCenter?: { id: string; name: string; lat: number; lng: number; type: string }; warehouse?: { id: string; name: string; lat: number; lng: number; type: string }; distance: number; rank: number }) => ({
+                id: c.serviceCenter?.id || c.warehouse?.id,
+                name: c.serviceCenter?.name || c.warehouse?.name,
+                lat: c.serviceCenter?.lat || c.warehouse?.lat,
+                lng: c.serviceCenter?.lng || c.warehouse?.lng,
+                type: c.serviceCenter?.type || c.warehouse?.type,
+                distance: c.distance,
+                rank: c.rank,
+              }));
+            setFoundServiceCenters(serviceCenters);
+
+            const drivers = incidentData.candidates
+              .filter((c: { candidateType: string }) => c.candidateType === "DRIVER")
+              .map((c: { truck?: { id: string; driverName: string }; currentLocation?: string; lat?: number; lng?: number; distance: number; status?: string; progress?: number; rank: number }) => ({
+                id: c.truck?.id,
+                driverName: c.truck?.driverName,
+                currentLocation: c.currentLocation,
+                lat: c.lat,
+                lng: c.lng,
+                distance: c.distance,
+                status: c.status,
+                progress: c.progress,
+                rank: c.rank,
+              }));
+            setFoundDrivers(drivers);
+          }
+
+          setDiscoveryComplete(true);
+          return;
+        }
+
+        // Discovery is PENDING, trigger it
         const res = await fetch(`/api/incidents/${incident.id}/discover`, {
           method: "POST",
         });
         const data = await res.json();
 
-        // If discovery was already completed, load cached candidates
+        // If discovery was already completed (race condition), load cached candidates
         if (data.status === "COMPLETED") {
-          console.log("[War Room] Discovery already complete, loading cached candidates");
+          console.log("[War Room] Discovery just completed, loading candidates");
 
-          // Load cached service centers/warehouses
           if (data.candidates && Array.isArray(data.candidates)) {
             setFoundServiceCenters(data.candidates);
           }
 
-          // Load cached drivers
           if (data.drivers && Array.isArray(data.drivers)) {
             setFoundDrivers(data.drivers);
           }
 
-          // Mark discovery as complete so swarm can trigger
           setDiscoveryComplete(true);
         }
         // For STARTED/RUNNING, we rely on Pusher events for cinematic reveal
@@ -284,10 +340,14 @@ export function WarRoomModal({
     };
   }, [pusher, incident.id, addLog, updateAgentStatus, isInitiallyHistorical]);
 
-  // 3. Automatic Swarm Trigger (skip in historical mode)
+  // 3. Automatic Swarm Trigger (skip in historical mode or if agents already exist)
   // Wait for the server to confirm discovery is complete via Pusher event
   useEffect(() => {
     if (isInitiallyHistorical) return; // Don't trigger swarm for historical viewing
+    if (hasExistingAgents) {
+      console.log("[War Room] Agents already exist for this incident, skipping swarm trigger");
+      return;
+    }
 
     const triggerSwarm = async () => {
       if (!discoveryComplete || swarmActivated) return;
@@ -328,7 +388,7 @@ export function WarRoomModal({
     };
 
     triggerSwarm();
-  }, [discoveryComplete, swarmActivated, incident.id, addLog, isInitiallyHistorical]);
+  }, [discoveryComplete, swarmActivated, incident.id, addLog, isInitiallyHistorical, hasExistingAgents]);
 
 
   // Helper styles
