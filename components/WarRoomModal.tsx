@@ -119,6 +119,14 @@ export function WarRoomModal({
   const [foundServiceCenters, setFoundServiceCenters] = useState<ServiceCenter[]>([]);
   const [foundDrivers, setFoundDrivers] = useState<DiscoveredDriver[]>([]);
 
+  // Refs to access latest values in Pusher callbacks (avoids stale closure)
+  const foundServiceCentersRef = useRef<ServiceCenter[]>([]);
+  const foundDriversRef = useRef<DiscoveredDriver[]>([]);
+
+  // Keep refs in sync with state
+  useEffect(() => { foundServiceCentersRef.current = foundServiceCenters; }, [foundServiceCenters]);
+  useEffect(() => { foundDriversRef.current = foundDrivers; }, [foundDrivers]);
+
   // Selected/confirmed resource IDs (set by agent confirmation, used to fade non-selected markers)
   const [selectedFacilityId, setSelectedFacilityId] = useState<string | null>(null);
   const [selectedDriverId, setSelectedDriverId] = useState<string | null>(null);
@@ -447,6 +455,52 @@ export function WarRoomModal({
         // If a driver was selected, mark it (will fade non-selected on map)
         if (data.selected_driver_id) {
           setSelectedDriverId(data.selected_driver_id);
+        }
+
+        // Infer selection from SUCCESS logs if backend didn't send explicit IDs
+        const log = data.log;
+        const isSuccess = log.status === "SUCCESS";
+
+        // Infer facility selection from AGENT:FACILITY SUCCESS logs
+        if (!data.selected_facility_id && log.source === "AGENT:FACILITY" && isSuccess) {
+          setSelectedFacilityId((current) => {
+            if (current) return current; // Already set
+            // Use ref to get latest value (avoids stale closure)
+            const facilities = foundServiceCentersRef.current;
+            // Try to find rank 1 facility
+            const rank1 = facilities.find((sc) => sc.rank === 1);
+            if (rank1) {
+              console.log(`[War Room Live] Inferred facility from SUCCESS log: ${rank1.id}`);
+              return rank1.id;
+            }
+            // Fallback: first facility
+            if (facilities.length > 0) {
+              console.log(`[War Room Live] Inferred facility (first): ${facilities[0].id}`);
+              return facilities[0].id;
+            }
+            return current;
+          });
+        }
+
+        // Infer driver selection from AGENT:DRIVER SUCCESS logs
+        if (!data.selected_driver_id && log.source === "AGENT:DRIVER" && isSuccess) {
+          setSelectedDriverId((current) => {
+            if (current) return current; // Already set
+            // Use ref to get latest value (avoids stale closure)
+            const drivers = foundDriversRef.current;
+            // Try to find rank 1 driver
+            const rank1 = drivers.find((d) => d.rank === 1);
+            if (rank1) {
+              console.log(`[War Room Live] Inferred driver from SUCCESS log: ${rank1.id}`);
+              return rank1.id;
+            }
+            // Fallback: first driver
+            if (drivers.length > 0) {
+              console.log(`[War Room Live] Inferred driver (first): ${drivers[0].id}`);
+              return drivers[0].id;
+            }
+            return current;
+          });
         }
       }
     );

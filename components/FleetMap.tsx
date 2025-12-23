@@ -1071,20 +1071,6 @@ export function FleetMap({
                   )}
                 </div>
 
-                {/* Distance badge - Orange for candidates, Green for confirmed */}
-                {center.distance !== undefined && (
-                  <div className={cn(
-                    "absolute -bottom-1 -right-1 bg-black/90 text-[9px] font-mono px-1.5 py-0.5 rounded-full border shadow-lg",
-                    isWarehouse
-                      ? "text-blue-400 border-blue-500/50"
-                      : isConfirmed
-                        ? "text-emerald-400 border-emerald-500/50"
-                        : "text-orange-400 border-orange-500/50"
-                  )}>
-                    {center.distance.toFixed(1)}mi
-                  </div>
-                )}
-
                 {/* Rank badge for top 3 resources - Orange for candidates, Green for confirmed */}
                 {center.rank && (
                   <div className={cn(
@@ -1208,16 +1194,6 @@ export function FleetMap({
                   isConfirmedDriver && "ring-2 ring-emerald-300 ring-offset-1 ring-offset-black"
                 )}>
                   <TruckIcon className="h-4 w-4" />
-                </div>
-
-                {/* Distance badge */}
-                <div className={cn(
-                  "absolute -bottom-1 -right-1 bg-black/90 text-[9px] font-mono px-1.5 py-0.5 rounded-full shadow-lg",
-                  isConfirmedDriver
-                    ? "text-emerald-400 border border-emerald-500/50"
-                    : "text-orange-400 border border-orange-500/50"
-                )}>
-                  {driver.distance.toFixed(1)}mi
                 </div>
 
                 {/* Rank badge */}
