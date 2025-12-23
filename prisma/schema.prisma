@@ -26,6 +26,10 @@ model Incident {
   // Smart Recovery: Discovery workflow status
   discoveryStatus DiscoveryStatus @default(PENDING) @map("discovery_status")
 
+  // Smart Recovery: Selected resources (persisted for historical view)
+  selectedFacilityId String? @map("selected_facility_id")
+  selectedDriverId   String? @map("selected_driver_id")
+
   // Smart Recovery: Unified candidates table (service centers, warehouses, drivers)
   candidates  IncidentCandidate[]
 

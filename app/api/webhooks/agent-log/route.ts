@@ -107,6 +107,18 @@ export async function POST(request: NextRequest) {
       selection
     );
 
+    // Persist selected resource IDs to incident for historical viewing
+    if (selected_facility_id || selected_driver_id) {
+      await prisma.incident.update({
+        where: { id: incident_id },
+        data: {
+          ...(selected_facility_id && { selectedFacilityId: selected_facility_id }),
+          ...(selected_driver_id && { selectedDriverId: selected_driver_id }),
+        },
+      });
+      console.log(`[agent-log] Updated incident ${incident_id} with selected resources: facility=${selected_facility_id}, driver=${selected_driver_id}`);
+    }
+
     console.log(`[agent-log] Log written for incident ${incident_id}: ${message.substring(0, 50)}...`);
 
     return NextResponse.json({

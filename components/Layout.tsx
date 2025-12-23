@@ -5,10 +5,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, ChevronRight, LucideIcon, RotateCcw, Settings, X, Phone } from "lucide-react";
+import { LayoutDashboard, ChevronRight, LucideIcon, RotateCcw, Settings, X, Phone, Play, Loader2, AlertTriangle } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
 import { ThemeToggle } from "./ThemeToggle";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+
 
 // Demo Config Modal Component
 function DemoConfigModal({
@@ -21,6 +22,15 @@ function DemoConfigModal({
   const [centerPhone, setCenterPhone] = useState("");
   const [truckerPhone, setTruckerPhone] = useState("");
 
+  // Demo trigger state
+  const [orderId, setOrderId] = useState("ORD-8128");
+  const [description, setDescription] = useState(
+    "Samsara reports truck came to a stop on Highway 287. Driver confirmed engine failure with smoke coming out of the truck"
+  );
+  const [isTriggering, setIsTriggering] = useState(false);
+  const [triggerError, setTriggerError] = useState<string | null>(null);
+  const [triggerSuccess, setTriggerSuccess] = useState(false);
+
   // Load saved values from localStorage on mount
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -29,10 +39,76 @@ function DemoConfigModal({
     }
   }, [isOpen]);
 
+  // Reset trigger state when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setTriggerError(null);
+      setTriggerSuccess(false);
+    }
+  }, [isOpen]);
+
   const handleSave = () => {
     localStorage.setItem("demo_center_phone", centerPhone);
     localStorage.setItem("demo_trucker_phone", truckerPhone);
-    onClose();
+  };
+
+  const handleTriggerDemo = async () => {
+    // Validate all required fields
+    const errors: string[] = [];
+
+    if (!orderId.trim()) {
+      errors.push("Order ID");
+    }
+    if (!description.trim()) {
+      errors.push("Incident Description");
+    }
+    if (!centerPhone.trim()) {
+      errors.push("Service Centers Phone");
+    }
+    if (!truckerPhone.trim()) {
+      errors.push("Drivers Phone");
+    }
+
+    if (errors.length > 0) {
+      setTriggerError(`Required: ${errors.join(", ")}`);
+      return;
+    }
+
+    setIsTriggering(true);
+    setTriggerError(null);
+    setTriggerSuccess(false);
+
+    // Save phone config first
+    handleSave();
+
+    try {
+      const response = await fetch("/api/demo/trigger", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          orderId: orderId.trim(),
+          description: description.trim(),
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Failed to trigger demo: ${response.status}`);
+      }
+
+      setTriggerSuccess(true);
+      // Close modal immediately after success
+      setTimeout(() => {
+        onClose();
+      }, 500);
+    } catch (error) {
+      console.error("Error triggering demo:", error);
+      setTriggerError(error instanceof Error ? error.message : "Failed to trigger demo");
+    } finally {
+      setIsTriggering(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -46,7 +122,7 @@ function DemoConfigModal({
       />
 
       {/* Modal */}
-      <div className="relative bg-white dark:bg-zinc-900 rounded-xl shadow-2xl border border-zinc-200 dark:border-zinc-700 w-full max-w-md mx-4 overflow-hidden">
+      <div className="relative bg-white dark:bg-zinc-900 rounded-xl shadow-2xl border border-zinc-200 dark:border-zinc-700 w-full max-w-lg mx-4 overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-200 dark:border-zinc-700">
           <div className="flex items-center gap-3">
@@ -58,7 +134,7 @@ function DemoConfigModal({
                 Demo Configuration
               </h2>
               <p className="text-sm text-zinc-500">
-                Set phone numbers for roleplay
+                Configure and launch the demo
               </p>
             </div>
           </div>
@@ -71,44 +147,127 @@ function DemoConfigModal({
         </div>
 
         {/* Content */}
-        <div className="px-6 py-5 space-y-5">
-          {/* Service Centers Phone */}
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-              Service Centers & Warehouses Phone
-            </label>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400">
-              This number will be assigned to all 3 discovered facilities
-            </p>
-            <div className="relative">
-              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
+        <div className="px-6 py-5 space-y-5 max-h-[60vh] overflow-y-auto">
+          {/* Demo Trigger Section */}
+          <div className="space-y-4 pb-5 border-b border-zinc-200 dark:border-zinc-700">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4 text-red-500" />
+              <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                Incident Simulation
+              </span>
+            </div>
+
+            {/* Order ID */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                Order ID
+              </label>
               <input
-                type="tel"
-                value={centerPhone}
-                onChange={(e) => setCenterPhone(e.target.value)}
-                placeholder="+1 (555) 123-4567"
-                className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                type="text"
+                value={orderId}
+                onChange={(e) => setOrderId(e.target.value)}
+                placeholder="ORD-XXXX"
+                className="w-full px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm"
               />
             </div>
+
+            {/* Description */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                Incident Description
+              </label>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Describe the incident..."
+                rows={3}
+                className="w-full px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm resize-none"
+              />
+            </div>
+
+            {/* Trigger Button */}
+            <button
+              onClick={handleTriggerDemo}
+              disabled={isTriggering || triggerSuccess}
+              className={cn(
+                "w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all",
+                triggerSuccess
+                  ? "bg-emerald-500 text-white"
+                  : "bg-red-500 hover:bg-red-600 text-white",
+                (isTriggering || triggerSuccess) && "opacity-80 cursor-not-allowed"
+              )}
+            >
+              {isTriggering ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Triggering Incident...
+                </>
+              ) : triggerSuccess ? (
+                <>
+                  <AlertTriangle className="h-4 w-4" />
+                  Incident Triggered!
+                </>
+              ) : (
+                <>
+                  <Play className="h-4 w-4" />
+                  Launch Demo
+                </>
+              )}
+            </button>
+
+            {/* Error Message */}
+            {triggerError && (
+              <p className="text-xs text-red-500 text-center">{triggerError}</p>
+            )}
           </div>
 
-          {/* Truckers Phone */}
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-              Available Drivers Phone
-            </label>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400">
-              This number will be assigned to all 3 discovered drivers
-            </p>
-            <div className="relative">
-              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
-              <input
-                type="tel"
-                value={truckerPhone}
-                onChange={(e) => setTruckerPhone(e.target.value)}
-                placeholder="+1 (555) 987-6543"
-                className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
+          {/* Phone Configuration Section */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <Phone className="h-4 w-4 text-blue-500" />
+              <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                Roleplay Phone Numbers
+              </span>
+            </div>
+
+            {/* Service Centers Phone */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                Service Centers & Warehouses Phone
+              </label>
+              <p className="text-[10px] text-zinc-500 dark:text-zinc-500">
+                Assigned to all 3 discovered facilities
+              </p>
+              <div className="relative">
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
+                <input
+                  type="tel"
+                  value={centerPhone}
+                  onChange={(e) => setCenterPhone(e.target.value)}
+                  placeholder="+1 (555) 123-4567"
+                  className="w-full pl-10 pr-4 py-2 rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                />
+              </div>
+            </div>
+
+            {/* Truckers Phone */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                Available Drivers Phone
+              </label>
+              <p className="text-[10px] text-zinc-500 dark:text-zinc-500">
+                Assigned to all 3 discovered drivers
+              </p>
+              <div className="relative">
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
+                <input
+                  type="tel"
+                  value={truckerPhone}
+                  onChange={(e) => setTruckerPhone(e.target.value)}
+                  placeholder="+1 (555) 987-6543"
+                  className="w-full pl-10 pr-4 py-2 rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -119,13 +278,13 @@ function DemoConfigModal({
             onClick={onClose}
             className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
           >
-            Cancel
+            Close
           </button>
           <button
             onClick={handleSave}
             className="px-4 py-2 rounded-lg text-sm font-medium bg-blue-500 text-white hover:bg-blue-600 transition-colors"
           >
-            Save Configuration
+            Save Phone Config
           </button>
         </div>
       </div>

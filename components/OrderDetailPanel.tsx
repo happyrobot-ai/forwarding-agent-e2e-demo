@@ -54,6 +54,7 @@ interface OrderDetailPanelProps {
   order: Order;
   onClose: () => void;
   isIncidentActive?: boolean;
+  isIncidentResolved?: boolean; // When true, shows War Room button for historical viewing
   incidentDescription?: string | null;
   onOpenWarRoom?: () => void;
   elevated?: boolean; // When true, uses higher z-index to float above War Room backdrop
@@ -77,7 +78,7 @@ function formatDistance(meters: number): string {
   return `${(meters / 1609.34).toFixed(0)} mi`;
 }
 
-export function OrderDetailPanel({ order, onClose, isIncidentActive, incidentDescription, onOpenWarRoom, elevated }: OrderDetailPanelProps) {
+export function OrderDetailPanel({ order, onClose, isIncidentActive, isIncidentResolved, incidentDescription, onOpenWarRoom, elevated }: OrderDetailPanelProps) {
   // State to toggle views: 'impact' (Crisis view) vs 'logistics' (Normal view)
   // If order is at risk, default to 'impact', otherwise 'logistics'
   const isAtRisk = order.status === "AT_RISK" || order.riskScore >= 80 || order.status === "CANCELLED";
@@ -145,18 +146,23 @@ export function OrderDetailPanel({ order, onClose, isIncidentActive, incidentDes
             <span className="font-mono text-sm text-white font-semibold">{order.id}</span>
           </div>
           <div className="flex items-center gap-2">
-            {/* War Room Button + HappyRobot Logo (only when incident active and NOT already in War Room) */}
-            {isIncidentActive && onOpenWarRoom && isAtRisk && !elevated && (
+            {/* War Room Button + HappyRobot Logo (show for active OR resolved incidents, NOT when already in War Room) */}
+            {(isIncidentActive || isIncidentResolved) && onOpenWarRoom && !elevated && (
               <button
                 onClick={onOpenWarRoom}
-                className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-red-900/30 border border-red-800/50 text-red-300 hover:bg-red-900/50 transition-all text-[10px] font-medium animate-pulse cursor-pointer"
+                className={cn(
+                  "flex items-center gap-1.5 px-2 py-1 rounded-md border transition-all text-[10px] font-medium cursor-pointer",
+                  isIncidentActive
+                    ? "bg-red-900/30 border-red-800/50 text-red-300 hover:bg-red-900/50 animate-pulse"
+                    : "bg-emerald-900/30 border-emerald-800/50 text-emerald-300 hover:bg-emerald-900/50"
+                )}
               >
                 <img
                   src="/happyrobot/Footer-logo-white.png"
                   alt="HappyRobot"
                   className="h-3 w-auto opacity-70"
                 />
-                War Room
+                {isIncidentResolved ? "View Resolution" : "War Room"}
               </button>
             )}
             <button onClick={onClose} className="p-1 hover:bg-zinc-800 rounded transition-colors">

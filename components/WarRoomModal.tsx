@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef, useMemo } from "react";
 import Image from "next/image";
-import { X, AlertTriangle, Terminal, Activity, CheckCircle, XCircle, Clock } from "lucide-react";
+import { X, AlertTriangle, Terminal, Activity, CheckCircle, XCircle, Clock, ExternalLink } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePusher } from "./PusherProvider";
 import { useTheme } from "./ThemeProvider";
@@ -88,6 +88,14 @@ interface ResolutionState {
   summary: string | null;
 }
 
+// HappyRobot Platform configuration (from env)
+const HAPPYROBOT_ORG = process.env.NEXT_PUBLIC_HAPPYROBOT_ORG || "sysco";
+const HAPPYROBOT_WORKFLOW_ID = process.env.NEXT_PUBLIC_HAPPYROBOT_WORKFLOW_ID || "3mz6dek05ofl";
+
+// HappyRobot run URL helper - links to individual run in platform
+const getRunUrl = (runId: string) =>
+  `https://v2.platform.happyrobot.ai/${HAPPYROBOT_ORG}/workflow/${HAPPYROBOT_WORKFLOW_ID}/runs?run_id=${runId}`;
+
 export function WarRoomModal({
   incident,
   affectedOrder,
@@ -101,8 +109,8 @@ export function WarRoomModal({
   const isInitiallyHistorical = mode === "historical" || incident.status !== "ACTIVE";
 
   // SWR hooks
-  const { logs, isLoading: logsLoading, addLog } = useIncidentLogs(incident.id);
-  const { agents, updateAgentStatus } = useAgents({ incidentId: incident.id });
+  const { logs, isLoading: logsLoading, addLog, mutate: refetchLogs } = useIncidentLogs(incident.id);
+  const { agents, updateAgentStatus, refetch: refetchAgents } = useAgents({ incidentId: incident.id, pollRunning: true, pollInterval: 3000 });
 
   // Check if agents already exist for this incident (workflow already triggered)
   const hasExistingAgents = agents.length > 0;
@@ -110,6 +118,10 @@ export function WarRoomModal({
   // Local UI state
   const [foundServiceCenters, setFoundServiceCenters] = useState<ServiceCenter[]>([]);
   const [foundDrivers, setFoundDrivers] = useState<DiscoveredDriver[]>([]);
+
+  // Selected/confirmed resource IDs (set by agent confirmation, used to fade non-selected markers)
+  const [selectedFacilityId, setSelectedFacilityId] = useState<string | null>(null);
+  const [selectedDriverId, setSelectedDriverId] = useState<string | null>(null);
 
   // Swarm State
   const [swarmActivated, setSwarmActivated] = useState(false);
@@ -244,12 +256,177 @@ export function WarRoomModal({
     initDiscovery();
   }, [incident.id, isInitiallyHistorical]);
 
+  // 1b. Load cached candidates for HISTORICAL mode
+  // When viewing a resolved incident, load the discovered resources from the database
+  useEffect(() => {
+    if (!isInitiallyHistorical) return; // Only for historical viewing
+
+    const loadHistoricalCandidates = async () => {
+      try {
+        const incidentRes = await fetch(`/api/incidents/${incident.id}`);
+        if (!incidentRes.ok) {
+          console.error("[War Room Historical] Failed to fetch incident data");
+          return;
+        }
+        const incidentData = await incidentRes.json();
+
+        console.log("[War Room Historical] Loading cached candidates for resolved incident");
+
+        // Load cached candidates from incident data
+        if (incidentData.candidates && Array.isArray(incidentData.candidates)) {
+          const serviceCenters = incidentData.candidates
+            .filter((c: { candidateType: string }) => c.candidateType === "SERVICE_CENTER" || c.candidateType === "WAREHOUSE")
+            .map((c: { serviceCenter?: { id: string; name: string; lat: number; lng: number; type: string }; warehouse?: { id: string; name: string; lat: number; lng: number; type: string }; distance: number; rank: number; resourceType?: string }) => ({
+              id: c.serviceCenter?.id || c.warehouse?.id,
+              name: c.serviceCenter?.name || c.warehouse?.name,
+              lat: c.serviceCenter?.lat || c.warehouse?.lat,
+              lng: c.serviceCenter?.lng || c.warehouse?.lng,
+              type: c.serviceCenter?.type || c.warehouse?.type,
+              resourceType: c.resourceType || (c.warehouse ? "WAREHOUSE" : "SERVICE_CENTER"),
+              distance: c.distance,
+              rank: c.rank,
+            }));
+          setFoundServiceCenters(serviceCenters);
+          console.log(`[War Room Historical] Loaded ${serviceCenters.length} service centers/facilities`);
+
+          const drivers = incidentData.candidates
+            .filter((c: { candidateType: string }) => c.candidateType === "DRIVER")
+            .map((c: { truck?: { id: string; driverName: string }; orderId?: string; currentLocation?: string; lat?: number; lng?: number; distance: number; status?: string; progress?: number; rank: number; truckId?: string }) => ({
+              id: c.truck?.id || c.truckId,
+              orderId: c.orderId || "",
+              driverName: c.truck?.driverName || "Unknown Driver",
+              truckId: c.truck?.id || c.truckId || "",
+              currentLocation: c.currentLocation || "",
+              lat: c.lat || 0,
+              lng: c.lng || 0,
+              distance: c.distance,
+              status: (c.status as "DELIVERED" | "COMPLETING") || "DELIVERED",
+              progress: c.progress,
+              rank: c.rank,
+            }));
+          setFoundDrivers(drivers);
+          console.log(`[War Room Historical] Loaded ${drivers.length} drivers`);
+        }
+
+        // Load selected facility/driver IDs if stored in incident
+        if (incidentData.selectedFacilityId) {
+          setSelectedFacilityId(incidentData.selectedFacilityId);
+        }
+        if (incidentData.selectedDriverId) {
+          setSelectedDriverId(incidentData.selectedDriverId);
+        }
+
+        // Fallback: If no selection IDs stored, try to infer from logs
+        // Look for SUCCESS messages from AGENT sources that indicate confirmation
+        if (!incidentData.selectedFacilityId || !incidentData.selectedDriverId) {
+          const logsData = incidentData.logs || [];
+
+          // Build maps of candidate names to IDs for matching
+          const facilityNameToId: Record<string, string> = {};
+          const driverNameToId: Record<string, string> = {};
+
+          if (incidentData.candidates && Array.isArray(incidentData.candidates)) {
+            for (const c of incidentData.candidates) {
+              if ((c.candidateType === "SERVICE_CENTER" || c.candidateType === "WAREHOUSE")) {
+                const name = c.serviceCenter?.name || c.warehouse?.name;
+                const id = c.serviceCenter?.id || c.warehouse?.id;
+                if (name && id) {
+                  facilityNameToId[name.toLowerCase()] = id;
+                }
+              } else if (c.candidateType === "DRIVER" && c.truck?.driverName) {
+                driverNameToId[c.truck.driverName.toLowerCase()] = c.truck.id;
+              }
+            }
+          }
+
+          // Track local inference to stop after finding matches
+          let inferredFacilityId: string | null = incidentData.selectedFacilityId || null;
+          let inferredDriverId: string | null = incidentData.selectedDriverId || null;
+
+          // Look for SUCCESS messages from AGENT sources
+          for (const log of logsData) {
+            const msg = log.message?.toLowerCase() || "";
+            const isSuccess = log.status === "SUCCESS";
+
+            // Check for facility confirmation (AGENT:FACILITY source with SUCCESS)
+            if (!inferredFacilityId && log.source === "AGENT:FACILITY" && isSuccess) {
+              // First try: look for a facility name mentioned in the SUCCESS message
+              for (const [name, id] of Object.entries(facilityNameToId)) {
+                if (msg.includes(name)) {
+                  inferredFacilityId = id;
+                  setSelectedFacilityId(id);
+                  console.log(`[War Room Historical] Inferred selected facility from logs (name match): ${id}`);
+                  break;
+                }
+              }
+              // Second try: if message indicates success/confirmation but no name match,
+              // select the rank 1 (closest) facility as most likely candidate
+              if (!inferredFacilityId && (msg.includes("confirmed") || msg.includes("accepted") || msg.includes("dispatching") || msg.includes("sending"))) {
+                const rank1Facility = incidentData.candidates?.find(
+                  (c: { candidateType: string; rank: number }) =>
+                    (c.candidateType === "SERVICE_CENTER" || c.candidateType === "WAREHOUSE") && c.rank === 1
+                );
+                if (rank1Facility) {
+                  const id = rank1Facility.serviceCenter?.id || rank1Facility.warehouse?.id;
+                  if (id) {
+                    inferredFacilityId = id;
+                    setSelectedFacilityId(id);
+                    console.log(`[War Room Historical] Inferred selected facility from logs (rank 1 fallback): ${id}`);
+                  }
+                }
+              }
+            }
+
+            // Check for driver confirmation (AGENT:DRIVER source with SUCCESS)
+            if (!inferredDriverId && log.source === "AGENT:DRIVER" && isSuccess) {
+              // First try: look for a driver name mentioned in the SUCCESS message
+              for (const [name, id] of Object.entries(driverNameToId)) {
+                if (msg.includes(name)) {
+                  inferredDriverId = id;
+                  setSelectedDriverId(id);
+                  console.log(`[War Room Historical] Inferred selected driver from logs (name match): ${id}`);
+                  break;
+                }
+              }
+              // Second try: if message indicates success/confirmation but no name match,
+              // select the rank 1 (closest) driver as most likely candidate
+              if (!inferredDriverId && (msg.includes("confirmed") || msg.includes("accepted") || msg.includes("relay") || msg.includes("rerouting"))) {
+                const rank1Driver = incidentData.candidates?.find(
+                  (c: { candidateType: string; rank: number }) => c.candidateType === "DRIVER" && c.rank === 1
+                );
+                if (rank1Driver?.truck?.id) {
+                  inferredDriverId = rank1Driver.truck.id;
+                  setSelectedDriverId(rank1Driver.truck.id);
+                  console.log(`[War Room Historical] Inferred selected driver from logs (rank 1 fallback): ${rank1Driver.truck.id}`);
+                }
+              }
+            }
+
+            // Stop if we found both
+            if (inferredFacilityId && inferredDriverId) break;
+          }
+        }
+
+        setDiscoveryComplete(true);
+      } catch (error) {
+        console.error("[War Room Historical] Error loading candidates:", error);
+      }
+    };
+
+    loadHistoricalCandidates();
+  }, [incident.id, isInitiallyHistorical]);
+
   // 2. Pusher Listeners (skip in historical mode)
+  // IMPORTANT: This must run BEFORE discovery to avoid missing events
   useEffect(() => {
     if (!pusher) return;
     if (isInitiallyHistorical) return; // No real-time updates needed for historical viewing
 
     const channel = pusher.subscribe("sysco-demo");
+
+    // Refetch to catch any events we might have missed before Pusher connected
+    refetchLogs();
+    refetchAgents();
 
     channel.bind(
       "incident-log",
@@ -262,18 +439,14 @@ export function WarRoomModal({
         if (data.incidentId !== incident.id) return;
         addLog(data.log);
 
-        // If a facility was selected, filter to only show that one
+        // If a facility was selected, mark it (will fade non-selected on map)
         if (data.selected_facility_id) {
-          setFoundServiceCenters((prev) =>
-            prev.filter((sc) => sc.id === data.selected_facility_id)
-          );
+          setSelectedFacilityId(data.selected_facility_id);
         }
 
-        // If a driver was selected, filter to only show that one
+        // If a driver was selected, mark it (will fade non-selected on map)
         if (data.selected_driver_id) {
-          setFoundDrivers((prev) =>
-            prev.filter((d) => d.id === data.selected_driver_id)
-          );
+          setSelectedDriverId(data.selected_driver_id);
         }
       }
     );
@@ -338,7 +511,7 @@ export function WarRoomModal({
       channel.unbind_all();
       pusher.unsubscribe("sysco-demo");
     };
-  }, [pusher, incident.id, addLog, updateAgentStatus, isInitiallyHistorical]);
+  }, [pusher, incident.id, addLog, updateAgentStatus, isInitiallyHistorical, refetchLogs, refetchAgents]);
 
   // 3. Automatic Swarm Trigger (skip in historical mode or if agents already exist)
   // Wait for the server to confirm discovery is complete via Pusher event
@@ -599,6 +772,8 @@ export function WarRoomModal({
                   serviceCenters={foundServiceCenters}
                   availableDrivers={foundDrivers}
                   highlightedOrderId={affectedOrder?.id}
+                  selectedServiceCenterId={selectedFacilityId}
+                  selectedDriverId={selectedDriverId}
                 />
               ) : (
                 <div className="flex items-center justify-center h-full flex-col gap-3">
@@ -631,6 +806,56 @@ export function WarRoomModal({
               </div>
             )}
 
+            {/* HappyRobot Agent Run Link - Shows when agents are active */}
+            <AnimatePresence>
+              {agents.length > 0 && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="border-b border-zinc-900 overflow-hidden shrink-0"
+                >
+                  <div className={cn(
+                    "px-5 py-3 flex items-center justify-between transition-colors duration-300",
+                    isHistorical ? "bg-emerald-950/20" : "bg-violet-950/20"
+                  )}>
+                    <div className="flex items-center gap-3">
+                      <Image
+                        src={getHappyRobotLogo()}
+                        alt="HappyRobot"
+                        width={18}
+                        height={18}
+                        className="object-contain"
+                      />
+                      <span className={cn(
+                        "text-[10px] font-mono uppercase tracking-wider",
+                        isHistorical ? "text-emerald-400" : "text-violet-400"
+                      )}>
+                        AI Agent {agents.length > 1 ? "Runs" : "Run"} {isHistorical ? "Resolved" : "Active"}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {agents.slice(0, 2).map((agent) => (
+                        agent.runId && (
+                          <a
+                            key={agent.id}
+                            href={getRunUrl(agent.runId)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-violet-500/10 border border-violet-500/20 text-violet-400 hover:bg-violet-500/20 hover:text-violet-300 transition-colors text-[10px] font-medium"
+                          >
+                            {agent.agentName || agent.agentRole}
+                            <ExternalLink className="h-3 w-3" />
+                          </a>
+                        )
+                      ))}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             {/* Live Logs Terminal - Now takes up ALL remaining space */}
             <div className="flex-1 flex flex-col min-h-0 bg-black">
               {/* Terminal Header */}
@@ -646,23 +871,23 @@ export function WarRoomModal({
                   <div
                     className={cn(
                       "h-1.5 w-1.5 rounded-full",
-                      isHistorical ? "bg-zinc-700" : "bg-zinc-700 animate-pulse"
+                      isHistorical ? "bg-green-300" : "bg-violet-500 animate-pulse"
                     )}
                   />
                   <div
                     className={cn(
                       "h-1.5 w-1.5 rounded-full",
                       isHistorical
-                        ? "bg-zinc-700"
-                        : "bg-zinc-700 animate-pulse delay-75"
+                        ? "bg-green-300"
+                        : "bg-violet-500 animate-pulse delay-75"
                     )}
                   />
                   <div
                     className={cn(
                       "h-1.5 w-1.5 rounded-full",
                       isHistorical
-                        ? "bg-zinc-700"
-                        : "bg-zinc-700 animate-pulse delay-150"
+                        ? "bg-green-300"
+                        : "bg-violet-500 animate-pulse delay-150"
                     )}
                   />
                 </div>

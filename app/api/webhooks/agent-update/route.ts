@@ -98,10 +98,11 @@ export async function POST(req: NextRequest) {
     }
 
     // Trigger Pusher event for real-time UI update
+    // Send uppercase status to match UI expectations
     await pusherServer.trigger("sysco-demo", "agent-update", {
       run_id,
       stage,
-      status,
+      status: agentStatus, // Use the normalized uppercase status (RUNNING/COMPLETED/FAILED)
       reasoning,
       ui_action,
       data,

@@ -292,7 +292,7 @@ export async function POST(request: NextRequest) {
         // Determine agent role based on index (first is facility, second is driver if exists)
         // This matches HappyRobot's parallel sequence structure
         const agentRole = i === 0 ? "Facility_Voice" : "Driver_Voice";
-        const agentName = i === 0 ? "Facility Coordinator" : "Driver Coordinator";
+        const agentName = i === 0 ? "HappyRobot Run" : `HappyRobot Run ${i + 1}`;
         const summary = i === 0
           ? `Coordinating with ${facilities.length} service centers/warehouses`
           : `Coordinating with ${drivers.length} available drivers`;

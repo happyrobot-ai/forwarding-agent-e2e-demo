@@ -59,7 +59,7 @@ export default function DashboardPage() {
   // 1. Server State via SWR (Source of Truth from DB)
   const { orders: serverOrders, isLoading: ordersLoading, addOrder } = useOrders();
   const { warehouses, isLoading: warehousesLoading } = useWarehouses();
-  const { activeIncident, isLoading: incidentsLoading } = useIncidents();
+  const { activeIncident, incidents, isLoading: incidentsLoading } = useIncidents();
 
   // Use activeIncident from SWR, but allow local override for optimistic updates
   const [localIncident, setLocalIncident] = useState<Incident | null>(null);
@@ -79,6 +79,12 @@ export default function DashboardPage() {
   // 3. UI State
   const [showWarRoom, setShowWarRoom] = useState(false);
   const [showBanner, setShowBanner] = useState(false);
+
+  // Historical War Room state (for viewing resolved incidents from order clicks)
+  const [historicalIncident, setHistoricalIncident] = useState<Incident | null>(null);
+  const [historicalOrder, setHistoricalOrder] = useState<Order | null>(null);
+  const [showHistoricalWarRoom, setShowHistoricalWarRoom] = useState(false);
+  const [loadingHistoricalIncident, setLoadingHistoricalIncident] = useState(false);
 
   // Combined loading state
   const isLoading = ordersLoading || warehousesLoading || incidentsLoading;
@@ -101,7 +107,17 @@ export default function DashboardPage() {
   const currentPriceMin = priceRange?.min ?? priceStats.min;
   const currentPriceMax = priceRange?.max ?? priceStats.max;
 
-  const mapStatus: "IDLE" | "ACTIVE" | "RESOLVED" = incident?.status === "ACTIVE" ? "ACTIVE" : "IDLE";
+  // Determine map status - check for ACTIVE incident first, then RESOLVED
+  // When incident is resolved, activeIncident becomes null, so we need to check
+  // the full incidents array for a RESOLVED incident matching our simulation.orderId
+  const resolvedIncident = simulation.orderId
+    ? incidents.find(inc => inc.orderId === simulation.orderId && (inc.status === "RESOLVED" || inc.status === "FAILED"))
+    : null;
+
+  const mapStatus: "IDLE" | "ACTIVE" | "RESOLVED" =
+    incident?.status === "ACTIVE" ? "ACTIVE" :
+    incident?.status === "RESOLVED" ? "RESOLVED" :
+    resolvedIncident ? "RESOLVED" : "IDLE";
 
   // --- DERIVED STATE: Service Level ---
   // Calculate service level from orders (derived, not stored)
@@ -164,6 +180,13 @@ export default function DashboardPage() {
       : "/manhattan/mahnattan_tms_black.svg";
   };
 
+  // Close historical War Room
+  const handleCloseHistoricalWarRoom = () => {
+    setShowHistoricalWarRoom(false);
+    setHistoricalIncident(null);
+    setHistoricalOrder(null);
+  };
+
   // Restore simulation state when activeIncident loads (e.g., page refresh)
   useEffect(() => {
     if (activeIncident && activeIncident.orderId && !simulation.active) {
@@ -187,6 +210,18 @@ export default function DashboardPage() {
 
     console.log("[Pusher] Subscribing to sysco-demo channel");
     const channel = pusher.subscribe("sysco-demo");
+
+    // Refetch to catch any events we might have missed before Pusher connected
+    revalidateOrders();
+    revalidateIncidents();
+
+    // Also refetch when Pusher reconnects after a disconnect
+    const handleConnected = () => {
+      console.log("[Pusher] Connection established/restored - refetching data");
+      revalidateOrders();
+      revalidateIncidents();
+    };
+    pusher.connection.bind("connected", handleConnected);
 
     channel.bind("demo-started", (data: { incident: Incident; affectedOrderId?: string; affectedOrder?: Order }) => {
       // 1. Set Incident (local for immediate update + SWR for cache)
@@ -235,21 +270,29 @@ export default function DashboardPage() {
       }) => {
         console.log(`[Pusher] Demo complete - Outcome: ${data.outcome}`);
 
+        // Immediately update the incident in SWR cache with resolved status
+        // This ensures UI updates instantly without waiting for revalidation
+        mutateIncident({
+          ...data.incident,
+          status: data.outcome === "SUCCESS" ? "RESOLVED" : "FAILED",
+        });
+
         // Clear war mode state on dashboard (banner, simulation, highlighting)
+        // BUT preserve orderId so the purple "resolved" marker can render
         setLocalIncident(null);
         setShowBanner(false);
-        setSimulation({
+        setSimulation(prev => ({
           active: false,
-          orderId: null,
-          orderData: null,
+          orderId: prev.orderId,      // Keep for purple marker display
+          orderData: prev.orderData,  // Keep for reference
           currentRiskScore: 0,
-        });
+        }));
         setHighlightedOrderId(null);
 
         // NOTE: Do NOT close showWarRoom - let WarRoomModal handle its own
         // animated transition from live to historical mode
 
-        // Revalidate data via SWR
+        // Revalidate data via SWR to sync with server
         revalidateOrders();
         revalidateIncidents();
       }
@@ -286,9 +329,29 @@ export default function DashboardPage() {
       revalidateIncidents();
     });
 
+    // Incident updated (status change, resolution, etc.)
+    channel.bind("incident:updated", (data: { incident: Incident }) => {
+      console.log("[Pusher] Incident updated via Prisma middleware:", data.incident.status);
+      // If incident is resolved/failed, clear war mode state
+      // BUT preserve orderId so the purple "resolved" marker can render
+      if (data.incident.status === "RESOLVED" || data.incident.status === "FAILED") {
+        setLocalIncident(null);
+        setShowBanner(false);
+        setSimulation(prev => ({
+          active: false,
+          orderId: prev.orderId,      // Keep for purple marker display
+          orderData: prev.orderData,  // Keep for reference
+          currentRiskScore: 0,
+        }));
+        setHighlightedOrderId(null);
+      }
+      revalidateIncidents();
+    });
+
     return () => {
       channel.unbind_all();
       pusher.unsubscribe("sysco-demo");
+      pusher.connection.unbind("connected", handleConnected);
     };
   }, [pusher, addOrder]);
 
@@ -397,8 +460,34 @@ export default function DashboardPage() {
     }, 200);
   };
 
-  const handleOrderClick = (orderId: string) => {
+  const handleOrderClick = async (order: Order) => {
+    const orderId = order.id;
+
+    // Toggle highlighting
     setHighlightedOrderId(prev => prev === orderId ? null : orderId);
+
+    // Check if this order has an associated resolved/failed incident
+    const incidentForOrder = incidents.find(
+      (inc) => inc.orderId === orderId && inc.status !== "ACTIVE"
+    );
+
+    if (incidentForOrder) {
+      // Fetch full incident data for historical War Room
+      setLoadingHistoricalIncident(true);
+      try {
+        const res = await fetch(`/api/incidents/${incidentForOrder.id}`);
+        if (!res.ok) throw new Error("Failed to fetch incident");
+
+        const fullIncident = await res.json();
+        setHistoricalIncident(fullIncident);
+        setHistoricalOrder(order);
+        setShowHistoricalWarRoom(true);
+      } catch (error) {
+        console.error("Error fetching historical incident:", error);
+      } finally {
+        setLoadingHistoricalIncident(false);
+      }
+    }
   };
 
   const handleMapOrderSelect = (orderId: string | null) => {
@@ -592,24 +681,24 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-[10px] font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                  {totalExposure > 0 ? "Total Exposure" : "Pipeline Revenue"}
+                  {totalExposure > 0 && mapStatus === "ACTIVE" ? "Total Exposure" : "Pipeline Revenue"}
                 </p>
                 <div className="flex items-baseline gap-2">
                   <span
                     className={cn(
                       "text-2xl font-bold tracking-tight font-mono",
-                      totalExposure > 0
+                      totalExposure > 0 && mapStatus === "ACTIVE"
                         ? "text-red-600 dark:text-red-400"
                         : "text-zinc-900 dark:text-white"
                     )}
                   >
-                    {totalExposure > 0
+                    {totalExposure > 0 && mapStatus === "ACTIVE"
                       ? formatCurrency(totalExposure)
                       : formatCurrency(totalPipelineValue)}
                   </span>
                 </div>
                 {/* Breakdown: Revenue + Product */}
-                {totalExposure > 0 && (
+                {totalExposure > 0 && mapStatus === "ACTIVE" && (
                   <div className="text-[9px] text-zinc-500 mt-0.5 font-mono">
                     Rev: {formatCurrency(revenueAtRisk)} + Prod: {formatCurrency(productCostAtRisk)}
                   </div>
@@ -618,7 +707,7 @@ export default function DashboardPage() {
               <div
                 className={cn(
                   "rounded-full p-1.5",
-                  totalExposure > 0
+                  totalExposure > 0 && mapStatus === "ACTIVE"
                     ? "bg-red-500/10 text-red-500"
                     : "bg-emerald-500/10 text-emerald-500"
                 )}
@@ -628,7 +717,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Optional: Tiny progress bar at bottom for context */}
-            {totalExposure > 0 && (
+            {totalExposure > 0 && mapStatus === "ACTIVE" && (
                <div className="absolute bottom-0 left-0 h-0.5 w-full bg-red-100 dark:bg-red-900/30">
                   <div
                     className="h-full bg-red-500"
@@ -653,18 +742,18 @@ export default function DashboardPage() {
                 <span
                   className={cn(
                     "text-2xl font-bold tracking-tight font-mono",
-                    incident
+                    mapStatus === "ACTIVE"
                       ? "text-red-600 dark:text-red-400"
                       : "text-emerald-600 dark:text-emerald-400"
                   )}
                 >
-                  {incident ? "HIGH" : "LOW"}
+                  {mapStatus === "ACTIVE" ? "HIGH" : "LOW"}
                 </span>
               </div>
               <div
                 className={cn(
                   "rounded-full p-1.5",
-                  incident
+                  mapStatus === "ACTIVE"
                     ? "bg-red-500/10 text-red-500"
                     : "bg-emerald-500/10 text-emerald-500"
                 )}
@@ -692,9 +781,34 @@ export default function DashboardPage() {
                 <FleetMap
                   orders={displayOrders}
                   warehouses={warehouses}
+                  incidents={incidents}
                   incidentStatus={mapStatus}
                   incidentDescription={incident?.description}
                   onIncidentClick={() => setShowWarRoom(true)}
+                  onHistoricalIncidentClick={async (orderId) => {
+                    // Find the resolved/failed incident for this order
+                    const incidentForOrder = incidents.find(
+                      (inc) => inc.orderId === orderId && inc.status !== "ACTIVE"
+                    );
+                    if (!incidentForOrder) return;
+
+                    // Fetch full incident data and open historical War Room
+                    setLoadingHistoricalIncident(true);
+                    try {
+                      const res = await fetch(`/api/incidents/${incidentForOrder.id}`);
+                      if (!res.ok) throw new Error("Failed to fetch incident");
+
+                      const fullIncident = await res.json();
+                      const order = displayOrders.find(o => o.id === orderId) || null;
+                      setHistoricalIncident(fullIncident);
+                      setHistoricalOrder(order);
+                      setShowHistoricalWarRoom(true);
+                    } catch (error) {
+                      console.error("Error fetching historical incident:", error);
+                    } finally {
+                      setLoadingHistoricalIncident(false);
+                    }
+                  }}
                   affectedOrderId={simulation.orderId}
                   highlightedOrderId={highlightedOrderId}
                   onOrderSelect={handleMapOrderSelect}
@@ -867,7 +981,7 @@ export default function DashboardPage() {
                       <motion.div
                         layout
                         key={order.id}
-                        onClick={() => handleOrderClick(order.id)}
+                        onClick={() => handleOrderClick(order)}
                         className={cn(
                           "flex items-center text-xs font-mono group cursor-pointer transition-colors",
                           highlightedOrderId === order.id
@@ -952,12 +1066,22 @@ export default function DashboardPage() {
         </LayoutGroup>
       </div>
 
-      {/* War Room Modal */}
+      {/* War Room Modal - Live incident */}
       {showWarRoom && incident && (
         <WarRoomModal
           incident={incident}
           affectedOrder={affectedOrder}
           onClose={() => setShowWarRoom(false)}
+        />
+      )}
+
+      {/* Historical War Room Modal - For viewing resolved incidents from order clicks */}
+      {showHistoricalWarRoom && historicalIncident && (
+        <WarRoomModal
+          incident={historicalIncident}
+          affectedOrder={historicalOrder}
+          onClose={handleCloseHistoricalWarRoom}
+          mode="historical"
         />
       )}
 

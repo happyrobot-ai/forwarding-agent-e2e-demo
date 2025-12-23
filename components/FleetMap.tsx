@@ -5,7 +5,7 @@ import Image from "next/image";
 import Map, { Marker, Source, Layer, MapRef } from "react-map-gl/mapbox";
 import type { LayerProps } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
-import { Truck as TruckIcon, Warehouse as WarehouseIcon, Wrench } from "lucide-react";
+import { Truck as TruckIcon, Warehouse as WarehouseIcon, Wrench, CheckCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTheme } from "./ThemeProvider";
 import { OrderDetailPanel } from "./OrderDetailPanel";
@@ -155,19 +155,31 @@ const selectedRouteFlowStyle: LayerProps = {
   },
 };
 
+// Incident type for order-specific lookups
+interface IncidentInfo {
+  id: string;
+  orderId?: string | null;
+  status: string;
+  description?: string | null;
+}
+
 interface FleetMapProps {
   orders?: Order[];
   warehouses?: Warehouse[];
   serviceCenters?: ServiceCenter[]; // Dynamic service centers for War Room discovery
   availableDrivers?: AvailableDriver[]; // Drivers available for trailer relay
+  incidents?: IncidentInfo[]; // All incidents for order-specific War Room lookups
   incidentStatus: "IDLE" | "ACTIVE" | "RESOLVED";
   incidentDescription?: string | null;
   onIncidentClick: () => void;
+  onHistoricalIncidentClick?: (orderId: string) => void; // Callback for viewing resolved incidents
   affectedOrderId?: string | null;
   highlightedOrderId?: string | null; // External selection from table
   onOrderSelect?: (orderId: string | null) => void; // Callback when order is selected on map
   viewMode?: "dashboard" | "focused"; // "focused" for War Room with auto-fit bounds
   interactive?: boolean; // Whether map interactions are enabled
+  selectedServiceCenterId?: string | null; // ID of confirmed/selected service center
+  selectedDriverId?: string | null; // ID of confirmed/selected driver
 }
 
 export function FleetMap({
@@ -175,14 +187,18 @@ export function FleetMap({
   warehouses = [],
   serviceCenters = [],
   availableDrivers = [],
+  incidents = [],
   incidentStatus,
   incidentDescription,
   onIncidentClick,
+  onHistoricalIncidentClick,
   affectedOrderId,
   highlightedOrderId,
   onOrderSelect,
   viewMode = "dashboard",
-  interactive = true
+  interactive = true,
+  selectedServiceCenterId,
+  selectedDriverId,
 }: FleetMapProps) {
   const mapRef = useRef<MapRef>(null);
   const { theme } = useTheme();
@@ -199,6 +215,9 @@ export function FleetMap({
 
   // Cache for fetched driver orders (when clicking on discovered drivers)
   const [driverOrders, setDriverOrders] = useState<Record<string, Order>>({});
+
+  // Selected driver for showing info panel when orderId is not available
+  const [selectedDriver, setSelectedDriver] = useState<AvailableDriver | null>(null);
 
   const getSamsaraLogo = () => {
     return theme === "dark"
@@ -380,14 +399,22 @@ export function FleetMap({
       });
   }, [orders]);
 
-  // Calculate stats
+  // Calculate stats - resolved incidents don't count as Critical
   const stats = useMemo(() => {
+    // Find orders with resolved incidents
+    const resolvedOrderIds = new Set(
+      incidents?.filter(inc => inc.status === "RESOLVED" || inc.status === "FAILED")
+        .map(inc => inc.orderId) ?? []
+    );
+
     const total = orders.length;
     const nominal = orders.filter(o => o.riskScore < 40).length;
     const atRisk = orders.filter(o => o.riskScore >= 40 && o.riskScore < 80).length;
-    const critical = orders.filter(o => o.riskScore >= 80).length;
-    return { total, nominal, atRisk, critical };
-  }, [orders]);
+    // Exclude resolved incident orders from critical count
+    const critical = orders.filter(o => o.riskScore >= 80 && !resolvedOrderIds.has(o.id)).length;
+    const resolving = resolvedOrderIds.size;
+    return { total, nominal, atRisk, critical, resolving };
+  }, [orders, incidents]);
 
   // Cinematic "FlyTo" Effect - Dynamic based on affected order
   useEffect(() => {
@@ -664,11 +691,31 @@ export function FleetMap({
   const handleDriverClick = useCallback(async (driver: AvailableDriver) => {
     console.log("[FleetMap] Driver clicked:", driver.driverName, "orderId:", driver.orderId);
 
-    // Guard: If orderId is empty, we can't fetch the order (stale cached data)
+    // If no orderId, show simplified driver info panel instead
     if (!driver.orderId) {
-      console.warn("[FleetMap] Driver has no orderId - please reset the demo to fix");
+      console.log("[FleetMap] Driver has no orderId - showing driver info panel");
+      // Toggle selection
+      if (selectedDriver?.id === driver.id) {
+        setSelectedDriver(null);
+      } else {
+        setSelectedDriver(driver);
+        setSelectedOrderId(null); // Clear any order selection
+        // Fly to driver location
+        if (mapRef.current) {
+          mapRef.current.flyTo({
+            center: [driver.lng, driver.lat],
+            zoom: 10,
+            duration: 2000,
+            essential: true,
+            padding: viewMode === "focused" ? { left: 380, top: 0, bottom: 0, right: 0 } : undefined,
+          });
+        }
+      }
       return;
     }
+
+    // Clear driver selection when clicking on a driver with orderId
+    setSelectedDriver(null);
 
     // If already selected, deselect
     if (selectedOrderId === driver.orderId) {
@@ -725,7 +772,7 @@ export function FleetMap({
     } catch (error) {
       console.error("[FleetMap] Failed to fetch driver order:", error);
     }
-  }, [selectedOrderId, onOrderSelect, viewMode, driverOrders]);
+  }, [selectedOrderId, onOrderSelect, viewMode, driverOrders, selectedDriver]);
 
   return (
     <div className={cn(
@@ -773,6 +820,10 @@ export function FleetMap({
           const isHovered = hoveredTruckId === truck.orderId;
           const isHighRisk = truck.riskScore >= 80;
           const isMediumRisk = truck.riskScore >= 40;
+          // Check if this truck has a resolved incident - directly from incidents array
+          const isResolvedIncident = incidents?.some(
+            inc => inc.orderId === truck.orderId && (inc.status === "RESOLVED" || inc.status === "FAILED")
+          ) ?? false;
 
           return (
             <Marker
@@ -787,12 +838,15 @@ export function FleetMap({
                 onMouseEnter={() => setHoveredTruckId(truck.orderId)}
                 onMouseLeave={() => setHoveredTruckId(null)}
               >
-                {/* Radar ping effect for critical trucks */}
-                {isHighRisk && (
+                {/* Radar ping effect for critical trucks or resolved incidents */}
+                {(isHighRisk || isResolvedIncident) && (
                   <>
                     {/* Radar ring 1 - slowest, largest */}
                     <div
-                      className="absolute rounded-full border-2 border-red-500 pointer-events-none"
+                      className={cn(
+                        "absolute rounded-full border-2 pointer-events-none",
+                        isResolvedIncident ? "border-purple-500" : "border-red-500"
+                      )}
                       style={{
                         width: '60px',
                         height: '60px',
@@ -803,7 +857,10 @@ export function FleetMap({
                     />
                     {/* Radar ring 2 - medium speed */}
                     <div
-                      className="absolute rounded-full border-2 border-red-500 pointer-events-none"
+                      className={cn(
+                        "absolute rounded-full border-2 pointer-events-none",
+                        isResolvedIncident ? "border-purple-500" : "border-red-500"
+                      )}
                       style={{
                         width: '60px',
                         height: '60px',
@@ -814,7 +871,10 @@ export function FleetMap({
                     />
                     {/* Radar ring 3 - fastest, starts earliest */}
                     <div
-                      className="absolute rounded-full border-2 border-red-500 pointer-events-none"
+                      className={cn(
+                        "absolute rounded-full border-2 pointer-events-none",
+                        isResolvedIncident ? "border-purple-500" : "border-red-500"
+                      )}
                       style={{
                         width: '60px',
                         height: '60px',
@@ -834,11 +894,13 @@ export function FleetMap({
                 {/* Truck icon */}
                 <div className={cn(
                   "flex h-6 w-6 items-center justify-center rounded-full border shadow-lg transition-all",
-                  isHighRisk
-                    ? "bg-red-500 border-red-400 text-white"
-                    : isMediumRisk
-                      ? "bg-orange-500 border-orange-400 text-white"
-                      : "bg-emerald-600 border-emerald-500 text-white",
+                  isResolvedIncident
+                    ? "bg-purple-500 border-purple-400 text-white"
+                    : isHighRisk
+                      ? "bg-red-500 border-red-400 text-white"
+                      : isMediumRisk
+                        ? "bg-orange-500 border-orange-400 text-white"
+                        : "bg-emerald-600 border-emerald-500 text-white",
                   isSelected && "scale-125 ring-2 ring-blue-400 ring-offset-1"
                 )}>
                   <TruckIcon className="h-3 w-3" />
@@ -857,7 +919,7 @@ export function FleetMap({
                   </div>
                   <div className={cn(
                     "text-[10px]",
-                    isHighRisk ? "text-red-400" : isMediumRisk ? "text-orange-400" : "text-emerald-400"
+                    isResolvedIncident ? "text-purple-400" : isHighRisk ? "text-red-400" : isMediumRisk ? "text-orange-400" : "text-emerald-400"
                   )}>
                     {truck.itemName}
                   </div>
@@ -960,28 +1022,47 @@ export function FleetMap({
         })}
 
         {/* Discovered Resource Markers - Service Centers OR Warehouses found during War Room recovery */}
+        {/* Orange for candidates, Green for confirmed */}
         {serviceCenters.map((center) => {
           const isWarehouse = center.resourceType === "WAREHOUSE";
           const isHovered = hoveredServiceCenterId === center.id;
+          // Check if this center is selected (confirmed by agent)
+          const isConfirmed = selectedServiceCenterId === center.id;
+          // If any selection exists, non-selected markers should be faded
+          const isFaded = selectedServiceCenterId && !isConfirmed;
 
           return (
             <Marker
               key={center.id}
               longitude={center.lng}
               latitude={center.lat}
-              style={{ zIndex: isHovered ? 100 : 10 }} // Elevate on hover so tooltip appears above other markers
+              style={{ zIndex: isConfirmed ? 110 : isHovered ? 100 : 10 }} // Confirmed always on top
             >
               <div
-                className="group relative flex flex-col items-center cursor-pointer"
+                className={cn(
+                  "group relative flex flex-col items-center cursor-pointer transition-opacity duration-300",
+                  isFaded && "opacity-40"
+                )}
                 onMouseEnter={() => setHoveredServiceCenterId(center.id)}
                 onMouseLeave={() => setHoveredServiceCenterId(null)}
               >
-                {/* Main icon container - different styling for warehouse vs service center */}
+                {/* Confirmed checkmark badge */}
+                {isConfirmed && (
+                  <div className="absolute -top-2 -right-2 z-10 h-5 w-5 flex items-center justify-center rounded-full bg-emerald-500 border-2 border-white shadow-lg">
+                    <CheckCircle className="h-3 w-3 text-white" />
+                  </div>
+                )}
+
+                {/* Main icon container - Orange for candidates, Green for confirmed */}
+                {/* Warehouses keep blue styling regardless of selection */}
                 <div className={cn(
                   "relative flex h-9 w-9 items-center justify-center border-2 shadow-xl transition-all hover:scale-110",
                   isWarehouse
-                    ? "bg-blue-600 border-blue-400 text-white rounded-lg" // Square-ish for warehouses
-                    : "bg-emerald-500 border-emerald-400 text-white rounded-full" // Circular for service centers
+                    ? "bg-blue-600 border-blue-400 text-white rounded-lg" // Square-ish for warehouses (keep blue)
+                    : isConfirmed
+                      ? "bg-emerald-600 border-emerald-400 text-white rounded-full" // Green for confirmed
+                      : "bg-orange-500 border-orange-400 text-white rounded-full", // Orange for candidates
+                  isConfirmed && "ring-2 ring-emerald-300 ring-offset-1 ring-offset-black"
                 )}>
                   {isWarehouse ? (
                     <WarehouseIcon className="h-4 w-4" />
@@ -990,40 +1071,52 @@ export function FleetMap({
                   )}
                 </div>
 
-                {/* Distance badge - color matches resource type */}
+                {/* Distance badge - Orange for candidates, Green for confirmed */}
                 {center.distance !== undefined && (
                   <div className={cn(
                     "absolute -bottom-1 -right-1 bg-black/90 text-[9px] font-mono px-1.5 py-0.5 rounded-full border shadow-lg",
                     isWarehouse
                       ? "text-blue-400 border-blue-500/50"
-                      : "text-emerald-400 border-emerald-500/50"
+                      : isConfirmed
+                        ? "text-emerald-400 border-emerald-500/50"
+                        : "text-orange-400 border-orange-500/50"
                   )}>
                     {center.distance.toFixed(1)}mi
                   </div>
                 )}
 
-                {/* Rank badge for top 3 resources */}
+                {/* Rank badge for top 3 resources - Orange for candidates, Green for confirmed */}
                 {center.rank && (
                   <div className={cn(
                     "absolute -top-1 -left-1 h-5 w-5 flex items-center justify-center rounded-full text-[10px] font-bold border-2 shadow-lg",
                     isWarehouse
                       ? "bg-blue-600 border-blue-400 text-white"
-                      : "bg-emerald-600 border-emerald-400 text-white"
+                      : isConfirmed
+                        ? "bg-emerald-600 border-emerald-400 text-white"
+                        : "bg-orange-500 border-orange-400 text-white"
                   )}>
                     {center.rank}
                   </div>
                 )}
 
-                {/* Tooltip on hover - themed for resource type */}
+                {/* Tooltip on hover - Orange for candidates, Green for confirmed */}
                 <div className={cn(
                   "absolute bottom-12 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity z-[999]",
                   "whitespace-nowrap border px-3 py-2 text-xs font-mono rounded-lg pointer-events-none",
                   "bg-black/95 text-white min-w-[200px] shadow-2xl",
-                  isWarehouse ? "border-blue-500/50" : "border-emerald-500/50"
+                  isWarehouse
+                    ? "border-blue-500/50"
+                    : isConfirmed
+                      ? "border-emerald-500/50"
+                      : "border-orange-500/50"
                 )}>
                   <div className={cn(
                     "font-semibold",
-                    isWarehouse ? "text-blue-400" : "text-emerald-400"
+                    isWarehouse
+                      ? "text-blue-400"
+                      : isConfirmed
+                        ? "text-emerald-400"
+                        : "text-orange-400"
                   )}>
                     {center.name}
                   </div>
@@ -1031,7 +1124,9 @@ export function FleetMap({
                     "text-[10px] mt-1 px-1.5 py-0.5 rounded inline-block",
                     isWarehouse
                       ? "bg-blue-500/20 text-blue-300"
-                      : "bg-emerald-500/20 text-emerald-300"
+                      : isConfirmed
+                        ? "bg-emerald-500/20 text-emerald-300"
+                        : "bg-orange-500/20 text-orange-300"
                   )}>
                     {isWarehouse ? "SYSCO FACILITY" : center.type.replace(/_/g, ' ')}
                   </div>
@@ -1043,7 +1138,11 @@ export function FleetMap({
                   {center.distance !== undefined && (
                     <div className={cn(
                       "text-[10px] mt-1 font-bold",
-                      isWarehouse ? "text-blue-400" : "text-emerald-400"
+                      isWarehouse
+                        ? "text-blue-400"
+                        : isConfirmed
+                          ? "text-emerald-400"
+                          : "text-orange-400"
                     )}>
                       {center.distance.toFixed(1)} miles from incident
                     </div>
@@ -1054,46 +1153,81 @@ export function FleetMap({
           );
         })}
 
-        {/* Available Driver Markers - Purple markers for trailer relay drivers */}
+        {/* Available Driver Markers - Orange for candidates, Green for confirmed */}
         {availableDrivers.map((driver) => {
           const isHovered = hoveredServiceCenterId === `driver-${driver.id}`;
           // Only mark as selected if orderId exists and matches (prevents all drivers highlighting when orderId is empty)
-          const isSelected = driver.orderId && selectedOrderId === driver.orderId;
+          const isOrderSelected = driver.orderId && selectedOrderId === driver.orderId;
+          // Check if this driver is selected via the driver info panel (no orderId case)
+          const isDriverPanelSelected = selectedDriver?.id === driver.id;
+          // Check if this driver is confirmed by agent
+          const isConfirmedDriver = selectedDriverId === driver.id;
+          // If any driver selection exists, non-selected drivers should be faded
+          const isFaded = selectedDriverId && !isConfirmedDriver;
 
           return (
             <Marker
               key={`driver-${driver.id}`}
               longitude={driver.lng}
               latitude={driver.lat}
-              style={{ zIndex: isHovered || isSelected ? 100 : 10 }}
+              style={{ zIndex: isConfirmedDriver ? 110 : isHovered || isOrderSelected || isDriverPanelSelected ? 100 : 10 }}
             >
               <div
-                className="group relative flex flex-col items-center cursor-pointer"
+                className={cn(
+                  "group relative flex flex-col items-center cursor-pointer transition-opacity duration-300",
+                  isFaded && "opacity-40"
+                )}
                 onMouseEnter={() => setHoveredServiceCenterId(`driver-${driver.id}`)}
                 onMouseLeave={() => setHoveredServiceCenterId(null)}
                 onClick={() => handleDriverClick(driver)}
               >
-                {/* Selection ring */}
-                {isSelected && (
-                  <div className="absolute -top-1 -left-1 h-11 w-11 rounded-full border-2 border-blue-400 animate-pulse" />
+                {/* Confirmed driver checkmark badge */}
+                {isConfirmedDriver && (
+                  <div className="absolute -top-2 -right-2 z-10 h-5 w-5 flex items-center justify-center rounded-full bg-emerald-500 border-2 border-white shadow-lg">
+                    <CheckCircle className="h-3 w-3 text-white" />
+                  </div>
                 )}
 
-                {/* Main icon - purple truck for available drivers */}
+                {/* Selection ring for order click or driver panel selection */}
+                {(isOrderSelected || isDriverPanelSelected) && (
+                  <div className={cn(
+                    "absolute -top-1 -left-1 h-11 w-11 rounded-full border-2 animate-pulse",
+                    isDriverPanelSelected ? "border-orange-400" : "border-blue-400"
+                  )} />
+                )}
+
+                {/* Main icon - Orange for candidates, Green for confirmed */}
                 <div className={cn(
-                  "relative flex h-9 w-9 items-center justify-center rounded-full bg-purple-600 border-2 border-purple-400 text-white shadow-xl transition-all hover:scale-110",
-                  isSelected && "ring-2 ring-blue-400 ring-offset-1"
+                  "relative flex h-9 w-9 items-center justify-center rounded-full text-white shadow-xl transition-all hover:scale-110",
+                  isConfirmedDriver
+                    ? "bg-emerald-600 border-2 border-emerald-400"
+                    : "bg-orange-500 border-2 border-orange-400",
+                  (isOrderSelected || isDriverPanelSelected) && "ring-2 ring-offset-1",
+                  isOrderSelected && "ring-blue-400",
+                  isDriverPanelSelected && !isOrderSelected && "ring-orange-400",
+                  isConfirmedDriver && "ring-2 ring-emerald-300 ring-offset-1 ring-offset-black"
                 )}>
                   <TruckIcon className="h-4 w-4" />
                 </div>
 
                 {/* Distance badge */}
-                <div className="absolute -bottom-1 -right-1 bg-black/90 text-purple-400 text-[9px] font-mono px-1.5 py-0.5 rounded-full border border-purple-500/50 shadow-lg">
+                <div className={cn(
+                  "absolute -bottom-1 -right-1 bg-black/90 text-[9px] font-mono px-1.5 py-0.5 rounded-full shadow-lg",
+                  isConfirmedDriver
+                    ? "text-emerald-400 border border-emerald-500/50"
+                    : "text-orange-400 border border-orange-500/50"
+                )}>
                   {driver.distance.toFixed(1)}mi
                 </div>
 
                 {/* Rank badge */}
                 {driver.rank && (
-                  <div className="absolute -top-1 -left-1 h-5 w-5 flex items-center justify-center rounded-full bg-purple-600 border-2 border-purple-400 text-white text-[10px] font-bold shadow-lg">
+                  <div className={cn(
+                    "absolute -top-1 -left-1 h-5 w-5 flex items-center justify-center rounded-full text-white text-[10px] font-bold shadow-lg",
+                    isConfirmedDriver
+                      ? "bg-emerald-600 border-2 border-emerald-400"
+                      : "bg-orange-500 border-2 border-orange-400"
+                  )}>
                     {driver.rank}
                   </div>
                 )}
@@ -1105,8 +1239,16 @@ export function FleetMap({
                 )} />
 
                 {/* Tooltip on hover */}
-                <div className="absolute bottom-12 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity z-[999] whitespace-nowrap border border-purple-500/50 px-3 py-2 text-xs font-mono rounded-lg pointer-events-none bg-black/95 text-white min-w-[220px] shadow-2xl">
-                  <div className="text-purple-400 font-semibold">
+                <div className={cn(
+                  "absolute bottom-12 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity z-[999] whitespace-nowrap px-3 py-2 text-xs font-mono rounded-lg pointer-events-none bg-black/95 text-white min-w-[220px] shadow-2xl",
+                  isConfirmedDriver
+                    ? "border border-emerald-500/50"
+                    : "border border-orange-500/50"
+                )}>
+                  <div className={cn(
+                    "font-semibold",
+                    isConfirmedDriver ? "text-emerald-400" : "text-orange-400"
+                  )}>
                     {driver.driverName}
                   </div>
                   <div className="text-zinc-400 text-[10px]">
@@ -1120,7 +1262,10 @@ export function FleetMap({
                   )}>
                     {driver.status === "DELIVERED" ? "DELIVERY COMPLETE" : `${driver.progress}% COMPLETE`}
                   </div>
-                  <div className="text-purple-400 text-[10px] mt-1 font-bold">
+                  <div className={cn(
+                    "text-[10px] mt-1 font-bold",
+                    isConfirmedDriver ? "text-emerald-400" : "text-orange-400"
+                  )}>
                     {driver.distance.toFixed(1)} miles from incident
                   </div>
                 </div>
@@ -1135,6 +1280,19 @@ export function FleetMap({
       {selectedOrderId && (() => {
         const selectedOrder = allOrders.find(o => o.id === selectedOrderId);
         if (!selectedOrder) return null;
+
+        // Look up if this specific order has an associated incident
+        const orderIncident = incidents.find(inc => inc.orderId === selectedOrder.id);
+        const hasActiveIncident = orderIncident?.status === "ACTIVE";
+        const hasResolvedIncident = orderIncident?.status === "RESOLVED" || orderIncident?.status === "FAILED";
+
+        // Determine which callback to use based on incident status
+        const handleOpenWarRoom = hasActiveIncident
+          ? onIncidentClick
+          : hasResolvedIncident
+            ? () => onHistoricalIncidentClick?.(selectedOrder.id)
+            : undefined;
+
         return (
           <OrderDetailPanel
             order={selectedOrder}
@@ -1142,42 +1300,155 @@ export function FleetMap({
               setSelectedOrderId(null);
               onOrderSelect?.(null);
             }}
-            isIncidentActive={incidentStatus === "ACTIVE"}
-            incidentDescription={incidentDescription}
-            onOpenWarRoom={onIncidentClick}
+            isIncidentActive={hasActiveIncident}
+            isIncidentResolved={hasResolvedIncident}
+            incidentDescription={orderIncident?.description ?? incidentDescription}
+            onOpenWarRoom={handleOpenWarRoom}
             elevated={viewMode === "focused"}
           />
         );
       })()}
 
-      {/* Overlay: Network Health Legend - hidden when order detail panel is open or in focused mode */}
-      {viewMode === "dashboard" && !selectedOrderId && (
-      <div className="absolute bottom-4 left-4 flex flex-col gap-2">
+      {/* Driver Info Panel - shows when a driver without orderId is selected */}
+      {selectedDriver && !selectedOrderId && (
         <div className={cn(
-          "backdrop-blur p-3 rounded-lg border text-xs font-mono",
-          "bg-black/70 dark:bg-black/80 border-zinc-700"
+          "absolute top-4 left-4 z-50 w-[320px]",
+          viewMode === "focused" && "left-4"
         )}>
-          <div className="text-zinc-400 mb-2 text-[10px] uppercase tracking-wider">Network Health</div>
-          <div className="space-y-1.5">
-            <div className="flex items-center gap-2">
-              <span className="w-3 h-0.5 bg-emerald-500 rounded"></span>
-              <span className="text-zinc-500">Nominal</span>
-              <span className="text-emerald-400 ml-auto">{stats.nominal}</span>
+          <div className={cn(
+            "backdrop-blur rounded-lg border text-xs font-mono overflow-hidden",
+            "bg-black/90 border-zinc-700"
+          )}>
+            {/* Header */}
+            <div className="flex items-center justify-between p-3 border-b border-zinc-700">
+              <div className="flex items-center gap-2">
+                <div className={cn(
+                  "h-8 w-8 rounded-full flex items-center justify-center",
+                  selectedDriverId === selectedDriver.id
+                    ? "bg-emerald-600 border-2 border-emerald-400"
+                    : "bg-orange-500 border-2 border-orange-400"
+                )}>
+                  <TruckIcon className="h-4 w-4 text-white" />
+                </div>
+                <div>
+                  <div className={cn(
+                    "font-semibold",
+                    selectedDriverId === selectedDriver.id ? "text-emerald-400" : "text-orange-400"
+                  )}>
+                    {selectedDriver.driverName}
+                  </div>
+                  <div className="text-zinc-500 text-[10px]">{selectedDriver.truckId}</div>
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedDriver(null)}
+                className="text-zinc-500 hover:text-white transition-colors p-1"
+              >
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="w-3 h-0.5 bg-orange-500 rounded"></span>
-              <span className="text-zinc-500">At Risk</span>
-              <span className="text-orange-400 ml-auto">{stats.atRisk}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="w-3 h-0.5 bg-red-500 rounded"></span>
-              <span className="text-zinc-500">Critical</span>
-              <span className="text-red-400 ml-auto">{stats.critical}</span>
+
+            {/* Content */}
+            <div className="p-3 space-y-3">
+              {/* Status */}
+              <div className="flex items-center justify-between">
+                <span className="text-zinc-500">Status</span>
+                <span className={cn(
+                  "px-2 py-0.5 rounded text-[10px] font-medium",
+                  selectedDriver.status === "DELIVERED"
+                    ? "bg-emerald-500/20 text-emerald-300"
+                    : "bg-amber-500/20 text-amber-300"
+                )}>
+                  {selectedDriver.status === "DELIVERED" ? "DELIVERY COMPLETE" : `${selectedDriver.progress || 0}% COMPLETE`}
+                </span>
+              </div>
+
+              {/* Location */}
+              <div className="flex items-center justify-between">
+                <span className="text-zinc-500">Location</span>
+                <span className="text-zinc-300">{selectedDriver.currentLocation}</span>
+              </div>
+
+              {/* Distance from incident */}
+              <div className="flex items-center justify-between">
+                <span className="text-zinc-500">Distance</span>
+                <span className={cn(
+                  "font-semibold",
+                  selectedDriverId === selectedDriver.id ? "text-emerald-400" : "text-orange-400"
+                )}>
+                  {selectedDriver.distance.toFixed(1)} mi from incident
+                </span>
+              </div>
+
+              {/* Rank */}
+              {selectedDriver.rank && (
+                <div className="flex items-center justify-between">
+                  <span className="text-zinc-500">Candidate Rank</span>
+                  <span className={cn(
+                    "px-2 py-0.5 rounded font-bold",
+                    selectedDriverId === selectedDriver.id
+                      ? "bg-emerald-500/20 text-emerald-400"
+                      : "bg-orange-500/20 text-orange-400"
+                  )}>
+                    #{selectedDriver.rank}
+                  </span>
+                </div>
+              )}
+
+              {/* Nearest drop-off if available */}
+              {selectedDriver.nearestDropOff && (
+                <div className="border-t border-zinc-700 pt-3 mt-3">
+                  <div className="text-zinc-500 text-[10px] uppercase tracking-wider mb-2">Nearest Drop-off</div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-zinc-300">{selectedDriver.nearestDropOff.name}</span>
+                    <span className="text-zinc-500">{selectedDriver.nearestDropOff.distance.toFixed(1)} mi</span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
-          <div className="border-t border-zinc-700 mt-2 pt-2 flex items-center justify-between">
-            <span className="text-zinc-500">ACTIVE_ROUTES:</span>
-            <span className="text-zinc-300">{stats.total}</span>
+        </div>
+      )}
+
+      {/* Overlay: Network Health Legend - z-index below sidebar */}
+      {viewMode === "dashboard" && !selectedOrderId && (
+      <div className="absolute bottom-4 left-4 z-30 flex flex-col gap-1">
+        <div className={cn(
+          "backdrop-blur px-2 py-1.5 rounded-lg border text-xs font-mono",
+          "bg-black/70 dark:bg-black/80 border-zinc-700"
+        )}>
+          <div className="text-zinc-400 mb-1 text-[10px] uppercase tracking-wider">Network Health</div>
+          <div className="space-y-0.5">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-0.5 bg-emerald-500 rounded"></span>
+              <span className="text-zinc-500 text-[11px]">Nominal</span>
+              <span className="text-emerald-400 ml-auto text-[11px]">{stats.nominal}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-0.5 bg-orange-500 rounded"></span>
+              <span className="text-zinc-500 text-[11px]">At Risk</span>
+              <span className="text-orange-400 ml-auto text-[11px]">{stats.atRisk}</span>
+            </div>
+            {stats.critical > 0 && (
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-0.5 bg-red-500 rounded"></span>
+                <span className="text-zinc-500 text-[11px]">Critical</span>
+                <span className="text-red-400 ml-auto text-[11px]">{stats.critical}</span>
+              </div>
+            )}
+            {stats.resolving > 0 && (
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-0.5 bg-purple-500 rounded"></span>
+                <span className="text-zinc-500 text-[11px]">Resolving</span>
+                <span className="text-purple-400 ml-auto text-[11px]">{stats.resolving}</span>
+              </div>
+            )}
+          </div>
+          <div className="border-t border-zinc-700 mt-1 pt-1 flex items-center justify-between">
+            <span className="text-zinc-500 text-[11px]">ACTIVE_ROUTES:</span>
+            <span className="text-zinc-300 text-[11px]">{stats.total}</span>
           </div>
         </div>
       </div>
@@ -1193,22 +1464,30 @@ export function FleetMap({
           <div className="flex items-center gap-2">
             <div className={cn(
               "h-2 w-2 rounded-full",
-              incidentStatus === "ACTIVE" ? "bg-red-500 animate-pulse" : "bg-emerald-500"
+              incidentStatus === "ACTIVE"
+                ? "bg-red-500 animate-pulse"
+                : incidentStatus === "RESOLVED"
+                  ? "bg-purple-500 animate-pulse"
+                  : "bg-emerald-500"
             )} />
             <span className="text-zinc-400">STATUS:</span>
             <span className={cn(
               "font-semibold",
-              incidentStatus === "ACTIVE" ? "text-red-400" : "text-emerald-400"
+              incidentStatus === "ACTIVE"
+                ? "text-red-400"
+                : incidentStatus === "RESOLVED"
+                  ? "text-purple-400"
+                  : "text-emerald-400"
             )}>
-              {incidentStatus === "ACTIVE" ? "ALERT" : "NOMINAL"}
+              {incidentStatus === "ACTIVE" ? "ALERT" : incidentStatus === "RESOLVED" ? "RESOLVED" : "NOMINAL"}
             </span>
           </div>
         </div>
       </div>
       )}
 
-      {/* Overlay: Samsara Integration Badge */}
-      <div className="absolute top-4 right-4">
+      {/* Overlay: Samsara Integration Badge - z-50 ensures it floats above all map markers */}
+      <div className="absolute top-4 right-4 z-50">
         <Image
           src={getSamsaraLogo()}
           alt="Samsara"
