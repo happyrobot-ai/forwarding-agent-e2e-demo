@@ -21,11 +21,11 @@ This application showcases a "Self-Healing Supply Chain" where AI agents don't j
 
 ## Tech Stack
 
-- **Frontend:** Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS
+- **Frontend:** Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS 4
 - **Data Fetching:** SWR with optimistic updates and Pusher integration
 - **Maps:** Mapbox GL JS with custom clustering and route visualization
 - **Backend:** Next.js API Routes
-- **Database:** PostgreSQL via Prisma ORM
+- **Database:** PostgreSQL via Prisma 7 ORM
 - **Real-time:** Pusher (WebSockets)
 - **Deployment:** Railway / Vercel
 - **AI Agents:** HappyRobot integration via webhooks
@@ -68,11 +68,18 @@ NEXT_PUBLIC_PUSHER_CLUSTER="us2"
 
 # Mapbox (get from https://account.mapbox.com)
 NEXT_PUBLIC_MAPBOX_TOKEN="your_mapbox_token"
-MAPBOX_ACCESS_TOKEN="your_mapbox_token"
 
 # HappyRobot AI Integration
 HAPPYROBOT_WEBHOOK_URL="https://your-happyrobot-endpoint.com/webhook"
 WEBHOOK_API_KEY="your_shared_secret"
+
+# HappyRobot Platform API (for polling run status)
+HAPPYROBOT_API_KEY="your_happyrobot_api_key"
+HAPPYROBOT_ORG_ID="your_happyrobot_org_id"
+
+# HappyRobot Platform UI (for linking to runs in the dashboard)
+NEXT_PUBLIC_HAPPYROBOT_ORG="your_org_slug"
+NEXT_PUBLIC_HAPPYROBOT_WORKFLOW_ID="your_workflow_id"
 
 # App URL (for callback URLs)
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
