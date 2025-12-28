@@ -6,7 +6,15 @@ import Image from "next/image";
 import { usePusher } from "@/components/PusherProvider";
 import { useTheme } from "@/components/ThemeProvider";
 import { cn } from "@/lib/utils";
-import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  ExpandableGrid,
+  ExpandableGridItem,
+  CollapsibleSection,
+  AnimatedColumn,
+  gsap,
+  type ExpandableGridRef,
+} from "@/components/gsap";
 import {
   TrendingUp,
   Package,
@@ -19,7 +27,6 @@ import {
 import { WarRoomModal } from "@/components/WarRoomModal";
 import { FilterDropdown } from "@/components/FilterDropdown";
 import { PriceRangeSlider } from "@/components/PriceRangeSlider";
-import { KPICardSkeleton, TableSkeleton, MapSkeleton } from "@/components/Skeletons";
 import {
   useOrders,
   useIncidents,
@@ -29,9 +36,6 @@ import {
   mutateIncident,
 } from "@/hooks";
 import type { Order, Incident, Warehouse } from "@/hooks";
-
-// Spring config for natural motion - slower and smoother
-const SPRING_CONFIG = { type: "spring", stiffness: 100, damping: 20 } as const;
 
 // Dynamic import for FleetMap to avoid SSR issues with Mapbox
 const FleetMap = dynamic(
@@ -97,6 +101,10 @@ export default function DashboardPage() {
   const [destinationFilter, setDestinationFilter] = useState<string>("");
   const [priceRange, setPriceRange] = useState<{ min: number; max: number } | null>(null);
   const tableHoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const expandableGridRef = useRef<ExpandableGridRef>(null);
+  const tableRowsRef = useRef<HTMLDivElement>(null);
+  const isClearingFiltersRef = useRef(false);
+  const prevFilteredCountRef = useRef(0);
 
   // Calculate price range from serverOrders
   const priceStats = serverOrders.length > 0 ? {
@@ -433,7 +441,51 @@ export default function DashboardPage() {
     return matchesSearch && matchesOrigin && matchesDestination && matchesPrice;
   });
 
+  // Animate table rows when filters change
+  useEffect(() => {
+    if (!tableRowsRef.current) return;
+    const rows = tableRowsRef.current.querySelectorAll("[data-row-id]");
+    if (rows.length === 0) return;
+
+    const currentCount = rows.length;
+    const prevCount = prevFilteredCountRef.current;
+    const isClearing = isClearingFiltersRef.current;
+
+    // Reset clearing flag after reading it
+    isClearingFiltersRef.current = false;
+    prevFilteredCountRef.current = currentCount;
+
+    // Different animation strategies based on action type
+    if (isClearing || (currentCount > prevCount && currentCount - prevCount > 5)) {
+      // "Clear filters" or large increase: smooth collective fade (no waterfall)
+      gsap.fromTo(
+        rows,
+        { opacity: 0 },
+        {
+          opacity: 1,
+          duration: 0.35,
+          ease: "power2.out",
+        }
+      );
+    } else {
+      // Normal filtering: staggered slide-in animation
+      gsap.fromTo(
+        rows,
+        { opacity: 0, y: -8 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.25,
+          stagger: 0.02,
+          ease: "power2.out",
+        }
+      );
+    }
+  }, [filteredOrders.length, searchQuery, originFilter, destinationFilter, priceRange]);
+
   const resetFilters = () => {
+    // Set flag so animation effect knows this is a "clear all" action
+    isClearingFiltersRef.current = true;
     setSearchQuery("");
     setOriginFilter("");
     setDestinationFilter("");
@@ -448,6 +500,8 @@ export default function DashboardPage() {
       clearTimeout(tableHoverTimeoutRef.current);
       tableHoverTimeoutRef.current = null;
     }
+    // Capture Flip state BEFORE React updates the DOM
+    expandableGridRef.current?.captureState();
     setIsTableExpanded(true);
   };
 
@@ -456,6 +510,8 @@ export default function DashboardPage() {
       clearTimeout(tableHoverTimeoutRef.current);
     }
     tableHoverTimeoutRef.current = setTimeout(() => {
+      // Capture Flip state BEFORE React updates the DOM
+      expandableGridRef.current?.captureState();
       setIsTableExpanded(false);
     }, 200);
   };
@@ -764,18 +820,13 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Content Split: Map + Orders - Using Framer Motion LayoutGroup */}
-        <LayoutGroup>
-          <div className="flex-1 grid grid-cols-4 gap-4 min-h-0 relative">
-
-            {/* MAP CONTAINER - GPU-accelerated with layout animation */}
-            <motion.div
-              layout
-              transition={SPRING_CONFIG}
-              className={cn(
-                "min-w-0 min-h-0 rounded-xl overflow-hidden border border-[var(--sysco-border)] bg-zinc-900/50 shadow-xl relative",
-                isTableExpanded ? "col-span-2" : "col-span-3"
-              )}
+        {/* Content Split: Map + Orders - Using GSAP ExpandableGrid */}
+        <ExpandableGrid ref={expandableGridRef} isExpanded={isTableExpanded} columns={4} gap={16} className="flex-1 min-h-0">
+            {/* MAP CONTAINER - GPU-accelerated with GSAP Flip animation */}
+            <ExpandableGridItem
+              collapsedSpan={3}
+              expandedSpan={2}
+              className="rounded-xl overflow-hidden border border-[var(--sysco-border)] bg-zinc-900/50 shadow-xl relative"
             >
               <div className="absolute inset-0 w-full h-full">
                 <FleetMap
@@ -814,18 +865,15 @@ export default function DashboardPage() {
                   onOrderSelect={handleMapOrderSelect}
                 />
               </div>
-            </motion.div>
+            </ExpandableGridItem>
 
-            {/* TABLE CONTAINER - GPU-accelerated with layout animation */}
-            <motion.div
-              layout
-              transition={SPRING_CONFIG}
+            {/* TABLE CONTAINER - GPU-accelerated with GSAP Flip animation */}
+            <ExpandableGridItem
+              collapsedSpan={1}
+              expandedSpan={2}
               onMouseEnter={handleTableMouseEnter}
               onMouseLeave={handleTableMouseLeave}
-              className={cn(
-                "flex flex-col rounded-xl overflow-hidden border border-[var(--sysco-border)] bg-[var(--sysco-card)] shadow-xl z-10",
-                isTableExpanded ? "col-span-2" : "col-span-1"
-              )}
+              className="flex flex-col rounded-xl overflow-hidden border border-[var(--sysco-border)] bg-[var(--sysco-card)] shadow-xl z-10"
             >
               {/* Table Toolbar */}
               <div className="flex-none px-4 py-3 border-b border-[var(--sysco-border)] bg-[var(--sysco-surface)]">
@@ -864,17 +912,8 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                {/* Expanded filters - Using Framer Motion */}
-                <motion.div
-                  initial={false}
-                  animate={{
-                    height: isTableExpanded ? "auto" : 0,
-                    opacity: isTableExpanded ? 1 : 0,
-                    marginTop: isTableExpanded ? 12 : 0
-                  }}
-                  transition={{ duration: 0.3, ease: "easeOut" }}
-                  className={isTableExpanded ? "overflow-visible" : "overflow-hidden"}
-                >
+                {/* Expanded filters - Using GSAP CollapsibleSection */}
+                <CollapsibleSection isOpen={isTableExpanded} openMarginTop={12}>
                   <div className="flex gap-2">
                     {/* Search */}
                     <div className="flex-1 relative">
@@ -910,7 +949,7 @@ export default function DashboardPage() {
                       onChange={(min, max) => setPriceRange({ min, max })}
                     />
                   </div>
-                </motion.div>
+                </CollapsibleSection>
               </div>
 
               {/* Table Content - Flex-based div table for better GPU animation */}
@@ -929,58 +968,29 @@ export default function DashboardPage() {
                     <div className="w-8 py-2 text-center shrink-0" />
                     <div className="w-[130px] px-3 py-2 shrink-0">Route</div>
 
-                    {/* Resizable Payload - Framer Motion animated width */}
-                    <motion.div
-                      layout
-                      transition={SPRING_CONFIG}
-                      className="px-3 py-2 overflow-hidden whitespace-nowrap shrink-0"
-                      animate={{ width: isTableExpanded ? 180 : 130 }}
-                    >
+                    {/* Resizable Payload - Using GSAP AnimatedColumn */}
+                    <AnimatedColumn show={true} width={isTableExpanded ? 180 : 130} className="px-3 py-2">
                       Payload
-                    </motion.div>
+                    </AnimatedColumn>
 
-                    {/* Collapsible Headers */}
-                    <AnimatePresence mode="popLayout">
-                      {isTableExpanded && (
-                        <>
-                          <motion.div
-                            initial={{ opacity: 0, width: 0 }}
-                            animate={{ opacity: 1, width: 130 }}
-                            exit={{ opacity: 0, width: 0 }}
-                            transition={SPRING_CONFIG}
-                            className="px-3 py-2 overflow-hidden whitespace-nowrap shrink-0"
-                          >
-                            Carrier
-                          </motion.div>
-                          <motion.div
-                            initial={{ opacity: 0, width: 0 }}
-                            animate={{ opacity: 1, width: 100 }}
-                            exit={{ opacity: 0, width: 0 }}
-                            transition={SPRING_CONFIG}
-                            className="px-3 py-2 overflow-hidden whitespace-nowrap shrink-0"
-                          >
-                            Status
-                          </motion.div>
-                          <motion.div
-                            initial={{ opacity: 0, width: 0 }}
-                            animate={{ opacity: 1, width: 100 }}
-                            exit={{ opacity: 0, width: 0 }}
-                            transition={SPRING_CONFIG}
-                            className="px-3 py-2 text-right overflow-hidden whitespace-nowrap shrink-0"
-                          >
-                            Value
-                          </motion.div>
-                        </>
-                      )}
-                    </AnimatePresence>
+                    {/* Collapsible Headers - Using GSAP AnimatedColumn */}
+                    <AnimatedColumn show={isTableExpanded} width={130} staggerDelay={0} className="px-3 py-2">
+                      Carrier
+                    </AnimatedColumn>
+                    <AnimatedColumn show={isTableExpanded} width={100} staggerDelay={0.05} className="px-3 py-2">
+                      Status
+                    </AnimatedColumn>
+                    <AnimatedColumn show={isTableExpanded} width={100} staggerDelay={0.1} className="px-3 py-2 text-right">
+                      Value
+                    </AnimatedColumn>
                   </div>
 
-                  {/* Data Rows */}
-                  <div className="divide-y divide-[var(--sysco-border)]/50">
+                  {/* Data Rows - Animated with GSAP */}
+                  <div ref={tableRowsRef} className="divide-y divide-[var(--sysco-border)]/50">
                     {filteredOrders.map((order) => (
-                      <motion.div
-                        layout
+                      <div
                         key={order.id}
+                        data-row-id={order.id}
                         onClick={() => handleOrderClick(order)}
                         className={cn(
                           "flex items-center text-xs font-mono group cursor-pointer transition-colors",
@@ -1005,65 +1015,35 @@ export default function DashboardPage() {
                           <span className="text-zinc-700 dark:text-zinc-300">{order.destination.split(',')[0]}</span>
                         </div>
 
-                        {/* Payload - Resizable */}
-                        <motion.div
-                          layout
-                          transition={SPRING_CONFIG}
-                          className="px-3 py-2 truncate text-zinc-600 dark:text-zinc-400 shrink-0"
-                          animate={{ width: isTableExpanded ? 180 : 130 }}
-                        >
+                        {/* Payload - Resizable with GSAP */}
+                        <AnimatedColumn show={true} width={isTableExpanded ? 180 : 130} className="px-3 py-2 truncate text-zinc-600 dark:text-zinc-400">
                           {order.itemName}
-                        </motion.div>
+                        </AnimatedColumn>
 
-                        {/* Collapsible Cells */}
-                        <AnimatePresence mode="popLayout">
-                          {isTableExpanded && (
-                            <>
-                              <motion.div
-                                initial={{ opacity: 0, width: 0 }}
-                                animate={{ opacity: 1, width: 130 }}
-                                exit={{ opacity: 0, width: 0 }}
-                                transition={SPRING_CONFIG}
-                                className="px-3 py-2 truncate text-zinc-500 overflow-hidden shrink-0"
-                              >
-                                {order.carrier}
-                              </motion.div>
-                              <motion.div
-                                initial={{ opacity: 0, width: 0 }}
-                                animate={{ opacity: 1, width: 100 }}
-                                exit={{ opacity: 0, width: 0 }}
-                                transition={SPRING_CONFIG}
-                                className="px-3 py-2 overflow-hidden shrink-0"
-                              >
-                                <span className={cn(
-                                  "px-1.5 py-0.5 rounded text-[9px] font-medium border inline-block",
-                                  getStatusConfig(order.status).bg,
-                                  getStatusConfig(order.status).text,
-                                  getStatusConfig(order.status).border
-                                )}>
-                                  {getStatusConfig(order.status).label}
-                                </span>
-                              </motion.div>
-                              <motion.div
-                                initial={{ opacity: 0, width: 0 }}
-                                animate={{ opacity: 1, width: 100 }}
-                                exit={{ opacity: 0, width: 0 }}
-                                transition={SPRING_CONFIG}
-                                className="px-3 py-2 text-right text-zinc-400 overflow-hidden shrink-0"
-                              >
-                                ${(order.sellPrice || order.orderValue || 0).toLocaleString()}
-                              </motion.div>
-                            </>
-                          )}
-                        </AnimatePresence>
-                      </motion.div>
+                        {/* Collapsible Cells - Using GSAP AnimatedColumn */}
+                        <AnimatedColumn show={isTableExpanded} width={130} staggerDelay={0} className="px-3 py-2 truncate text-zinc-500">
+                          {order.carrier}
+                        </AnimatedColumn>
+                        <AnimatedColumn show={isTableExpanded} width={100} staggerDelay={0.05} className="px-3 py-2">
+                          <span className={cn(
+                            "px-1.5 py-0.5 rounded text-[9px] font-medium border inline-block",
+                            getStatusConfig(order.status).bg,
+                            getStatusConfig(order.status).text,
+                            getStatusConfig(order.status).border
+                          )}>
+                            {getStatusConfig(order.status).label}
+                          </span>
+                        </AnimatedColumn>
+                        <AnimatedColumn show={isTableExpanded} width={100} staggerDelay={0.1} className="px-3 py-2 text-right text-zinc-400">
+                          ${(order.sellPrice || order.orderValue || 0).toLocaleString()}
+                        </AnimatedColumn>
+                      </div>
                     ))}
                   </div>
                 </div>
               )}
-            </motion.div>
-          </div>
-        </LayoutGroup>
+            </ExpandableGridItem>
+        </ExpandableGrid>
       </div>
 
       {/* War Room Modal - Live incident */}

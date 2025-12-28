@@ -6,6 +6,7 @@ import { PusherProvider } from "@/components/PusherProvider";
 import { SWRProvider } from "@/components/SWRProvider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Layout } from "@/components/Layout";
+import { GSAPProvider } from "@/components/gsap/GSAPProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,7 +40,9 @@ export default function RootLayout({
           <SWRProvider>
             <PusherProvider>
               <TooltipProvider>
-                <Layout>{children}</Layout>
+                <GSAPProvider>
+                  <Layout>{children}</Layout>
+                </GSAPProvider>
               </TooltipProvider>
             </PusherProvider>
           </SWRProvider>
