@@ -600,7 +600,7 @@ export function WarRoomModal({
           status: "INFO",
         });
 
-        await fetch("/api/happyrobot/trigger_workflow", {
+        const response = await fetch("/api/happyrobot/trigger_workflow", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -609,6 +609,16 @@ export function WarRoomModal({
             trucker_phone: truckerPhone,
           }),
         });
+
+        // Handle 409 - workflow already triggered by another client
+        if (response.status === 409) {
+          console.log("[War Room] Workflow already triggered by another session, skipping");
+          return; // Not an error, just means another client got there first
+        }
+
+        if (!response.ok) {
+          console.error("[War Room] Workflow trigger failed:", response.status);
+        }
       } catch (error) {
         console.error("Swarm trigger failed", error);
       }

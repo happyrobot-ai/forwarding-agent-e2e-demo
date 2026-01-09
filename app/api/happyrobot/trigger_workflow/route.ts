@@ -116,6 +116,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Atomically check and set workflowTriggered flag to prevent duplicate triggers
+    // This prevents multiple clients from triggering the workflow simultaneously
+    const updateResult = await prisma.incident.updateMany({
+      where: {
+        id: incident_id,
+        workflowTriggered: false, // Only update if not already triggered
+      },
+      data: {
+        workflowTriggered: true,
+      },
+    });
+
+    // If no rows were updated, another client already triggered the workflow
+    if (updateResult.count === 0) {
+      console.log("[HappyRobot] Workflow already triggered for this incident, skipping");
+      return NextResponse.json(
+        { error: "Workflow already triggered for this incident", already_triggered: true },
+        { status: 409 }
+      );
+    }
+
+    console.log("[HappyRobot] Workflow trigger lock acquired for incident:", incident_id);
+
     // Build facilities array from candidates
     console.log("[HappyRobot] Building payload from candidates:",
       incident.candidates.map((c: { candidateType: string; serviceCenterId?: string | null; warehouseId?: string | null; truckId?: string | null }) =>

@@ -358,12 +358,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const getLogoSrc = () => {
     if (isCollapsed) {
       return theme === "dark"
-        ? "/sysco/sysco-logo-small-blue.png"
-        : "/sysco/Sysco-logo-small.png";
+        ? "/happyrobot/Footer-logo-white.png"
+        : "/happyrobot/Footer-logo-black.png";
     }
     return theme === "dark"
-      ? "/sysco/Sysco-Logo-White1.png"
-      : "/sysco/Sysco-Logo-Color1.png";
+      ? "/happyrobot/Footer-expand-happyrobot_white.png"
+      : "/happyrobot/Footer-expand-happyrobot-blacl.png";
   };
 
   // HappyRobot footer logo selection
@@ -404,17 +404,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
             {isCollapsed ? (
               <Image
                 src={getLogoSrc()}
-                alt="Sysco"
-                width={40}
-                height={40}
+                alt="HappyRobot AI"
+                width={32}
+                height={32}
                 className="object-contain"
               />
             ) : (
               <Image
                 src={getLogoSrc()}
-                alt="Sysco"
-                width={120}
-                height={36}
+                alt="HappyRobot AI"
+                width={140}
+                height={28}
                 className="object-contain"
               />
             )}

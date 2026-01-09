@@ -30,6 +30,9 @@ model Incident {
   selectedFacilityId String? @map("selected_facility_id")
   selectedDriverId   String? @map("selected_driver_id")
 
+  // Workflow trigger guard (prevents duplicate triggers from multiple clients)
+  workflowTriggered Boolean @default(false) @map("workflow_triggered")
+
   // Smart Recovery: Unified candidates table (service centers, warehouses, drivers)
   candidates  IncidentCandidate[]
 
