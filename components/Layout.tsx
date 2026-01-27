@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, ChevronRight, LucideIcon, RotateCcw, Settings, X, Phone, Play, Loader2, AlertTriangle } from "lucide-react";
+import { LayoutDashboard, ChevronRight, LucideIcon, RotateCcw, Settings, X, Phone, Play, Loader2, AlertTriangle, Mail, MessageSquare } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
 import { ThemeToggle } from "./ThemeToggle";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
@@ -330,9 +330,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
   }[] = [
     {
       href: "/inbox",
-      icon: LayoutDashboard,
-      label: "Email Inbox",
-      subtitle: "Customer Requests",
+      icon: MessageSquare,
+      label: "Communications",
+      subtitle: "Receptionist",
     },
     {
       href: "/shipments",

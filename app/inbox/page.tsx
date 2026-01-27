@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useSSE } from "@/hooks/useSSE";
 import { CHANNELS } from "@/lib/channels";
 import { cn } from "@/lib/utils";
-import { Mail, User, Clock, Tag, AlertCircle, CheckCircle2, Circle } from "lucide-react";
+import { Mail, User, Clock, Tag, AlertCircle, CheckCircle2, Circle, Phone, MessageSquare } from "lucide-react";
 
 interface Email {
   id: string;
@@ -97,14 +97,11 @@ export default function InboxPage() {
     return labels[classification] || classification;
   };
 
-  // Filter emails that need attention
+  // Filter emails that need attention (only highlighted or urgent)
   const needsAttention = (email: Email) => {
     return (
-      email.status === 'NEW' ||
-      email.status === 'PENDING' ||
       email.highlight ||
-      email.priority === 'URGENT' ||
-      email.priority === 'HIGH'
+      email.priority === 'URGENT'
     );
   };
 
@@ -132,11 +129,16 @@ export default function InboxPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-semibold text-[#003366] dark:text-white">
-                Communication Analyzer
+                Communications
               </h1>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                AI-classified customer requests
-              </p>
+              <div className="flex items-center gap-3 mt-1">
+                <span className="text-sm text-gray-600 dark:text-gray-400">AI Receptionist</span>
+                <div className="flex items-center gap-2 text-gray-400 dark:text-gray-500">
+                  <Mail className="h-4 w-4" />
+                  <Phone className="h-4 w-4" />
+                  <MessageSquare className="h-4 w-4" />
+                </div>
+              </div>
             </div>
             <div className="flex items-center gap-4">
               <div className="text-sm">

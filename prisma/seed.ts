@@ -7,7 +7,7 @@ if (!process.env.DATABASE_URL) {
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 if (!MAPBOX_TOKEN) {
-  throw new Error("NEXT_PUBLIC_MAPBOX_TOKEN is not defined");
+  console.warn("NEXT_PUBLIC_MAPBOX_TOKEN not set - routes will not have detailed geometry");
 }
 
 const prisma = new PrismaClient();
