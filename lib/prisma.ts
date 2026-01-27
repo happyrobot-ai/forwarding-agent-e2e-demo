@@ -56,7 +56,8 @@ function createPrismaClient(): PrismaClient {
   const pool = globalForPrisma.pool ?? new Pool({ connectionString });
   if (process.env.NODE_ENV !== "production") globalForPrisma.pool = pool;
 
-  const adapter = new PrismaPg(pool);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const adapter = new PrismaPg(pool as any);
 
   // Create base client
   const baseClient = new PrismaClient({ adapter });

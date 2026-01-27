@@ -53,7 +53,7 @@ export async function GET(request: Request) {
         controller.enqueue(encoder.encode(connectMessage));
 
         // Handle incoming messages
-        subscriber.on('message', (channel, message) => {
+        subscriber.on('message', (channel: string, message: string) => {
           try {
             const data = JSON.parse(message);
             const eventData = {
