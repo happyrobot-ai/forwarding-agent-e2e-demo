@@ -2,7 +2,14 @@
   "$schema": "https://railway.app/railway.schema.json",
   "build": {
     "builder": "NIXPACKS",
-    "buildCommand": "prisma generate && npx prisma db push --accept-data-loss && npm run build"
+    "buildCommand": "prisma generate && npx prisma db push --accept-data-loss && npm run build",
+    "nixpacksConfig": {
+      "phases": {
+        "setup": {
+          "nixPkgs": ["nodejs_20", "npm-10_x", "openssl"]
+        }
+      }
+    }
   },
   "deploy": {
     "startCommand": "npm start",
