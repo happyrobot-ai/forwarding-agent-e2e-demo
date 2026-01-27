@@ -4,9 +4,16 @@ import prisma from '@/lib/db';
 // Get all emails
 export async function GET() {
   try {
-    const emails = await prisma.email.findMany({
+    // Add timeout protection
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Database query timeout')), 10000);
+    });
+
+    const emailsPromise = prisma.email.findMany({
       orderBy: { receivedAt: 'desc' },
     });
+
+    const emails = await Promise.race([emailsPromise, timeoutPromise]) as any[];
 
     // Sort highlighted/urgent emails first
     const sorted = emails.sort((a, b) => {
@@ -32,9 +39,8 @@ export async function GET() {
     return NextResponse.json(sorted);
   } catch (error) {
     console.error('[Emails API] Error:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch emails' },
-      { status: 500 }
-    );
+    
+    // Return empty array instead of error to prevent page crash
+    return NextResponse.json([], { status: 200 });
   }
 }
