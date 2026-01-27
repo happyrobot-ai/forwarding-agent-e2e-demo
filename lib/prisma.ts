@@ -1,11 +1,8 @@
 import { PrismaClient } from "@prisma/client";
-import { PrismaPg } from "@prisma/adapter-pg";
-import { Pool } from "pg";
 import PusherServer from "pusher";
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
-  pool: Pool | undefined;
   pusher: PusherServer | undefined;
 };
 
@@ -45,22 +42,18 @@ interface ExtensionArgs {
   query: (args: Record<string, unknown>) => Promise<unknown>;
 }
 
-// Create connection pool and Prisma client with adapter for Prisma 7
+// Create Prisma client (standard connection, no driver adapter)
 function createPrismaClient(): PrismaClient {
-  const connectionString = process.env.DATABASE_URL;
-
-  if (!connectionString) {
+  if (!process.env.DATABASE_URL) {
     throw new Error("DATABASE_URL is not defined");
   }
 
-  const pool = globalForPrisma.pool ?? new Pool({ connectionString });
-  if (process.env.NODE_ENV !== "production") globalForPrisma.pool = pool;
+  console.log("Database url", process.env.DATABASE_URL.replace(/:[^:@]+@/, ':***@'));
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const adapter = new PrismaPg(pool as any);
-
-  // Create base client
-  const baseClient = new PrismaClient({ adapter });
+  // Create base client with standard Prisma connection
+  const baseClient = new PrismaClient({
+    log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
+  });
 
   // Extend with auto-broadcast middleware
   const extendedClient = baseClient.$extends({

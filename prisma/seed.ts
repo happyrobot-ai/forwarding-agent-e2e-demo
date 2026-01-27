@@ -1,10 +1,7 @@
 import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
-import { PrismaPg } from "@prisma/adapter-pg";
-import { Pool } from "pg";
 
-const connectionString = process.env.DATABASE_URL;
-if (!connectionString) {
+if (!process.env.DATABASE_URL) {
   throw new Error("DATABASE_URL is not defined");
 }
 
@@ -13,10 +10,7 @@ if (!MAPBOX_TOKEN) {
   throw new Error("NEXT_PUBLIC_MAPBOX_TOKEN is not defined");
 }
 
-const pool = new Pool({ connectionString });
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const adapter = new PrismaPg(pool as any);
-const prisma = new PrismaClient({ adapter });
+const prisma = new PrismaClient();
 
 // Real Texas/US city coordinates for realistic routes
 const TEXAS_CITIES = [
