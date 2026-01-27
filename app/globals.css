@@ -4,28 +4,37 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: #F8FAFC;
-  --foreground: #09090B;
+  --background: #FFFFFF;
+  --foreground: #1A1D29;
 
-  /* Enterprise color palette - Light mode */
-  --sysco-bg: #F8FAFC;
-  --sysco-card: #FFFFFF;
-  --sysco-border: #E4E4E7;
-  --sysco-surface: #F4F4F5;
+  /* DSV Brand Colors - Navy, White, Silver */
+  --dsv-navy: #003366;
+  --dsv-navy-light: #004C99;
+  --dsv-navy-dark: #001F3F;
+  --dsv-silver: #C0C5CE;
+  --dsv-silver-light: #E8EAED;
+  --dsv-silver-dark: #8B92A3;
 
-  /* Status colors - Light mode */
-  --status-success-bg: #DCFCE7;
-  --status-success-text: #166534;
-  --status-success-border: #BBF7D0;
-  --status-error-bg: #FEE2E2;
-  --status-error-text: #991B1B;
-  --status-error-border: #FECACA;
-  --status-warn-bg: #FEF3C7;
-  --status-warn-text: #92400E;
-  --status-warn-border: #FDE68A;
-  --status-info-bg: #DBEAFE;
-  --status-info-text: #1E40AF;
-  --status-info-border: #BFDBFE;
+  /* Enterprise color palette - Light mode (Apple inspired) */
+  --dsv-bg: #FFFFFF;
+  --dsv-card: #FAFBFC;
+  --dsv-border: #E8EAED;
+  --dsv-surface: #F5F6F8;
+  --dsv-accent: #003366;
+
+  /* Status colors - Light mode (Elegant, muted) */
+  --status-success-bg: #E6F4EA;
+  --status-success-text: #1E7E34;
+  --status-success-border: #C8E6C9;
+  --status-error-bg: #FCE8E6;
+  --status-error-text: #C5221F;
+  --status-error-border: #F5C6CB;
+  --status-warn-bg: #FFF4E5;
+  --status-warn-text: #E37400;
+  --status-warn-border: #FFE0B2;
+  --status-info-bg: #E3F2FD;
+  --status-info-text: #1565C0;
+  --status-info-border: #BBDEFB;
 }
 
 @theme inline {
@@ -34,36 +43,51 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 
-  /* Enterprise semantic colors */
-  --color-sysco-bg: var(--sysco-bg);
-  --color-sysco-card: var(--sysco-card);
-  --color-sysco-border: var(--sysco-border);
-  --color-sysco-surface: var(--sysco-surface);
+  /* DSV Brand semantic colors */
+  --color-dsv-navy: var(--dsv-navy);
+  --color-dsv-navy-light: var(--dsv-navy-light);
+  --color-dsv-navy-dark: var(--dsv-navy-dark);
+  --color-dsv-silver: var(--dsv-silver);
+  --color-dsv-silver-light: var(--dsv-silver-light);
+  --color-dsv-silver-dark: var(--dsv-silver-dark);
+  --color-dsv-bg: var(--dsv-bg);
+  --color-dsv-card: var(--dsv-card);
+  --color-dsv-border: var(--dsv-border);
+  --color-dsv-surface: var(--dsv-surface);
+  --color-dsv-accent: var(--dsv-accent);
 }
 
 .dark {
-  --background: #09090B;
-  --foreground: #FAFAFA;
+  --background: #1A1D29;
+  --foreground: #FFFFFF;
 
-  /* Enterprise color palette - Dark mode (Zinc-based) */
-  --sysco-bg: #09090B;
-  --sysco-card: #18181B;
-  --sysco-border: #27272A;
-  --sysco-surface: #121217;
+  /* DSV Dark mode - Navy accented with silver highlights */
+  --dsv-navy: #4D7CA8;
+  --dsv-navy-light: #6B9FD4;
+  --dsv-navy-dark: #003366;
+  --dsv-silver: #8B92A3;
+  --dsv-silver-light: #C0C5CE;
+  --dsv-silver-dark: #5F6573;
 
-  /* Status colors - Dark mode (Subtle, not neon) */
-  --status-success-bg: #052E16;
-  --status-success-text: #4ADE80;
-  --status-success-border: #14532D;
-  --status-error-bg: #450A0A;
-  --status-error-text: #F87171;
-  --status-error-border: #7F1D1D;
-  --status-warn-bg: #422006;
-  --status-warn-text: #FBBF24;
-  --status-warn-border: #713F12;
-  --status-info-bg: #172554;
-  --status-info-text: #60A5FA;
-  --status-info-border: #1E3A8A;
+  --dsv-bg: #1A1D29;
+  --dsv-card: #24273A;
+  --dsv-border: #3A3F52;
+  --dsv-surface: #1F2232;
+  --dsv-accent: #4D7CA8;
+
+  /* Status colors - Dark mode (Elegant, sophisticated) */
+  --status-success-bg: #1E3A2A;
+  --status-success-text: #66D396;
+  --status-success-border: #2D5A3F;
+  --status-error-bg: #3A1E1E;
+  --status-error-text: #F48B8B;
+  --status-error-border: #5A2D2D;
+  --status-warn-bg: #3A2E1E;
+  --status-warn-text: #F5B545;
+  --status-warn-border: #5A4A2D;
+  --status-info-bg: #1E2A3A;
+  --status-info-text: #6B9FD4;
+  --status-info-border: #2D3F5A;
 }
 
 * {

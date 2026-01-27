@@ -1,0 +1,574 @@
+{
+  "shipmentMilestones": {
+    "SHP-ZRH-2026-004892": {
+      "mawbNumber": "618-2847 1956",
+      "customer": "Novartis Pharma AG",
+      "route": "BSL → ZRH → SIN",
+      "temperatureSensitive": true,
+      "temperatureRange": "2-8°C",
+      "milestones": [
+        {
+          "code": "BKD",
+          "description": "Booking Confirmed",
+          "location": "ZRH",
+          "planned": "2026-02-12T09:15:00Z",
+          "actual": "2026-02-12T09:15:00Z",
+          "status": "COMPLETED"
+        },
+        {
+          "code": "RCS",
+          "description": "Cargo Received from Shipper",
+          "location": "BSL",
+          "planned": "2026-02-17T08:00:00+01:00",
+          "actual": "2026-02-17T08:15:00+01:00",
+          "status": "COMPLETED",
+          "temperature": 4.6
+        },
+        {
+          "code": "DEP",
+          "description": "Departed Origin Facility",
+          "location": "BSL",
+          "planned": "2026-02-17T10:00:00+01:00",
+          "actual": "2026-02-17T10:12:00+01:00",
+          "status": "COMPLETED",
+          "temperature": 4.7
+        },
+        {
+          "code": "ARR",
+          "description": "Arrived at Airport",
+          "location": "ZRH",
+          "planned": "2026-02-17T12:00:00+01:00",
+          "actual": "2026-02-17T11:48:00+01:00",
+          "status": "COMPLETED",
+          "temperature": 4.8
+        },
+        {
+          "code": "RCF",
+          "description": "Received from Flight/Checked In",
+          "location": "ZRH",
+          "planned": "2026-02-17T14:00:00+01:00",
+          "actual": "2026-02-17T13:22:00+01:00",
+          "status": "COMPLETED",
+          "temperature": 4.9
+        },
+        {
+          "code": "MAN",
+          "description": "Manifested on Flight",
+          "location": "ZRH",
+          "flight": "SQ345",
+          "planned": "2026-02-17T20:00:00+01:00",
+          "actual": "2026-02-17T19:45:00+01:00",
+          "status": "COMPLETED",
+          "temperature": 5.0
+        },
+        {
+          "code": "DEP",
+          "description": "Flight Departed",
+          "location": "ZRH",
+          "flight": "SQ345",
+          "planned": "2026-02-17T22:30:00+01:00",
+          "actual": "2026-02-17T22:47:00+01:00",
+          "status": "COMPLETED",
+          "temperature": 5.0
+        },
+        {
+          "code": "ARR",
+          "description": "Flight Arrived",
+          "location": "SIN",
+          "flight": "SQ345",
+          "planned": "2026-02-18T16:45:00+08:00",
+          "actual": "2026-02-18T16:52:00+08:00",
+          "status": "COMPLETED",
+          "temperature": 5.2
+        },
+        {
+          "code": "RCF",
+          "description": "Cargo Offloaded",
+          "location": "SIN",
+          "planned": "2026-02-18T17:15:00+08:00",
+          "actual": "2026-02-18T17:23:00+08:00",
+          "status": "COMPLETED",
+          "temperature": 9.4,
+          "alert": {
+            "type": "TEMPERATURE_EXCURSION",
+            "severity": "CRITICAL",
+            "threshold": 8,
+            "reading": 9.4,
+            "message": "Temperature deviated from 2-8°C range to 9.4°C during tarmac offloading"
+          }
+        },
+        {
+          "code": "RCW",
+          "description": "Received at Warehouse",
+          "location": "SIN",
+          "facility": "SATS Coolport",
+          "planned": "2026-02-18T17:45:00+08:00",
+          "actual": "2026-02-18T17:38:00+08:00",
+          "status": "COMPLETED",
+          "temperature": 8.1
+        },
+        {
+          "code": "CUS",
+          "description": "Customs Clearance",
+          "location": "SIN",
+          "planned": "2026-02-18T19:00:00+08:00",
+          "actual": null,
+          "status": "PENDING",
+          "note": "On hold pending QA disposition"
+        },
+        {
+          "code": "DLV",
+          "description": "Delivered to Consignee",
+          "location": "SIN",
+          "planned": "2026-02-19T12:00:00+08:00",
+          "actual": null,
+          "status": "PENDING"
+        }
+      ]
+    },
+    "SHP-AMS-2026-003847": {
+      "mawbNumber": "074-5523 8847",
+      "customer": "BMW AG",
+      "route": "AMS → PVG",
+      "temperatureSensitive": false,
+      "milestones": [
+        {
+          "code": "BKD",
+          "description": "Booking Confirmed",
+          "location": "AMS",
+          "planned": "2026-02-14T11:30:00Z",
+          "actual": "2026-02-14T11:30:00Z",
+          "status": "COMPLETED"
+        },
+        {
+          "code": "RCS",
+          "description": "Cargo Received from Shipper",
+          "location": "AMS",
+          "planned": "2026-02-17T06:00:00+01:00",
+          "actual": "2026-02-17T05:48:00+01:00",
+          "status": "COMPLETED"
+        },
+        {
+          "code": "RCF",
+          "description": "Checked In at Airline",
+          "location": "AMS",
+          "planned": "2026-02-17T10:00:00+01:00",
+          "actual": "2026-02-17T09:32:00+01:00",
+          "status": "COMPLETED"
+        },
+        {
+          "code": "DEP",
+          "description": "Flight Departed",
+          "location": "AMS",
+          "flight": "KL897",
+          "planned": "2026-02-17T14:25:00+01:00",
+          "actual": "2026-02-17T14:32:00+01:00",
+          "status": "COMPLETED"
+        },
+        {
+          "code": "ARR",
+          "description": "Flight Arrived",
+          "location": "PVG",
+          "flight": "KL897",
+          "planned": "2026-02-18T07:45:00+08:00",
+          "actual": null,
+          "status": "IN_PROGRESS"
+        },
+        {
+          "code": "CUS",
+          "description": "Customs Clearance",
+          "location": "PVG",
+          "planned": "2026-02-18T12:00:00+08:00",
+          "actual": null,
+          "status": "PENDING"
+        },
+        {
+          "code": "DLV",
+          "description": "Delivered to Consignee",
+          "location": "Shanghai",
+          "planned": "2026-02-19T14:00:00+08:00",
+          "actual": null,
+          "status": "PENDING"
+        }
+      ]
+    },
+    "SHP-FRA-2026-005621": {
+      "mawbNumber": "020-9912 3345",
+      "customer": "Siemens AG",
+      "route": "FRA → ORD",
+      "temperatureSensitive": false,
+      "milestones": [
+        {
+          "code": "BKD",
+          "description": "Booking Confirmed",
+          "location": "FRA",
+          "planned": "2026-02-13T08:45:00Z",
+          "actual": "2026-02-13T08:45:00Z",
+          "status": "COMPLETED"
+        },
+        {
+          "code": "RCS",
+          "description": "Cargo Received from Shipper",
+          "location": "FRA",
+          "planned": "2026-02-17T07:30:00+01:00",
+          "actual": "2026-02-17T07:22:00+01:00",
+          "status": "COMPLETED"
+        },
+        {
+          "code": "DEP",
+          "description": "Flight Departed",
+          "location": "FRA",
+          "flight": "LH8164",
+          "planned": "2026-02-17T11:15:00+01:00",
+          "actual": "2026-02-17T11:22:00+01:00",
+          "status": "COMPLETED"
+        },
+        {
+          "code": "ARR",
+          "description": "Flight Arrived",
+          "location": "ORD",
+          "flight": "LH8164",
+          "planned": "2026-02-17T14:30:00-06:00",
+          "actual": "2026-02-17T14:18:00-06:00",
+          "status": "COMPLETED"
+        },
+        {
+          "code": "RCF",
+          "description": "Cargo Offloaded",
+          "location": "ORD",
+          "planned": "2026-02-17T15:30:00-06:00",
+          "actual": "2026-02-17T15:15:00-06:00",
+          "status": "COMPLETED"
+        },
+        {
+          "code": "CUS",
+          "description": "Customs Clearance",
+          "location": "ORD",
+          "planned": "2026-02-17T18:00:00-06:00",
+          "actual": null,
+          "status": "IN_PROGRESS"
+        },
+        {
+          "code": "DLV",
+          "description": "Delivered to Consignee",
+          "location": "Chicago",
+          "planned": "2026-02-18T10:00:00-06:00",
+          "actual": null,
+          "status": "PENDING"
+        }
+      ]
+    },
+    "SHP-CPH-2026-002198": {
+      "mawbNumber": "117-6678 4421",
+      "customer": "Novo Nordisk A/S",
+      "route": "CPH → NRT",
+      "temperatureSensitive": true,
+      "temperatureRange": "15-25°C",
+      "milestones": [
+        {
+          "code": "BKD",
+          "description": "Booking Confirmed",
+          "location": "CPH",
+          "planned": "2026-02-15T14:20:00Z",
+          "actual": "2026-02-15T14:20:00Z",
+          "status": "COMPLETED"
+        },
+        {
+          "code": "RCS",
+          "description": "Cargo Received from Shipper",
+          "location": "CPH",
+          "planned": "2026-02-18T05:00:00+01:00",
+          "actual": "2026-02-18T04:52:00+01:00",
+          "status": "COMPLETED",
+          "temperature": 19.8
+        },
+        {
+          "code": "RCF",
+          "description": "Checked In at Airline",
+          "location": "CPH",
+          "planned": "2026-02-18T08:00:00+01:00",
+          "actual": "2026-02-18T07:45:00+01:00",
+          "status": "COMPLETED",
+          "temperature": 20.1
+        },
+        {
+          "code": "DEP",
+          "description": "Flight Departed",
+          "location": "CPH",
+          "flight": "SK983",
+          "planned": "2026-02-18T10:35:00+01:00",
+          "actual": "2026-02-18T10:42:00+01:00",
+          "status": "COMPLETED",
+          "temperature": 20.0
+        },
+        {
+          "code": "ARR",
+          "description": "Flight Arrived",
+          "location": "NRT",
+          "flight": "SK983",
+          "planned": "2026-02-19T06:15:00+09:00",
+          "actual": null,
+          "status": "IN_PROGRESS"
+        },
+        {
+          "code": "CUS",
+          "description": "Customs Clearance",
+          "location": "NRT",
+          "planned": "2026-02-19T10:00:00+09:00",
+          "actual": null,
+          "status": "PENDING"
+        },
+        {
+          "code": "DLV",
+          "description": "Delivered to Consignee",
+          "location": "Tokyo",
+          "planned": "2026-02-19T14:00:00+09:00",
+          "actual": null,
+          "status": "PENDING"
+        }
+      ]
+    },
+    "SHP-LHR-2026-006234": {
+      "mawbNumber": "125-4432 7789",
+      "customer": "AstraZeneca UK Ltd",
+      "route": "LHR → JFK",
+      "temperatureSensitive": true,
+      "temperatureRange": "2-8°C",
+      "milestones": [
+        {
+          "code": "BKD",
+          "description": "Booking Confirmed",
+          "location": "LHR",
+          "planned": "2026-02-10T09:00:00Z",
+          "actual": "2026-02-10T09:00:00Z",
+          "status": "COMPLETED"
+        },
+        {
+          "code": "RCS",
+          "description": "Cargo Received from Shipper",
+          "location": "LHR",
+          "planned": "2026-02-14T08:00:00Z",
+          "actual": "2026-02-14T07:48:00Z",
+          "status": "COMPLETED",
+          "temperature": 4.8
+        },
+        {
+          "code": "DEP",
+          "description": "Flight Departed",
+          "location": "LHR",
+          "flight": "BA117",
+          "planned": "2026-02-14T11:00:00Z",
+          "actual": "2026-02-14T11:08:00Z",
+          "status": "COMPLETED",
+          "temperature": 5.0
+        },
+        {
+          "code": "ARR",
+          "description": "Flight Arrived",
+          "location": "JFK",
+          "flight": "BA117",
+          "planned": "2026-02-14T14:15:00-05:00",
+          "actual": "2026-02-14T14:02:00-05:00",
+          "status": "COMPLETED",
+          "temperature": 5.2
+        },
+        {
+          "code": "CUS",
+          "description": "Customs Clearance",
+          "location": "JFK",
+          "planned": "2026-02-14T18:00:00-05:00",
+          "actual": "2026-02-14T17:32:00-05:00",
+          "status": "COMPLETED"
+        },
+        {
+          "code": "DLV",
+          "description": "Delivered to Consignee",
+          "location": "Newark",
+          "planned": "2026-02-15T09:00:00-05:00",
+          "actual": "2026-02-15T08:45:00-05:00",
+          "status": "COMPLETED",
+          "temperature": 5.1
+        }
+      ]
+    },
+    "SHP-CDG-2026-004501": {
+      "mawbNumber": "057-8821 5567",
+      "customer": "LVMH",
+      "route": "CDG → HKG",
+      "temperatureSensitive": false,
+      "milestones": [
+        {
+          "code": "BKD",
+          "description": "Booking Confirmed",
+          "location": "CDG",
+          "planned": "2026-02-16T10:00:00Z",
+          "actual": "2026-02-16T10:00:00Z",
+          "status": "COMPLETED"
+        },
+        {
+          "code": "RCS",
+          "description": "Cargo Received from Shipper",
+          "location": "CDG",
+          "planned": "2026-02-18T04:30:00+01:00",
+          "actual": "2026-02-18T04:22:00+01:00",
+          "status": "COMPLETED"
+        },
+        {
+          "code": "RCF",
+          "description": "Checked In at Airline",
+          "location": "CDG",
+          "planned": "2026-02-18T10:00:00+01:00",
+          "actual": "2026-02-18T09:45:00+01:00",
+          "status": "COMPLETED"
+        },
+        {
+          "code": "DEP",
+          "description": "Flight Departed",
+          "location": "CDG",
+          "flight": "AF188",
+          "planned": "2026-02-18T13:20:00+01:00",
+          "actual": null,
+          "status": "IN_PROGRESS"
+        },
+        {
+          "code": "ARR",
+          "description": "Flight Arrived",
+          "location": "HKG",
+          "flight": "AF188",
+          "planned": "2026-02-19T07:45:00+08:00",
+          "actual": null,
+          "status": "PENDING"
+        },
+        {
+          "code": "DLV",
+          "description": "Delivered to Consignee",
+          "location": "Hong Kong",
+          "planned": "2026-02-19T16:00:00+08:00",
+          "actual": null,
+          "status": "PENDING"
+        }
+      ]
+    },
+    "SHP-MXP-2026-003892": {
+      "mawbNumber": "055-3347 8812",
+      "customer": "Ferrari S.p.A.",
+      "route": "MXP → LAX",
+      "temperatureSensitive": false,
+      "milestones": [
+        {
+          "code": "BKD",
+          "description": "Booking Confirmed",
+          "location": "MXP",
+          "planned": "2026-02-12T15:00:00Z",
+          "actual": "2026-02-12T15:00:00Z",
+          "status": "COMPLETED"
+        },
+        {
+          "code": "RCS",
+          "description": "Cargo Received from Shipper",
+          "location": "MXP",
+          "planned": "2026-02-15T09:00:00+01:00",
+          "actual": "2026-02-15T08:52:00+01:00",
+          "status": "COMPLETED"
+        },
+        {
+          "code": "DEP",
+          "description": "Flight Departed",
+          "location": "MXP",
+          "flight": "AZ620",
+          "planned": "2026-02-15T14:45:00+01:00",
+          "actual": "2026-02-15T14:52:00+01:00",
+          "status": "COMPLETED"
+        },
+        {
+          "code": "ARR",
+          "description": "Flight Arrived",
+          "location": "LAX",
+          "flight": "AZ620",
+          "planned": "2026-02-15T18:30:00-08:00",
+          "actual": "2026-02-15T18:15:00-08:00",
+          "status": "COMPLETED"
+        },
+        {
+          "code": "RCF",
+          "description": "Cargo Offloaded",
+          "location": "LAX",
+          "planned": "2026-02-15T19:30:00-08:00",
+          "actual": "2026-02-15T19:22:00-08:00",
+          "status": "COMPLETED"
+        },
+        {
+          "code": "CUS",
+          "description": "Customs Clearance",
+          "location": "LAX",
+          "planned": "2026-02-16T10:00:00-08:00",
+          "actual": null,
+          "status": "ON_HOLD",
+          "alert": {
+            "type": "CUSTOMS_DELAY",
+            "severity": "WARNING",
+            "message": "Additional documentation requested by US CBP - Form 7501 amendment required"
+          }
+        },
+        {
+          "code": "DLV",
+          "description": "Delivered to Consignee",
+          "location": "Los Angeles",
+          "planned": "2026-02-18T14:00:00-08:00",
+          "actual": null,
+          "status": "PENDING"
+        }
+      ]
+    },
+    "SHP-DXB-2026-001547": {
+      "mawbNumber": "176-2234 9981",
+      "customer": "Saudi Aramco",
+      "route": "DXB → ICN",
+      "temperatureSensitive": false,
+      "milestones": [
+        {
+          "code": "BKD",
+          "description": "Booking Confirmed",
+          "location": "DXB",
+          "planned": "2026-02-17T08:00:00Z",
+          "actual": "2026-02-17T08:00:00Z",
+          "status": "COMPLETED"
+        },
+        {
+          "code": "RCS",
+          "description": "Cargo Received from Shipper",
+          "location": "DXB",
+          "planned": "2026-02-19T06:00:00+04:00",
+          "actual": null,
+          "status": "PENDING"
+        },
+        {
+          "code": "DEP",
+          "description": "Flight Departed",
+          "location": "DXB",
+          "flight": "EK322",
+          "planned": "2026-02-19T14:55:00+04:00",
+          "actual": null,
+          "status": "PENDING"
+        },
+        {
+          "code": "ARR",
+          "description": "Flight Arrived",
+          "location": "ICN",
+          "flight": "EK322",
+          "planned": "2026-02-20T04:30:00+09:00",
+          "actual": null,
+          "status": "PENDING"
+        },
+        {
+          "code": "DLV",
+          "description": "Delivered to Consignee",
+          "location": "Seoul",
+          "planned": "2026-02-20T16:00:00+09:00",
+          "actual": null,
+          "status": "PENDING"
+        }
+      ]
+    }
+  }
+}

@@ -2,7 +2,8 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
@@ -170,7 +171,7 @@ model Order {
   @@map("orders")
 }
 
-// Agent runs tracking table
+// Agent runs tracking table (for old Sysco demo - keep for compatibility)
 model AgentRun {
   id         Int      @id @default(autoincrement())
   runId      String   @unique @map("run_id")
@@ -196,6 +197,44 @@ enum AgentStatus {
   COMPLETED
   FINISHED
   FAILED
+}
+
+// HappyRobot workflow runs tracking (for DSV demo)
+model HappyRobotRun {
+  id          String   @id @default(uuid())
+  runId       String   @unique @map("run_id") // HappyRobot's run_xxx ID
+
+  // Context - what triggered this run
+  contextType String   @map("context_type") // "email", "shipment", "temperature_alert"
+  contextId   String   @map("context_id")   // Email ID, Shipment ID, etc.
+
+  // Metadata
+  name        String   // Display name for UI
+  description String?  // What this run is doing
+
+  // Status tracking
+  status      HappyRobotStatus @default(PENDING)
+
+  // Store logs/results from HappyRobot
+  metadata    Json     @default("{}")
+
+  // HappyRobot Platform UI link
+  platformUrl String?  @map("platform_url")
+
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([contextId])
+  @@index([status])
+  @@map("happyrobot_runs")
+}
+
+enum HappyRobotStatus {
+  PENDING    // Created, not yet started
+  RUNNING    // Currently executing
+  COMPLETED  // Finished successfully
+  FAILED     // Execution failed
+  CANCELED   // Manually canceled
 }
 
 // Warehouse/Distribution Center locations
@@ -298,4 +337,150 @@ enum ServiceCenterStatus {
   AVAILABLE   // Ready to dispatch
   BUSY        // Currently handling another call
   OFFLINE     // Closed or unavailable
+}
+
+// ===== DSV FREIGHT FORWARDING MODELS =====
+
+// Email inbox classification system
+model Email {
+  id              String   @id @default(uuid())
+  emailId         String   @unique @map("email_id")
+  threadId        String   @map("thread_id")
+
+  fromName        String   @map("from_name")
+  fromEmail       String   @map("from_email")
+  fromCompany     String   @map("from_company")
+  toEmail         String   @map("to_email")
+
+  subject         String
+  receivedAt      DateTime @map("received_at")
+  classification  String   // QUOTE_REQUEST, BOOKING_CONFIRMATION, STATUS_INQUIRY, etc.
+  intent          String   // REQUEST_QUOTE, TRACK_SHIPMENT, etc.
+  priority        String   // URGENT, HIGH, MEDIUM, STANDARD
+  status          String   // NEW, PENDING, PROCESSED, COMPLETED
+
+  assignedRepName  String?  @map("assigned_rep_name")
+  assignedRepEmail String?  @map("assigned_rep_email")
+
+  linkedShipment  String?  @map("linked_shipment")
+  summary         String
+  missingInfo     String[] @map("missing_info")
+  tags            String[]
+  highlight       Boolean  @default(false)
+
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@map("emails")
+}
+
+// Booking/Quotation system
+model Booking {
+  id              String   @id @default(uuid())
+  bookingNumber   String   @unique @map("booking_number")
+  quotationNumber String   @map("quotation_number")
+  shipmentNumber  String?  @map("shipment_number")
+  mawbNumber      String?  @map("mawb_number")
+
+  customerCode    String   @map("customer_code")
+  customerName    String   @map("customer_name")
+  customerReference String @map("customer_reference")
+
+  origin          String
+  originCode      String   @map("origin_code")
+  destination     String
+  destinationCode String   @map("destination_code")
+
+  carrier         String
+  carrierCode     String   @map("carrier_code")
+  flightNumber    String?  @map("flight_number")
+
+  commodity       String
+  pieces          Int
+  weight          Float
+  weightUnit      String   @map("weight_unit")
+  volume          Float
+  volumeUnit      String   @map("volume_unit")
+
+  temperatureSensitive Boolean @default(false) @map("temperature_sensitive")
+  temperatureMin       Float?  @map("temperature_min")
+  temperatureMax       Float?  @map("temperature_max")
+  temperatureSetPoint  Float?  @map("temperature_set_point")
+  temperatureUnit      String? @map("temperature_unit")
+
+  status          String   // CONFIRMED, IN_TRANSIT, DELIVERED, etc.
+  quotationData   Json     @map("quotation_data") // Full quotation JSON
+
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("bookings")
+}
+
+// Air freight shipments
+model Shipment {
+  id                String   @id @default(uuid())
+  shipmentId        String   @unique @map("shipment_id")
+  mawbNumber        String   @map("mawb_number")
+  bookingNumber     String?  @map("booking_number")
+
+  customerCode      String   @map("customer_code")
+  customerName      String   @map("customer_name")
+
+  originCode        String   @map("origin_code")
+  originName        String   @map("origin_name")
+  destinationCode   String   @map("destination_code")
+  destinationName   String   @map("destination_name")
+
+  carrier           String
+  carrierCode       String   @map("carrier_code")
+  flightNumber      String   @map("flight_number")
+
+  status            String   // IN_FLIGHT, ARRIVED, ALERT, etc.
+  alertType         String?  @map("alert_type")
+  alertSeverity     String?  @map("alert_severity")
+
+  temperatureSensitive Boolean @default(false) @map("temperature_sensitive")
+  temperatureMin       Float?  @map("temperature_min")
+  temperatureMax       Float?  @map("temperature_max")
+  temperatureUnit      String? @map("temperature_unit")
+
+  currentLat        Float?   @map("current_lat")
+  currentLng        Float?   @map("current_lng")
+  currentLocation   String?  @map("current_location")
+
+  progress          Int      @default(0) // 0-100
+  lastUpdate        DateTime @default(now()) @map("last_update")
+
+  milestones        ShipmentMilestone[]
+
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  @@map("shipments")
+}
+
+// Shipment milestone tracking
+model ShipmentMilestone {
+  id          String    @id @default(uuid())
+
+  shipmentId  String    @map("shipment_id")
+  shipment    Shipment  @relation(fields: [shipmentId], references: [shipmentId], onDelete: Cascade)
+
+  code        String    // BKD, RCS, DEP, ARR, DLV, etc.
+  description String
+  location    String
+  facility    String?
+  flight      String?
+
+  planned     DateTime?
+  actual      DateTime?
+  status      String    // PENDING, IN_PROGRESS, COMPLETED, ALERT
+
+  temperature Float?    // Temperature reading at this milestone
+  alert       Json?     // Alert details if any
+  note        String?   // Additional notes
+
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  @@map("shipment_milestones")
 }

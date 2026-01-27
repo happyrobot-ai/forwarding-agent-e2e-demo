@@ -1,0 +1,237 @@
+{
+  "mapShipments": [
+    {
+      "shipmentId": "SHP-ZRH-2026-004892",
+      "mawbNumber": "618-2847 1956",
+      "customer": "Novartis",
+      "status": "ALERT",
+      "alertType": "TEMPERATURE_EXCURSION",
+      "alertSeverity": "CRITICAL",
+      "temperatureSensitive": true,
+      "route": {
+        "origin": {
+          "code": "ZRH",
+          "name": "Zurich",
+          "coordinates": { "lat": 47.4647, "lng": 8.5492 }
+        },
+        "destination": {
+          "code": "SIN",
+          "name": "Singapore",
+          "coordinates": { "lat": 1.3644, "lng": 103.9915 }
+        }
+      },
+      "currentPosition": {
+        "coordinates": { "lat": 1.3650, "lng": 103.9920 },
+        "location": "Singapore Changi Airport",
+        "facility": "SATS Coolport",
+        "status": "On Ground - Alert Active"
+      },
+      "flight": {
+        "number": "SQ345",
+        "carrier": "Singapore Airlines",
+        "status": "ARRIVED"
+      },
+      "progress": 95,
+      "lastUpdate": "2026-02-18T17:38:00+08:00"
+    },
+    {
+      "shipmentId": "SHP-AMS-2026-003847",
+      "mawbNumber": "074-5523 8847",
+      "customer": "BMW",
+      "status": "IN_FLIGHT",
+      "alertType": null,
+      "alertSeverity": null,
+      "temperatureSensitive": false,
+      "route": {
+        "origin": {
+          "code": "AMS",
+          "name": "Amsterdam",
+          "coordinates": { "lat": 52.3105, "lng": 4.7683 }
+        },
+        "destination": {
+          "code": "PVG",
+          "name": "Shanghai",
+          "coordinates": { "lat": 31.1443, "lng": 121.8083 }
+        }
+      },
+      "currentPosition": {
+        "coordinates": { "lat": 45.2, "lng": 68.5 },
+        "location": "In Flight",
+        "status": "Over Kazakhstan"
+      },
+      "flight": {
+        "number": "KL897",
+        "carrier": "KLM Cargo",
+        "status": "IN_FLIGHT",
+        "altitude": 38000,
+        "speed": 560
+      },
+      "progress": 65,
+      "lastUpdate": "2026-02-18T04:30:00Z"
+    },
+    {
+      "shipmentId": "SHP-FRA-2026-005621",
+      "mawbNumber": "020-9912 3345",
+      "customer": "Siemens",
+      "status": "ARRIVED",
+      "alertType": null,
+      "alertSeverity": null,
+      "temperatureSensitive": false,
+      "route": {
+        "origin": {
+          "code": "FRA",
+          "name": "Frankfurt",
+          "coordinates": { "lat": 50.0379, "lng": 8.5622 }
+        },
+        "destination": {
+          "code": "ORD",
+          "name": "Chicago",
+          "coordinates": { "lat": 41.9742, "lng": -87.9073 }
+        }
+      },
+      "currentPosition": {
+        "coordinates": { "lat": 41.9742, "lng": -87.9073 },
+        "location": "Chicago O'Hare",
+        "facility": "Lufthansa Cargo Terminal",
+        "status": "Customs Clearance"
+      },
+      "flight": {
+        "number": "LH8164",
+        "carrier": "Lufthansa Cargo",
+        "status": "ARRIVED"
+      },
+      "progress": 85,
+      "lastUpdate": "2026-02-17T14:45:00-06:00"
+    },
+    {
+      "shipmentId": "SHP-CPH-2026-002198",
+      "mawbNumber": "117-6678 4421",
+      "customer": "Novo Nordisk",
+      "status": "IN_FLIGHT",
+      "alertType": null,
+      "alertSeverity": null,
+      "temperatureSensitive": true,
+      "route": {
+        "origin": {
+          "code": "CPH",
+          "name": "Copenhagen",
+          "coordinates": { "lat": 55.6180, "lng": 12.6508 }
+        },
+        "destination": {
+          "code": "NRT",
+          "name": "Tokyo",
+          "coordinates": { "lat": 35.7647, "lng": 140.3864 }
+        }
+      },
+      "currentPosition": {
+        "coordinates": { "lat": 62.5, "lng": 98.3 },
+        "location": "In Flight",
+        "status": "Over Siberia"
+      },
+      "flight": {
+        "number": "SK983",
+        "carrier": "SAS Cargo",
+        "status": "IN_FLIGHT",
+        "altitude": 41000,
+        "speed": 545
+      },
+      "temperature": {
+        "current": 20.0,
+        "range": "15-25°C",
+        "status": "NORMAL"
+      },
+      "progress": 55,
+      "lastUpdate": "2026-02-18T08:15:00Z"
+    },
+    {
+      "shipmentId": "SHP-CDG-2026-004501",
+      "mawbNumber": "057-8821 5567",
+      "customer": "LVMH",
+      "status": "DEPARTING",
+      "alertType": null,
+      "alertSeverity": null,
+      "temperatureSensitive": false,
+      "route": {
+        "origin": {
+          "code": "CDG",
+          "name": "Paris",
+          "coordinates": { "lat": 49.0097, "lng": 2.5479 }
+        },
+        "destination": {
+          "code": "HKG",
+          "name": "Hong Kong",
+          "coordinates": { "lat": 22.3080, "lng": 113.9185 }
+        }
+      },
+      "currentPosition": {
+        "coordinates": { "lat": 49.0097, "lng": 2.5479 },
+        "location": "Paris CDG",
+        "facility": "Air France Cargo Hub",
+        "status": "Boarding"
+      },
+      "flight": {
+        "number": "AF188",
+        "carrier": "Air France Cargo",
+        "status": "BOARDING"
+      },
+      "progress": 15,
+      "lastUpdate": "2026-02-18T11:30:00+01:00"
+    },
+    {
+      "shipmentId": "SHP-MXP-2026-003892",
+      "mawbNumber": "055-3347 8812",
+      "customer": "Ferrari",
+      "status": "CUSTOMS_HOLD",
+      "alertType": "CUSTOMS_DELAY",
+      "alertSeverity": "WARNING",
+      "temperatureSensitive": false,
+      "route": {
+        "origin": {
+          "code": "MXP",
+          "name": "Milan",
+          "coordinates": { "lat": 45.6306, "lng": 8.7281 }
+        },
+        "destination": {
+          "code": "LAX",
+          "name": "Los Angeles",
+          "coordinates": { "lat": 33.9416, "lng": -118.4085 }
+        }
+      },
+      "currentPosition": {
+        "coordinates": { "lat": 33.9416, "lng": -118.4085 },
+        "location": "Los Angeles LAX",
+        "facility": "US Customs Area",
+        "status": "Customs Hold"
+      },
+      "flight": {
+        "number": "AZ620",
+        "carrier": "Alitalia Cargo",
+        "status": "ARRIVED"
+      },
+      "progress": 80,
+      "lastUpdate": "2026-02-17T16:30:00-08:00"
+    }
+  ],
+  "mapConfig": {
+    "defaultCenter": { "lat": 30, "lng": 50 },
+    "defaultZoom": 2,
+    "refreshInterval": 30000,
+    "flightPathColor": "#003366",
+    "alertColor": "#DC3545",
+    "warningColor": "#FFC107",
+    "normalColor": "#28A745"
+  },
+  "legend": {
+    "statuses": [
+      { "code": "IN_FLIGHT", "label": "In Flight", "color": "#007BFF", "icon": "plane" },
+      { "code": "ARRIVED", "label": "Arrived", "color": "#28A745", "icon": "check-circle" },
+      { "code": "DEPARTING", "label": "Departing", "color": "#17A2B8", "icon": "plane-departure" },
+      { "code": "CUSTOMS_HOLD", "label": "Customs Hold", "color": "#FFC107", "icon": "exclamation-triangle" },
+      { "code": "ALERT", "label": "Alert Active", "color": "#DC3545", "icon": "exclamation-circle" }
+    ],
+    "indicators": [
+      { "code": "TEMP_SENSITIVE", "label": "Temperature Sensitive", "icon": "thermometer-half" },
+      { "code": "HIGH_VALUE", "label": "High Value", "icon": "gem" }
+    ]
+  }
+}

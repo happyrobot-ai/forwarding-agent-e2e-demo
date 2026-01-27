@@ -329,22 +329,22 @@ export function Layout({ children }: { children: React.ReactNode }) {
     subtitle: string;
   }[] = [
     {
-      href: "/dashboard",
+      href: "/inbox",
       icon: LayoutDashboard,
-      label: "Dashboard",
-      subtitle: "Overview & Alerts",
+      label: "Email Inbox",
+      subtitle: "Customer Requests",
     },
     {
-      href: "/orders",
-      customIcon: getManhattanIcon(),
-      label: "Orders",
-      subtitle: "Order Management",
+      href: "/shipments",
+      icon: LayoutDashboard,
+      label: "Shipments",
+      subtitle: "Air Freight",
     },
     {
-      href: "/fleet",
-      customIcon: getSamsaraIcon(),
-      label: "Fleet",
-      subtitle: "Vehicle Tracking",
+      href: "/map",
+      icon: LayoutDashboard,
+      label: "Map View",
+      subtitle: "Live Tracking",
     },
     {
       href: "/agents",
@@ -379,15 +379,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#09090B] flex">
+    <div className="min-h-screen bg-white dark:bg-[#1A1D29] flex">
       {/* Sidebar */}
       <aside
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         className={cn(
           "fixed left-0 top-0 h-screen z-40",
-          "bg-white/80 dark:bg-[#18181B]/90 backdrop-blur-xl",
-          "border-r border-gray-200/60 dark:border-white/[0.08]",
+          "bg-[#FAFBFC]/95 dark:bg-[#24273A]/95 backdrop-blur-xl",
+          "border-r border-[#E8EAED] dark:border-[#3A3F52]",
           "flex flex-col transition-all duration-300 ease-out",
           isCollapsed ? "w-[72px]" : "w-[260px]"
         )}
@@ -395,28 +395,24 @@ export function Layout({ children }: { children: React.ReactNode }) {
         {/* Logo */}
         <div
           className={cn(
-            "h-16 flex items-center border-b border-gray-200/60 dark:border-white/[0.08]",
+            "h-16 flex items-center border-b border-[#E8EAED] dark:border-[#3A3F52]",
             "transition-all duration-300",
             isCollapsed ? "px-4 justify-center" : "px-5"
           )}
         >
           <div className="relative flex items-center">
             {isCollapsed ? (
-              <Image
-                src={getLogoSrc()}
-                alt="HappyRobot AI"
-                width={32}
-                height={32}
-                className="object-contain"
-              />
+              <div className="flex items-center justify-center h-8 w-8 rounded bg-[#003366] dark:bg-[#4D7CA8]">
+                <span className="text-white font-bold text-lg">D</span>
+              </div>
             ) : (
-              <Image
-                src={getLogoSrc()}
-                alt="HappyRobot AI"
-                width={140}
-                height={28}
-                className="object-contain"
-              />
+              <div className="flex items-center gap-2">
+                <div className="flex items-center justify-center h-8 w-8 rounded bg-[#003366] dark:bg-[#4D7CA8]">
+                  <span className="text-white font-bold text-lg">D</span>
+                </div>
+                <span className="text-xl font-semibold text-[#003366] dark:text-[#4D7CA8]">DSV</span>
+                <span className="text-sm text-[#8B92A3] ml-1">Air & Sea</span>
+              </div>
             )}
           </div>
         </div>
@@ -435,8 +431,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
                   "flex items-center gap-3 rounded-lg transition-all duration-200 group relative",
                   isCollapsed ? "px-3 py-2.5 justify-center" : "px-3 py-2.5",
                   isActive
-                    ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-500/25"
-                    : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/[0.06] hover:text-gray-900 dark:hover:text-white"
+                    ? "bg-[#003366] dark:bg-[#4D7CA8] text-white shadow-lg shadow-[#003366]/20"
+                    : "text-gray-600 dark:text-gray-400 hover:bg-[#F5F6F8] dark:hover:bg-white/[0.06] hover:text-gray-900 dark:hover:text-white"
                 )}
               >
                 {item.customIcon ? (

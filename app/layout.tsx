@@ -19,8 +19,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Sysco Supply Chain AI - Demo",
-  description: "Self-healing supply chain powered by AI agents",
+  title: "DSV Air & Sea - AI Platform",
+  description: "Intelligent freight forwarding powered by AI",
 };
 
 // Force dynamic rendering to prevent build-time static generation

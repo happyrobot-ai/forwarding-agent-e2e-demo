@@ -1,43 +1,41 @@
-# Sysco Supply Chain AI - Self-Healing Demo
+# DSV Air & Sea - AI Freight Forwarding Demo
 
-A demonstration of AI agents autonomously resolving supply chain disruptions through real-time negotiation and orchestration.
+A demonstration of AI-powered proactive communication for temperature-sensitive air freight, showcasing real-time monitoring and customer engagement.
 
 ## Overview
 
-This application showcases a "Self-Healing Supply Chain" where AI agents don't just alert humans to problems—they actively solve them. When a critical shipment fails, agents negotiate with suppliers and coordinate fleet rerouting in real-time, all displayed through an interactive dashboard.
+This application demonstrates DSV's intelligent freight forwarding platform with AI-powered email classification, temperature monitoring, and proactive customer communication. When temperature deviations are detected on sensitive cargo, AI agents autonomously reach out to customers with detailed information and resolution plans.
 
 ### Key Features
 
-- **Real-time Fleet Map** - Interactive Mapbox visualization with 50+ trucks across Texas
-- **Live Incident Tracking** - Radar-ping animations highlight critical orders
-- **War Room Modal** - Command center for incident response with live agent coordination
-- **68 Roadside Assistance Centers** - Strategic service network across major Texas interstates
-- **Real-time Updates** - Pusher WebSocket integration for instant dashboard updates
-- **Service Level Monitoring** - Live tracking against 99.9% SLA target
-- **SWR Data Fetching** - Optimistic updates with automatic revalidation
-- **HappyRobot AI Integration** - External AI agent orchestration via webhooks
-- **Driver Discovery** - Automatic detection of available drivers for trailer relay
-- **Incident Logging** - Persisted timeline with real-time Pusher broadcasting
+- **Email Classification Inbox** - AI-powered email triage with priority scoring and missing information detection
+- **Live Shipment Dashboard** - Track temperature-sensitive air freight with real-time status updates
+- **Global Air Freight Map** - Interactive Mapbox globe visualization with flight routes and temperature monitoring
+- **Proactive Temperature Alerts** - Automatic detection and customer outreach when deviations occur
+- **Real-time Updates** - Redis + SSE for instant dashboard updates without timeouts
+- **Shipment Milestones** - Detailed timeline tracking with temperature data at each checkpoint
+- **HappyRobot AI Integration** - Voice agent workflows for customer communication
+- **DSV Branding** - Navy, white, and silver color scheme inspired by Apple design principles
 
 ## Tech Stack
 
 - **Frontend:** Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS 4
-- **Data Fetching:** SWR with optimistic updates and Pusher integration
-- **Maps:** Mapbox GL JS with custom clustering and route visualization
+- **Maps:** Mapbox GL JS with globe projection for air freight routes
 - **Backend:** Next.js API Routes
-- **Database:** PostgreSQL via Prisma 7 ORM
-- **Real-time:** Pusher (WebSockets)
-- **Deployment:** Railway / Vercel
-- **AI Agents:** HappyRobot integration via webhooks
+- **Database:** PostgreSQL via Prisma ORM
+- **Real-time:** Redis + Server-Sent Events (SSE)
+- **Deployment:** Railway
+- **AI Voice Agents:** HappyRobot platform integration
 
 ## Getting Started
 
 ### Prerequisites
 
 - Node.js 18+ and npm
-- PostgreSQL database (local or Railway)
-- Pusher account (free tier works)
+- PostgreSQL database (Railway recommended)
+- Redis instance (Railway recommended)
 - Mapbox account (for map tokens)
+- HappyRobot account (for AI voice workflows)
 
 ### Installation
 
@@ -45,44 +43,33 @@ This application showcases a "Self-Healing Supply Chain" where AI agents don't j
 
 ```bash
 git clone <repository-url>
-cd sysco-supply-chain-demo
+cd dsv_demo
 npm install
 ```
 
 2. **Set up environment variables:**
 
-Copy `.env.example` to `.env` and configure:
+Copy `.env.example` to `.env.local` and configure:
 
 ```bash
-# Database (Railway PostgreSQL or local)
-DATABASE_URL="postgresql://user:password@localhost:5432/sysco_demo"
+# Database (Railway PostgreSQL)
+DATABASE_URL="postgresql://user:password@host:port/database"
 
-# Pusher (get from https://dashboard.pusher.com)
-PUSHER_APP_ID="your_app_id"
-PUSHER_KEY="your_key"
-PUSHER_SECRET="your_secret"
-PUSHER_CLUSTER="us2"
+# Redis (Railway Redis)
+REDIS_URL="redis://default:password@host:port"
 
-NEXT_PUBLIC_PUSHER_KEY="your_key"
-NEXT_PUBLIC_PUSHER_CLUSTER="us2"
+# HappyRobot Integration
+HAPPYROBOT_WEBHOOK_URL="https://run.happyrobot.ai/..."
+HAPPYROBOT_API_KEY="hr_api_xxxxxxxxxxxxx"
+HAPPYROBOT_ORG_ID="org_xxxxxxxxxxxxx"
+HAPPYROBOT_X_API_KEY="your_api_key_here"
+
+# App URL (for callback URLs)
+APP_URL="https://your-app.railway.app"
+NEXT_PUBLIC_APP_URL="https://your-app.railway.app"
 
 # Mapbox (get from https://account.mapbox.com)
 NEXT_PUBLIC_MAPBOX_TOKEN="your_mapbox_token"
-
-# HappyRobot AI Integration
-HAPPYROBOT_WEBHOOK_URL="https://your-happyrobot-endpoint.com/webhook"
-WEBHOOK_API_KEY="your_shared_secret"
-
-# HappyRobot Platform API (for polling run status)
-HAPPYROBOT_API_KEY="your_happyrobot_api_key"
-HAPPYROBOT_ORG_ID="your_happyrobot_org_id"
-
-# HappyRobot Platform UI (for linking to runs in the dashboard)
-NEXT_PUBLIC_HAPPYROBOT_ORG="your_org_slug"
-NEXT_PUBLIC_HAPPYROBOT_WORKFLOW_ID="your_workflow_id"
-
-# App URL (for callback URLs)
-NEXT_PUBLIC_APP_URL="http://localhost:3000"
 ```
 
 3. **Set up the database:**
@@ -93,9 +80,6 @@ npx prisma generate
 
 # Push schema to database
 npx prisma db push
-
-# Seed with demo data (50+ orders, trucks, service centers)
-npx prisma db seed
 ```
 
 4. **Run the development server:**
@@ -106,310 +90,387 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) to see the dashboard.
 
+For detailed setup instructions, see [DSV_SETUP.md](./DSV_SETUP.md).
+
 ## API Endpoints
 
-### Trigger Incident
+### Demo Control
 
-Trigger a new incident via API (useful for demos):
-
+**Reset Demo:**
 ```bash
-# Basic trigger (random order, default description)
-curl -X POST http://localhost:3000/api/demo/trigger \
-  -H "Content-Type: application/json" \
-  -d '{}'
+POST /api/demo/reset
 
-# With custom description
-curl -X POST http://localhost:3000/api/demo/trigger \
-  -H "Content-Type: application/json" \
-  -d '{"description": "Refrigeration unit failed. Temperature rising above safe threshold."}'
-
-# With specific order ID and description
-curl -X POST http://localhost:3000/api/demo/trigger \
-  -H "Content-Type: application/json" \
-  -d '{"orderId": "ORD-001", "description": "Highway accident caused 3-hour delay."}'
+# Clears all data and re-seeds with initial state
+# Returns: { success: true, seeded: { emails: 3, shipments: N } }
 ```
 
-**Parameters:**
-| Field | Type | Description |
-|-------|------|-------------|
-| `orderId` | string (optional) | Specific order to create incident for |
-| `description` | string (optional) | Custom incident description |
+### HappyRobot Integration
 
-### Reset Demo
-
-Reset the demo state (clears incidents, restores orders):
-
+**Trigger Workflow:**
 ```bash
-curl -X POST http://localhost:3000/api/demo/reset
-```
-
-### Discovery & Workflow
-
-**Trigger Resource Discovery:**
-```bash
-POST /api/incidents/{id}/discover
-
-# Response: { "status": "STARTED" | "RUNNING" | "COMPLETED" }
-# Pusher events: resource-located, driver-located, discovery-complete
-```
-
-**Trigger HappyRobot AI Workflow:**
-```bash
-POST /api/happyrobot/trigger_workflow
+POST /api/happyrobot/trigger
 Content-Type: application/json
 
 {
-  "incident_id": "uuid",
-  "center_phone": "+1555123456",  // Optional: override for demo
-  "trucker_phone": "+1555654321"  // Optional: override for demo
+  "contextType": "temperature_alert",
+  "contextId": "SHP-ZRH-SIN-001",
+  "name": "Temperature Alert - Customer Name",
+  "description": "Outbound call for temperature excursion",
+  "shipmentId": "SHP-ZRH-SIN-001",
+  "alert": {
+    "type": "TEMPERATURE_EXCURSION",
+    "severity": "CRITICAL",
+    "currentTemp": 9.4,
+    "thresholdTemp": 8
+  }
 }
 ```
 
-**Get Incident Logs:**
+**Get Run Status:**
 ```bash
-GET /api/incidents/{id}/logs
+GET /api/happyrobot/status?runId=run_xxxxx
 
-# Returns array of IncidentLog entries with timestamp, message, source, status
+# Returns: { status: "PENDING" | "RUNNING" | "COMPLETED" | "FAILED" }
 ```
 
-### Webhook Endpoints
-
-For AI agent platform integration:
-
-**Agent Log (Real-time Updates):**
+**List Runs:**
 ```bash
-POST /api/webhooks/agent-log
+GET /api/happyrobot/runs?contextId=SHP-ZRH-SIN-001
+
+# Returns array of HappyRobotRun records
+```
+
+### Webhook Endpoints (For HappyRobot to call)
+
+**Receive Workflow Callbacks:**
+```bash
+POST /api/webhooks/happyrobot
 Content-Type: application/json
-X-API-KEY: your_webhook_key
 
 {
-  "incident_id": "uuid",
-  "message": "Contacting service center...",
-  "source": "AGENT:FACILITY",  // ORCHESTRATOR, AGENT:FACILITY, AGENT:DRIVER
-  "status": "INFO"             // INFO, SUCCESS, WARNING, ERROR
+  "event": "log" | "completed" | "failed",
+  "run_id": "run_xxxxx",
+  "message": "Call completed successfully",
+  "timestamp": "2026-01-25T10:00:00Z"
 }
 ```
 
-**Agent Update:**
+### Data Entry Endpoints (For external platforms)
+
+**Email Received:**
 ```bash
-POST /api/webhooks/agent-update
+POST /api/happyrobot/email
 Content-Type: application/json
 
 {
-  "run_id": "supplier-agent-12345",
-  "stage": "supplier_negotiation",
-  "status": "success",
-  "reasoning": "Supplier confirmed 5 pallets available. Arranging pickup.",
-  "ui_action": "update_map"
+  "emailId": "EMAIL-2026-01-25-001",
+  "from": {
+    "name": "Dr. Helena Müller",
+    "email": "helena.mueller@pharmanova.ch",
+    "company": "PharmaNova AG"
+  },
+  "classification": "QUOTE_REQUEST",
+  "priority": "HIGH",
+  "missingInfo": ["pickupDate"],
+  "assignedRep": {
+    "name": "Sarah Chen",
+    "email": "sarah.chen@dsv.com"
+  }
 }
 ```
 
-**Resolution:**
+**Booking Created:**
 ```bash
-POST /api/webhooks/resolution
+POST /api/happyrobot/booking
 Content-Type: application/json
 
 {
-  "incident_id": "uuid",
-  "summary": "Crisis resolved. Backup inventory secured from Texas Quality Meats."
+  "bookingNumber": "BKG-2026-001",
+  "quotation": { ... },
+  "customerDetails": { ... },
+  "temperatureControl": {
+    "required": true,
+    "minTemp": 2,
+    "maxTemp": 8
+  }
+}
+```
+
+**Temperature Alert:**
+```bash
+POST /api/happyrobot/temperature-alert
+Content-Type: application/json
+
+{
+  "shipmentId": "SHP-ZRH-SIN-001",
+  "alert": {
+    "type": "TEMPERATURE_EXCURSION",
+    "severity": "CRITICAL",
+    "reading": 9.4,
+    "threshold": 8,
+    "location": "Singapore Changi Airport"
+  }
 }
 ```
 
 ## Data Model
 
-### Orders
-- 50+ active orders with real Mapbox routes across Texas
-- Status: `PENDING`, `IN_TRANSIT`, `AT_RISK`, `DELIVERED`, `CANCELLED`
-- Risk scoring (0-100) with visual indicators
-- Full financial data: costPrice, sellPrice, internalBaseCost, actualLogisticsCost
+### Emails
+- Customer emails classified by AI (quote requests, status inquiries, etc.)
+- Fields: classification, priority, intent, status, assignedRep
+- Missing information tracking for quote validation
+- Tags for categorization (temperature_sensitive, urgent, etc.)
 
-### Trucks (Samsara Integration)
-- Fleet of refrigerated, dry van, flatbed, and tanker trucks
-- Real GPS coordinates along route paths
-- Driver assignments with contact info
+### Bookings
+- Validated quotes from customer emails
+- Links to original email via threadId
+- Customer details and pricing information
+- Temperature control requirements
 
-### Incidents
-- Links to affected order with full context
-- Discovery status: `PENDING`, `RUNNING`, `COMPLETED`
-- Status: `ACTIVE`, `RESOLVED`, `FAILED`
+### Shipments
+- Active air freight shipments with real-time tracking
+- Status: `IN_TRANSIT`, `IN_FLIGHT`, `ALERT`, `DELIVERED`
+- Temperature monitoring (min/max ranges, current readings)
+- Flight information (carrier, flight number, MAWB)
+- Current GPS position for map visualization
+- Progress percentage (0-100)
 
-### Incident Logs
-- Persisted timeline for each incident
-- Sources: `SYSTEM`, `ORCHESTRATOR`, `DISCOVERY`, `AGENT:FACILITY`, `AGENT:DRIVER`
-- Status levels: `INFO`, `SUCCESS`, `WARNING`, `ERROR`
-- Real-time broadcasting via Pusher
+### Shipment Milestones
+- Timeline of shipment events (DEP, ARR, RCS, DLV, etc.)
+- Planned vs. actual timestamps
+- Temperature readings at each checkpoint
+- Alert data when temperature deviations occur
+- Location and facility information
 
-### Incident Candidates (Unified Discovery)
-Polymorphic table linking incidents to discovered resources:
-- **Service Centers** - Nearby repair shops, towing, mobile mechanics
-- **Warehouses** - Sysco hubs for backup inventory
-- **Drivers** - Available trucks for trailer relay (DELIVERED or 85%+ progress)
-
-Each candidate stores distance, rank, and type-specific data (driver location, progress, nearest drop-off).
-
-### Service Centers (Roadside Assistance Network)
-68 locations across Texas interstates:
-- **42 Truck Stops** - 24/7 full service (Pilot, Love's, TA)
-- **6 Repair Shops** - Specialized mechanical services
-- **5 Mobile Mechanics** - On-site repair
-- **5 Towing Services** - Heavy-duty recovery
-- **4 Tire Centers** - Tire specialists
-- **4 Refrigeration Specialists** - Reefer repair
-
-### Warehouses
-5 Sysco distribution centers:
-- Dallas (Broadline Hub)
-- Houston (Broadline Hub)
-- San Antonio (Regional)
-- Austin (Regional)
-- El Paso (Regional)
+### HappyRobotRun
+- Tracks AI workflow executions
+- Context tracking (temperature_alert, email_classification, etc.)
+- Status: `PENDING`, `RUNNING`, `COMPLETED`, `FAILED`
+- Platform integration (run IDs, URLs, logs)
+- Real-time status polling and webhook updates
 
 ## Demo Script
 
-### Phase 1: The Setup (Green Dashboard)
+### Phase 1: Email Classification (`/inbox`)
 
-**Presenter:** "This is the Sysco Supply Chain Command Center. Everything is running smoothly—99.9% service level, 50+ orders confirmed and in transit across Texas."
-
-### Phase 2: The Disruption
-
-**Action:** Click "Trigger Demo" button or run:
-```bash
-curl -X POST http://localhost:3000/api/demo/trigger \
-  -d '{"description": "Engine failure on I-35. Driver awaiting roadside assistance."}'
-```
-
-**Visual Changes:**
-- Red radar-ping animation pulses on affected truck
-- Alert banner appears with incident details
-- Service level drops (turns red below 99.9%)
-- Order status changes to "AT_RISK"
-
-### Phase 3: The War Room
-
-**Action:** Click on the red alert to open War Room Modal
+**Presenter:** "This is DSV's AI-powered inbox. Customer emails are automatically classified, prioritized, and assigned to the right representatives."
 
 **What You See:**
-- Left side: Focused map showing incident truck location
-- Right side: Live execution log with timestamps
+- Classified emails with priority badges
+- Missing information highlighted (e.g., "pickup date missing")
+- Assigned reps and tags
+- Real-time updates as new emails arrive
 
-**Discovery Flow (Automatic):**
-1. "Initiating geospatial scan for recovery assets..."
-2. Service centers and warehouses appear on map one by one
-3. Available drivers are discovered (trucks that completed or nearly completed deliveries)
-4. "Discovery complete" triggers automatic AI swarm activation
+### Phase 2: Booking Creation
 
-### Phase 4: The AI Swarm
+**Behind the Scenes:** AI agent validates the quote on HappyRobot platform, gathers missing information, creates booking.
 
-**HappyRobot Integration:**
-- Workflow payload sent with incident context, facilities, and drivers
-- Real-time log updates stream via webhook → Pusher
-- Agent coordinates calls to service centers and drivers
+**Result:** Booking appears in system with temperature control requirements.
 
-### Phase 5: The Resolution
+### Phase 3: Shipment Dashboard (`/shipments`)
 
-**Visual Payoff:**
-- Log shows successful coordination messages
-- Service level recovers to 99.9%+
-- Order status updates to "RECOVERED"
+**Presenter:** "The booking becomes an active shipment on our dashboard. Notice the temperature-sensitive badge—this pharmaceutical cargo must stay between 2-8°C."
 
-**Presenter:** "Crisis resolved autonomously. This is the future of supply chain orchestration."
+**What You See:**
+- Shipment cards with temperature ranges
+- Status indicators (IN_FLIGHT, IN_TRANSIT)
+- Flight information (carrier, MAWB, route)
+- Progress bars
+
+### Phase 4: Map View (`/map`)
+
+**Action:** Navigate to `/map`
+
+**Presenter:** "Our global air freight map shows all active shipments in real-time on a 3D globe. Flight routes connect major airport hubs worldwide."
+
+**What You See:**
+- Globe visualization with flight paths
+- Airport markers (ZRH, SIN, AMS, etc.)
+- Plane icons showing current positions
+- Temperature-sensitive shipments highlighted
+
+### Phase 5: Temperature Alert (Automatic)
+
+**What Happens:**
+- System detects temperature excursion (9.4°C, exceeds 8°C threshold)
+- Red pulsing marker appears on map
+- Alert modal automatically pops up after 2 seconds
+
+**Alert Modal Shows:**
+- Current reading: 9.4°C (in red)
+- Allowed range: 2-8°C
+- Location: Singapore Changi Airport
+- Shipment details and customer name
+
+### Phase 6: Proactive Customer Communication
+
+**Action:** Click "Proceed to Call Customer"
+
+**What Happens:**
+- HappyRobot workflow triggered
+- AI voice agent initiates outbound call to customer
+- Modal shows: "Initiating Outbound Call... AI agent is connecting with customer"
+- Link to HappyRobot Platform for call details
+
+**Presenter:** "Instead of waiting for the customer to discover the issue, our AI agent proactively calls them with detailed information about the temperature deviation, the corrective actions taken, and estimated impact. This is the future of freight forwarding—anticipating problems and communicating before customers even know there's an issue."
 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│  Frontend (Next.js + React + SWR)                           │
-│  ├── Dashboard Page (real-time order/fleet view)           │
-│  ├── FleetMap Component (Mapbox GL JS)                     │
-│  ├── WarRoomModal (incident command center)                │
-│  └── SWR Hooks (useOrders, useIncidents, useAgents, etc.)  │
-└─────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│  Frontend (Next.js + React)                                  │
+│  ├── Email Inbox (/inbox)                                   │
+│  ├── Shipments Dashboard (/shipments)                       │
+│  ├── Air Freight Map (/map) - Mapbox GL globe              │
+│  ├── Temperature Alert Modal (proactive popup)              │
+│  └── useSSE Hook (real-time updates via Server-Sent Events) │
+└──────────────────────────────────────────────────────────────┘
                               │
                               ▼
-┌─────────────────────────────────────────────────────────────┐
-│  API Routes (Next.js)                                       │
-│  ├── /api/demo/trigger - Create incidents                  │
-│  ├── /api/demo/reset - Reset demo state                    │
-│  ├── /api/incidents/{id}/discover - Resource discovery     │
-│  ├── /api/incidents/{id}/logs - Incident timeline          │
-│  ├── /api/happyrobot/trigger_workflow - AI orchestration   │
-│  └── /api/webhooks/agent-log - Real-time agent updates     │
-└─────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│  API Routes (Next.js)                                        │
+│  ├── /api/events - SSE endpoint for real-time updates       │
+│  ├── /api/demo/reset - Reset demo state                     │
+│  ├── /api/happyrobot/trigger - Trigger workflows            │
+│  ├── /api/happyrobot/status - Poll run status               │
+│  ├── /api/happyrobot/runs - List workflow runs              │
+│  ├── /api/webhooks/happyrobot - Receive callbacks           │
+│  ├── /api/happyrobot/email - Email received event           │
+│  ├── /api/happyrobot/booking - Booking created event        │
+│  └── /api/happyrobot/temperature-alert - Alert event        │
+└──────────────────────────────────────────────────────────────┘
                               │
-              ┌───────────────┴───────────────┐
-              ▼                               ▼
-┌─────────────────────────┐     ┌─────────────────────────────┐
-│  PostgreSQL (Prisma)    │     │  Pusher (WebSockets)        │
-│  ├── Orders             │     │  ├── incident-log event     │
-│  ├── Trucks             │     │  ├── resource-located event │
-│  ├── Incidents          │     │  ├── driver-located event   │
-│  ├── IncidentLogs       │     │  ├── discovery-complete     │
-│  ├── IncidentCandidates │     │  └── demo-complete event    │
-│  ├── ServiceCenters     │     └─────────────────────────────┘
-│  └── Warehouses         │                   │
-└─────────────────────────┘                   ▼
-                              ┌─────────────────────────────┐
-                              │  HappyRobot AI Platform     │
-                              │  ├── Receives workflow POST │
-                              │  ├── Calls facilities/drivers│
-                              │  └── Posts logs via webhook │
-                              └─────────────────────────────┘
+              ┌───────────────┴────────────────┐
+              ▼                                ▼
+┌──────────────────────────┐     ┌──────────────────────────────┐
+│  PostgreSQL (Prisma)     │     │  Redis Pub/Sub               │
+│  ├── Email               │     │  ├── dsv:email:received      │
+│  ├── Booking             │     │  ├── dsv:booking:created     │
+│  ├── Shipment            │     │  ├── dsv:shipment:updated    │
+│  ├── ShipmentMilestone   │     │  ├── dsv:temperature:alert   │
+│  └── HappyRobotRun       │     │  ├── dsv:milestone:updated   │
+└──────────────────────────┘     │  └── dsv:demo:reset          │
+                                 └──────────────────────────────┘
+                                              │
+                                              ▼
+                              ┌──────────────────────────────────┐
+                              │  SSE Connections                 │
+                              │  (Server-Sent Events)            │
+                              │  Real-time push to all clients   │
+                              └──────────────────────────────────┘
+                                              │
+                                              ▼
+                              ┌──────────────────────────────────┐
+                              │  HappyRobot AI Platform          │
+                              │  ├── Voice workflows             │
+                              │  ├── Platform API (status polls) │
+                              │  └── Webhooks (callbacks)        │
+                              └──────────────────────────────────┘
 ```
 
 ## Deployment
 
-### Railway
+### Railway (Recommended)
 
-1. Create new project in Railway
-2. Add PostgreSQL service
-3. Connect GitHub repo
-4. Add environment variables (DATABASE_URL auto-configured)
-5. Add Pusher and Mapbox tokens
-6. Deploy automatically on push
+1. **Create new Railway project**
+   ```bash
+   railway login
+   railway init
+   ```
 
-### Vercel
+2. **Add services:**
+   ```bash
+   # Add PostgreSQL
+   railway add --database postgres
 
-1. Import project to Vercel
-2. Add PostgreSQL database (Neon, Supabase, etc.)
-3. Configure environment variables
-4. Deploy
+   # Add Redis
+   railway add --database redis
+   ```
+
+3. **Configure environment variables:**
+   - `DATABASE_URL` (auto-configured by Railway)
+   - `REDIS_URL` (auto-configured by Railway)
+   - `HAPPYROBOT_WEBHOOK_URL`
+   - `HAPPYROBOT_API_KEY`
+   - `HAPPYROBOT_ORG_ID`
+   - `APP_URL` (your Railway app URL)
+   - `NEXT_PUBLIC_MAPBOX_TOKEN`
+
+4. **Deploy:**
+   ```bash
+   git push
+   # Railway auto-deploys on push
+   ```
+
+5. **Run migrations:**
+   ```bash
+   railway run npx prisma db push
+   ```
+
+See [DSV_SETUP.md](./DSV_SETUP.md) for detailed deployment instructions.
 
 ## Troubleshooting
 
-### Pusher not connecting
+### Redis connection issues
 
-- Verify keys in `.env` match Pusher dashboard
-- Check that `NEXT_PUBLIC_*` vars are set correctly
-- Ensure Pusher cluster matches your account region
+```bash
+# Test Redis connection
+redis-cli -u $REDIS_URL ping
+
+# Should return: PONG
+```
+
+- Verify `REDIS_URL` format: `redis://default:password@host:port`
+- Check Railway Redis service is running
+- Ensure Redis is on same Railway project as app
+
+### SSE not connecting
+
+- Check `/api/events` endpoint is accessible
+- Verify browser EventSource connection in Network tab
+- Check Redis pub/sub channels are correct
+- Ensure firewall/proxy allows SSE connections
 
 ### Database connection errors
 
-- Confirm PostgreSQL is running
-- Verify `DATABASE_URL` format: `postgresql://user:pass@host:5432/db`
-- Run `npx prisma generate` after schema changes
-- Run `npx prisma db push` to sync schema
+```bash
+# Verify DATABASE_URL
+echo $DATABASE_URL
+
+# Reset database schema
+npx prisma db push --force-reset
+
+# View database
+npx prisma studio
+```
 
 ### Map not loading
 
 - Verify `NEXT_PUBLIC_MAPBOX_TOKEN` is set
-- Check Mapbox token has correct scopes enabled
+- Check Mapbox token has GL JS scopes enabled
 - Ensure token hasn't exceeded usage limits
+- Try creating new token at https://account.mapbox.com
 
-### Seed data issues
+### HappyRobot webhooks not received
 
-```bash
-# Reset and reseed database
-npx prisma db push --force-reset
-npx prisma db seed
-```
+1. Check `APP_URL` is set to your public Railway URL
+2. Verify callback URL in HappyRobot workflow: `https://your-app.railway.app/api/webhooks/happyrobot`
+3. Check Railway logs: `railway logs`
+4. Test webhook endpoint manually:
+   ```bash
+   curl -X POST https://your-app.railway.app/api/webhooks/happyrobot \
+     -H "Content-Type: application/json" \
+     -d '{"event":"log","run_id":"test","message":"Test"}'
+   ```
 
-### Testing webhooks locally
+### Testing locally with HappyRobot
 
 Use ngrok to expose localhost:
 
 ```bash
 ngrok http 3000
-# Update agent webhooks to: https://xxx.ngrok.io/api/webhooks/...
+# Set APP_URL=https://xxx.ngrok.io in .env.local
+# Update HappyRobot callback URL to: https://xxx.ngrok.io/api/webhooks/happyrobot
 ```
 
 ## Development
@@ -418,62 +479,92 @@ ngrok http 3000
 
 ```
 ├── app/
-│   ├── dashboard/page.tsx      # Main dashboard
+│   ├── inbox/page.tsx          # Email classification inbox
+│   ├── shipments/page.tsx      # Shipments dashboard
+│   ├── map/page.tsx            # Global air freight map
 │   ├── api/
-│   │   ├── demo/trigger/       # Incident trigger API
-│   │   ├── demo/reset/         # Reset API
-│   │   ├── incidents/[id]/
-│   │   │   ├── discover/       # Resource discovery workflow
-│   │   │   └── logs/           # Incident timeline API
+│   │   ├── events/route.ts     # SSE endpoint
+│   │   ├── demo/reset/         # Demo reset API
 │   │   ├── happyrobot/
-│   │   │   └── trigger_workflow/  # HappyRobot AI integration
+│   │   │   ├── trigger/        # Trigger workflows
+│   │   │   ├── status/         # Poll run status
+│   │   │   ├── runs/           # List runs
+│   │   │   ├── email/          # Email event
+│   │   │   ├── booking/        # Booking event
+│   │   │   └── temperature-alert/  # Alert event
 │   │   └── webhooks/
-│   │       └── agent-log/      # Real-time agent log updates
-│   └── globals.css             # Animations (radar-ping, etc.)
+│   │       └── happyrobot/     # Receive callbacks
+│   └── globals.css             # DSV brand colors
 ├── components/
-│   ├── FleetMap.tsx            # Mapbox fleet visualization
-│   ├── WarRoomModal.tsx        # Incident command center
-│   └── SWRProvider.tsx         # Global SWR configuration
+│   ├── AirFreightMap.tsx       # Mapbox globe visualization
+│   ├── TemperatureAlertModal.tsx  # Alert popup with AI trigger
+│   └── Layout.tsx              # Navigation sidebar
 ├── hooks/
-│   ├── index.ts                # Hook exports
-│   ├── useOrders.ts            # Orders with optimistic updates
-│   ├── useIncidents.ts         # Incidents with active detection
-│   ├── useIncidentLogs.ts      # Real-time log streaming
-│   ├── useAgents.ts            # Agent status tracking
-│   └── useWarehouses.ts        # Warehouse data
+│   ├── useSSE.ts               # SSE connection hook
+│   ├── useHappyRobot.ts        # HappyRobot workflow hook
+│   └── [legacy hooks from Sysco demo...]
 ├── prisma/
-│   ├── schema.prisma           # Database schema
-│   └── seed.ts                 # Demo data generator
-└── lib/
-    ├── prisma.ts               # Database client
-    ├── pusher-server.ts        # Pusher server instance
-    ├── incident-logger.ts      # Unified incident logging
-    └── swr-config.ts           # SWR global configuration
+│   ├── schema.prisma           # Database schema (DSV models)
+│   └── seed.ts                 # Legacy seed (not used)
+├── lib/
+│   ├── prisma.ts               # Database client (db.ts)
+│   ├── redis.ts                # Redis pub/sub
+│   ├── happyrobot.ts           # HappyRobot helpers
+│   └── seed-data/              # Mock JSON data
+│       ├── email-inbox.json
+│       ├── shipments-dashboard.json
+│       ├── map-view.json
+│       └── shipment-milestones.json
+└── DSV_SETUP.md                # Comprehensive setup guide
 ```
 
-### Adding New Service Centers
+### Adding Mock Data
 
-Edit `prisma/seed.ts` and add entries to `SERVICE_CENTERS` array:
+Edit JSON files in `/lib/seed-data/`:
 
-```typescript
+**Email Example:**
+```json
 {
-  id: "SVC-XXX-001",
-  name: "New Service Center",
-  type: "TRUCK_STOP",
-  lat: 32.0000,
-  lng: -97.0000,
-  address: "123 Main St, City, TX",
-  phone: "(555) 123-4567",
-  services: ["TOWING", "TIRE", "MECHANICAL"],
-  is24Hours: true,
-  avgResponseMins: 20,
-  coverageRadius: 50,
-  rating: 4.5,
-  contractTier: "PREFERRED"
+  "emailId": "EMAIL-2026-01-25-001",
+  "from": {
+    "name": "Dr. Helena Müller",
+    "email": "helena.mueller@pharmanova.ch"
+  },
+  "classification": "QUOTE_REQUEST",
+  "priority": "HIGH",
+  "missingInfo": ["pickupDate"]
 }
 ```
 
-Then reseed: `npx prisma db seed`
+**Shipment Example:**
+```json
+{
+  "shipmentId": "SHP-ZRH-SIN-001",
+  "mawbNumber": "176-12345678",
+  "routing": {
+    "origin": { "code": "ZRH", "city": "Zurich" },
+    "destination": { "code": "SIN", "city": "Singapore" }
+  },
+  "temperatureSensitive": true,
+  "temperatureRange": { "min": 2, "max": 8, "unit": "C" }
+}
+```
+
+Then reset demo to load: POST `/api/demo/reset`
+
+## Navigation
+
+- `/inbox` - Email Classification Inbox
+- `/shipments` - Shipments Dashboard
+- `/map` - Global Air Freight Map
+- `/agents` - HappyRobot Workflow Runs
+
+## Support
+
+- **Detailed Setup:** [DSV_SETUP.md](./DSV_SETUP.md)
+- **HappyRobot Docs:** https://docs.happyrobot.ai
+- **Railway Docs:** https://docs.railway.app
+- **Mapbox GL JS:** https://docs.mapbox.com/mapbox-gl-js
 
 ## License
 
@@ -481,4 +572,4 @@ MIT
 
 ---
 
-**Built for the future of autonomous supply chains**
+**DSV Air & Sea - Proactive freight forwarding powered by AI**

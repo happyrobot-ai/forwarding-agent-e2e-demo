@@ -1,0 +1,3221 @@
+{
+  "shipments": [
+    {
+      "shipmentId": "SHP-ZRH-2026-004892",
+      "bookingNumber": "DSV-ZRH-2026-008471",
+      "mawbNumber": "618-2847 1956",
+      "customerReference": "NVS-QR-2026-1247",
+      "status": "ALERT",
+      "statusLabel": "In Transit - Alert Active",
+      "priority": "CRITICAL",
+      "alerts": [
+        {
+          "type": "TEMPERATURE_EXCURSION",
+          "severity": "CRITICAL",
+          "message": "Temperature exceeded 8°C threshold",
+          "timestamp": "2026-02-18T17:23:45+08:00"
+        }
+      ],
+      "temperatureSensitive": true,
+      "temperatureRange": {
+        "min": 2,
+        "max": 8,
+        "unit": "C",
+        "setPoint": 5
+      },
+      "customer": {
+        "code": "NOVARTIS-CH",
+        "name": "Novartis Pharma AG",
+        "contact": "Dr. Helena Müller",
+        "email": "helena.mueller@novartis.com"
+      },
+      "routing": {
+        "origin": {
+          "code": "ZRH",
+          "city": "Zurich",
+          "country": "Switzerland"
+        },
+        "destination": {
+          "code": "SIN",
+          "city": "Singapore",
+          "country": "Singapore"
+        },
+        "carrier": "Singapore Airlines",
+        "carrierCode": "SQ",
+        "flightNumber": "SQ345"
+      },
+      "cargo": {
+        "description": "COSENTYX - Pharmaceutical Biologics",
+        "commodity": "PHARMA",
+        "pieces": 6,
+        "weight": 2847.5,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-17T10:12:00+01:00",
+        "etd": "2026-02-17T22:30:00+01:00",
+        "eta": "2026-02-18T16:45:00+08:00",
+        "estimatedDelivery": "2026-02-19T12:00:00+08:00"
+      },
+      "currentLocation": {
+        "code": "SIN",
+        "name": "Singapore Changi Airport",
+        "facility": "SATS Coolport",
+        "coordinates": {
+          "lat": 1.3650,
+          "lng": 103.9920
+        }
+      },
+      "assignedRep": {
+        "name": "Marco Jansen",
+        "email": "marco.jansen@dsv.com"
+      },
+      "value": {
+        "amount": 3245000,
+        "currency": "CHF"
+      }
+    },
+    {
+      "shipmentId": "SHP-AMS-2026-003847",
+      "bookingNumber": "DSV-AMS-2026-007823",
+      "mawbNumber": "074-5523 8847",
+      "customerReference": "BMW-PO-2026-44521",
+      "status": "IN_TRANSIT",
+      "statusLabel": "In Transit",
+      "priority": "HIGH",
+      "alerts": [],
+      "temperatureSensitive": false,
+      "customer": {
+        "code": "BMW-DE",
+        "name": "BMW AG",
+        "contact": "Klaus Weber",
+        "email": "klaus.weber@bmw.com"
+      },
+      "routing": {
+        "origin": {
+          "code": "AMS",
+          "city": "Amsterdam",
+          "country": "Netherlands"
+        },
+        "destination": {
+          "code": "PVG",
+          "city": "Shanghai",
+          "country": "China"
+        },
+        "carrier": "KLM Cargo",
+        "carrierCode": "KL",
+        "flightNumber": "KL897"
+      },
+      "cargo": {
+        "description": "Automotive Parts - Engine Components",
+        "commodity": "AUTO",
+        "pieces": 12,
+        "weight": 4520.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-17T06:00:00+01:00",
+        "etd": "2026-02-17T14:25:00+01:00",
+        "eta": "2026-02-18T07:45:00+08:00",
+        "estimatedDelivery": "2026-02-19T14:00:00+08:00"
+      },
+      "currentLocation": {
+        "code": "IN_FLIGHT",
+        "name": "In Flight - Over Kazakhstan",
+        "coordinates": {
+          "lat": 45.2,
+          "lng": 68.5
+        }
+      },
+      "assignedRep": {
+        "name": "Anna van der Berg",
+        "email": "anna.vanderberg@dsv.com"
+      },
+      "value": {
+        "amount": 892000,
+        "currency": "EUR"
+      }
+    },
+    {
+      "shipmentId": "SHP-FRA-2026-005621",
+      "bookingNumber": "DSV-FRA-2026-009102",
+      "mawbNumber": "020-9912 3345",
+      "customerReference": "SIEMENS-2026-78432",
+      "status": "CUSTOMS",
+      "statusLabel": "Customs Clearance",
+      "priority": "STANDARD",
+      "alerts": [],
+      "temperatureSensitive": false,
+      "customer": {
+        "code": "SIEMENS-DE",
+        "name": "Siemens AG",
+        "contact": "Martina Schmidt",
+        "email": "martina.schmidt@siemens.com"
+      },
+      "routing": {
+        "origin": {
+          "code": "FRA",
+          "city": "Frankfurt",
+          "country": "Germany"
+        },
+        "destination": {
+          "code": "ORD",
+          "city": "Chicago",
+          "country": "United States"
+        },
+        "carrier": "Lufthansa Cargo",
+        "carrierCode": "LH",
+        "flightNumber": "LH8164"
+      },
+      "cargo": {
+        "description": "Industrial Automation Equipment",
+        "commodity": "MACHINERY",
+        "pieces": 8,
+        "weight": 3200.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-17T07:30:00+01:00",
+        "etd": "2026-02-17T11:15:00+01:00",
+        "eta": "2026-02-17T14:30:00-06:00",
+        "estimatedDelivery": "2026-02-18T10:00:00-06:00"
+      },
+      "currentLocation": {
+        "code": "ORD",
+        "name": "Chicago O'Hare International",
+        "facility": "Lufthansa Cargo Terminal",
+        "coordinates": {
+          "lat": 41.9742,
+          "lng": -87.9073
+        }
+      },
+      "assignedRep": {
+        "name": "Thomas Müller",
+        "email": "thomas.mueller@dsv.com"
+      },
+      "value": {
+        "amount": 1450000,
+        "currency": "EUR"
+      }
+    },
+    {
+      "shipmentId": "SHP-CPH-2026-002198",
+      "bookingNumber": "DSV-CPH-2026-005647",
+      "mawbNumber": "117-6678 4421",
+      "customerReference": "NOVO-2026-BIO-9921",
+      "status": "IN_TRANSIT",
+      "statusLabel": "In Transit",
+      "priority": "HIGH",
+      "alerts": [],
+      "temperatureSensitive": true,
+      "temperatureRange": {
+        "min": 15,
+        "max": 25,
+        "unit": "C",
+        "setPoint": 20
+      },
+      "customer": {
+        "code": "NOVO-DK",
+        "name": "Novo Nordisk A/S",
+        "contact": "Lars Andersen",
+        "email": "lars.andersen@novonordisk.com"
+      },
+      "routing": {
+        "origin": {
+          "code": "CPH",
+          "city": "Copenhagen",
+          "country": "Denmark"
+        },
+        "destination": {
+          "code": "NRT",
+          "city": "Tokyo",
+          "country": "Japan"
+        },
+        "carrier": "SAS Cargo",
+        "carrierCode": "SK",
+        "flightNumber": "SK983"
+      },
+      "cargo": {
+        "description": "OZEMPIC - Pharmaceutical Products",
+        "commodity": "PHARMA",
+        "pieces": 4,
+        "weight": 1850.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-18T05:00:00+01:00",
+        "etd": "2026-02-18T10:35:00+01:00",
+        "eta": "2026-02-19T06:15:00+09:00",
+        "estimatedDelivery": "2026-02-19T14:00:00+09:00"
+      },
+      "currentLocation": {
+        "code": "IN_FLIGHT",
+        "name": "In Flight - Over Siberia",
+        "coordinates": {
+          "lat": 62.5,
+          "lng": 98.3
+        }
+      },
+      "assignedRep": {
+        "name": "Erik Nielsen",
+        "email": "erik.nielsen@dsv.com"
+      },
+      "value": {
+        "amount": 2180000,
+        "currency": "DKK"
+      }
+    },
+    {
+      "shipmentId": "SHP-LHR-2026-006234",
+      "bookingNumber": "DSV-LHR-2026-010456",
+      "mawbNumber": "125-4432 7789",
+      "customerReference": "ASTRA-UK-2026-3341",
+      "status": "DELIVERED",
+      "statusLabel": "Delivered",
+      "priority": "HIGH",
+      "alerts": [],
+      "temperatureSensitive": true,
+      "temperatureRange": {
+        "min": 2,
+        "max": 8,
+        "unit": "C",
+        "setPoint": 5
+      },
+      "customer": {
+        "code": "ASTRA-UK",
+        "name": "AstraZeneca UK Ltd",
+        "contact": "Sarah Thompson",
+        "email": "sarah.thompson@astrazeneca.com"
+      },
+      "routing": {
+        "origin": {
+          "code": "LHR",
+          "city": "London",
+          "country": "United Kingdom"
+        },
+        "destination": {
+          "code": "JFK",
+          "city": "New York",
+          "country": "United States"
+        },
+        "carrier": "British Airways",
+        "carrierCode": "BA",
+        "flightNumber": "BA117"
+      },
+      "cargo": {
+        "description": "Clinical Trial Materials - Oncology",
+        "commodity": "PHARMA",
+        "pieces": 2,
+        "weight": 485.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-14T08:00:00Z",
+        "etd": "2026-02-14T11:00:00Z",
+        "eta": "2026-02-14T14:15:00-05:00",
+        "actualDelivery": "2026-02-15T08:45:00-05:00"
+      },
+      "currentLocation": {
+        "code": "DELIVERED",
+        "name": "Delivered to Consignee",
+        "facility": "AstraZeneca - Newark Facility",
+        "coordinates": {
+          "lat": 40.7357,
+          "lng": -74.1724
+        }
+      },
+      "assignedRep": {
+        "name": "James Wilson",
+        "email": "james.wilson@dsv.com"
+      },
+      "value": {
+        "amount": 4200000,
+        "currency": "GBP"
+      }
+    },
+    {
+      "shipmentId": "SHP-CDG-2026-004501",
+      "bookingNumber": "DSV-CDG-2026-008234",
+      "mawbNumber": "057-8821 5567",
+      "customerReference": "LVMH-2026-HK-8872",
+      "status": "IN_TRANSIT",
+      "statusLabel": "In Transit",
+      "priority": "HIGH",
+      "alerts": [],
+      "temperatureSensitive": false,
+      "customer": {
+        "code": "LVMH-FR",
+        "name": "LVMH Moët Hennessy",
+        "contact": "Marie Dubois",
+        "email": "marie.dubois@lvmh.com"
+      },
+      "routing": {
+        "origin": {
+          "code": "CDG",
+          "city": "Paris",
+          "country": "France"
+        },
+        "destination": {
+          "code": "HKG",
+          "city": "Hong Kong",
+          "country": "Hong Kong"
+        },
+        "carrier": "Air France Cargo",
+        "carrierCode": "AF",
+        "flightNumber": "AF188"
+      },
+      "cargo": {
+        "description": "Luxury Goods - Fashion & Accessories",
+        "commodity": "HIGHVALUE",
+        "pieces": 45,
+        "weight": 1890.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-18T04:30:00+01:00",
+        "etd": "2026-02-18T13:20:00+01:00",
+        "eta": "2026-02-19T07:45:00+08:00",
+        "estimatedDelivery": "2026-02-19T16:00:00+08:00"
+      },
+      "currentLocation": {
+        "code": "CDG",
+        "name": "Paris Charles de Gaulle",
+        "facility": "Air France Cargo Hub",
+        "coordinates": {
+          "lat": 49.0097,
+          "lng": 2.5479
+        }
+      },
+      "assignedRep": {
+        "name": "Pierre Laurent",
+        "email": "pierre.laurent@dsv.com"
+      },
+      "value": {
+        "amount": 8500000,
+        "currency": "EUR"
+      }
+    },
+    {
+      "shipmentId": "SHP-MXP-2026-003892",
+      "bookingNumber": "DSV-MXP-2026-007456",
+      "mawbNumber": "055-3347 8812",
+      "customerReference": "FERRARI-2026-US-442",
+      "status": "CUSTOMS_HOLD",
+      "statusLabel": "Customs Hold",
+      "priority": "HIGH",
+      "alerts": [
+        {
+          "type": "CUSTOMS_DELAY",
+          "severity": "WARNING",
+          "message": "Additional documentation requested by US CBP",
+          "timestamp": "2026-02-17T16:30:00-05:00"
+        }
+      ],
+      "temperatureSensitive": false,
+      "customer": {
+        "code": "FERRARI-IT",
+        "name": "Ferrari S.p.A.",
+        "contact": "Marco Rossi",
+        "email": "marco.rossi@ferrari.com"
+      },
+      "routing": {
+        "origin": {
+          "code": "MXP",
+          "city": "Milan",
+          "country": "Italy"
+        },
+        "destination": {
+          "code": "LAX",
+          "city": "Los Angeles",
+          "country": "United States"
+        },
+        "carrier": "Alitalia Cargo",
+        "carrierCode": "AZ",
+        "flightNumber": "AZ620"
+      },
+      "cargo": {
+        "description": "Automotive Spare Parts - Performance",
+        "commodity": "AUTO",
+        "pieces": 18,
+        "weight": 2340.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-15T09:00:00+01:00",
+        "etd": "2026-02-15T14:45:00+01:00",
+        "eta": "2026-02-15T18:30:00-08:00",
+        "estimatedDelivery": "2026-02-18T14:00:00-08:00"
+      },
+      "currentLocation": {
+        "code": "LAX",
+        "name": "Los Angeles International",
+        "facility": "US Customs Inspection Area",
+        "coordinates": {
+          "lat": 33.9416,
+          "lng": -118.4085
+        }
+      },
+      "assignedRep": {
+        "name": "Giovanni Bianchi",
+        "email": "giovanni.bianchi@dsv.com"
+      },
+      "value": {
+        "amount": 1250000,
+        "currency": "EUR"
+      }
+    },
+    {
+      "shipmentId": "SHP-DXB-2026-001547",
+      "bookingNumber": "DSV-DXB-2026-003298",
+      "mawbNumber": "176-2234 9981",
+      "customerReference": "ARAMCO-2026-KR-112",
+      "status": "BOOKED",
+      "statusLabel": "Booked - Awaiting Pickup",
+      "priority": "STANDARD",
+      "alerts": [],
+      "temperatureSensitive": false,
+      "customer": {
+        "code": "ARAMCO-SA",
+        "name": "Saudi Aramco",
+        "contact": "Ahmed Al-Rashid",
+        "email": "ahmed.alrashid@aramco.com"
+      },
+      "routing": {
+        "origin": {
+          "code": "DXB",
+          "city": "Dubai",
+          "country": "UAE"
+        },
+        "destination": {
+          "code": "ICN",
+          "city": "Seoul",
+          "country": "South Korea"
+        },
+        "carrier": "Emirates",
+        "carrierCode": "EK",
+        "flightNumber": "EK322"
+      },
+      "cargo": {
+        "description": "Oil & Gas Equipment - Drilling Components",
+        "commodity": "INDUSTRIAL",
+        "pieces": 24,
+        "weight": 8920.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-19T06:00:00+04:00",
+        "etd": "2026-02-19T14:55:00+04:00",
+        "eta": "2026-02-20T04:30:00+09:00",
+        "estimatedDelivery": "2026-02-20T16:00:00+09:00"
+      },
+      "currentLocation": {
+        "code": "ORIGIN",
+        "name": "Awaiting Pickup",
+        "facility": "Saudi Aramco - Dubai Logistics Hub",
+        "coordinates": {
+          "lat": 25.0657,
+          "lng": 55.1713
+        }
+      },
+      "assignedRep": {
+        "name": "Fatima Hassan",
+        "email": "fatima.hassan@dsv.com"
+      },
+      "value": {
+        "amount": 3400000,
+        "currency": "USD"
+      }
+    },
+    {
+      "shipmentId": "SHP-GVA-2026-007823",
+      "bookingNumber": "DSV-GVA-2026-011234",
+      "mawbNumber": "085-4421 7823",
+      "customerReference": "ROCHE-2026-CT-4421",
+      "status": "BOOKED",
+      "statusLabel": "Booked - Urgent",
+      "priority": "URGENT",
+      "alerts": [],
+      "temperatureSensitive": true,
+      "temperatureRange": {
+        "min": -25,
+        "max": -15,
+        "unit": "C",
+        "setPoint": -20
+      },
+      "customer": {
+        "code": "ROCHE-CH",
+        "name": "Roche Holding AG",
+        "contact": "Dr. Sophie Martin",
+        "email": "sophie.martin@roche.com"
+      },
+      "routing": {
+        "origin": {
+          "code": "GVA",
+          "city": "Geneva",
+          "country": "Switzerland"
+        },
+        "destination": {
+          "code": "BOS",
+          "city": "Boston",
+          "country": "United States"
+        },
+        "carrier": "Swiss WorldCargo",
+        "carrierCode": "LX",
+        "flightNumber": "LX52"
+      },
+      "cargo": {
+        "description": "Clinical Trial Materials - Frozen Samples",
+        "commodity": "PHARMA",
+        "pieces": 3,
+        "weight": 245.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-20T06:00:00+01:00",
+        "etd": "2026-02-20T10:15:00+01:00",
+        "eta": "2026-02-20T13:25:00-05:00",
+        "estimatedDelivery": "2026-02-21T09:00:00-05:00"
+      },
+      "currentLocation": {
+        "code": "ORIGIN",
+        "name": "Awaiting Pickup",
+        "facility": "Roche - Geneva Campus",
+        "coordinates": {
+          "lat": 46.2044,
+          "lng": 6.1432
+        }
+      },
+      "assignedRep": {
+        "name": "Marco Jansen",
+        "email": "marco.jansen@dsv.com"
+      },
+      "value": {
+        "amount": 5800000,
+        "currency": "CHF"
+      }
+    },
+    {
+      "shipmentId": "SHP-BRU-2026-002341",
+      "bookingNumber": "DSV-BRU-2026-004567",
+      "mawbNumber": "082-3321 4567",
+      "customerReference": "JANSSEN-2026-VAC-112",
+      "status": "IN_TRANSIT",
+      "statusLabel": "In Transit",
+      "priority": "CRITICAL",
+      "alerts": [],
+      "temperatureSensitive": true,
+      "temperatureRange": {
+        "min": 2,
+        "max": 8,
+        "unit": "C",
+        "setPoint": 5
+      },
+      "customer": {
+        "code": "JANSSEN-BE",
+        "name": "Janssen Pharmaceutica",
+        "contact": "Dr. Luc Verhoeven",
+        "email": "luc.verhoeven@janssen.com"
+      },
+      "routing": {
+        "origin": {
+          "code": "BRU",
+          "city": "Brussels",
+          "country": "Belgium"
+        },
+        "destination": {
+          "code": "MEX",
+          "city": "Mexico City",
+          "country": "Mexico"
+        },
+        "carrier": "Brussels Airlines",
+        "carrierCode": "SN",
+        "flightNumber": "SN791"
+      },
+      "cargo": {
+        "description": "COVID Vaccines - Janssen",
+        "commodity": "PHARMA",
+        "pieces": 8,
+        "weight": 1240.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-17T04:00:00+01:00",
+        "etd": "2026-02-17T11:30:00+01:00",
+        "eta": "2026-02-17T17:45:00-06:00",
+        "estimatedDelivery": "2026-02-18T12:00:00-06:00"
+      },
+      "currentLocation": {
+        "code": "IN_FLIGHT",
+        "name": "In Flight - Over Atlantic",
+        "coordinates": {
+          "lat": 32.5,
+          "lng": -45.2
+        }
+      },
+      "assignedRep": {
+        "name": "Sophie Dubois",
+        "email": "sophie.dubois@dsv.com"
+      },
+      "value": {
+        "amount": 12500000,
+        "currency": "EUR"
+      }
+    },
+    {
+      "shipmentId": "SHP-NRT-2026-008934",
+      "bookingNumber": "DSV-NRT-2026-012456",
+      "mawbNumber": "131-8823 4561",
+      "customerReference": "TOYOTA-2026-US-8834",
+      "status": "IN_TRANSIT",
+      "statusLabel": "In Transit",
+      "priority": "HIGH",
+      "alerts": [],
+      "temperatureSensitive": false,
+      "customer": {
+        "code": "TOYOTA-JP",
+        "name": "Toyota Motor Corporation",
+        "contact": "Takeshi Yamamoto",
+        "email": "takeshi.yamamoto@toyota.co.jp"
+      },
+      "routing": {
+        "origin": {
+          "code": "NRT",
+          "city": "Tokyo",
+          "country": "Japan"
+        },
+        "destination": {
+          "code": "LAX",
+          "city": "Los Angeles",
+          "country": "United States"
+        },
+        "carrier": "ANA Cargo",
+        "carrierCode": "NH",
+        "flightNumber": "NH106"
+      },
+      "cargo": {
+        "description": "Automotive Electronics - Hybrid Systems",
+        "commodity": "AUTO",
+        "pieces": 32,
+        "weight": 4280.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-17T22:00:00+09:00",
+        "etd": "2026-02-18T10:30:00+09:00",
+        "eta": "2026-02-18T05:45:00-08:00",
+        "estimatedDelivery": "2026-02-19T10:00:00-08:00"
+      },
+      "currentLocation": {
+        "code": "IN_FLIGHT",
+        "name": "In Flight - Over Pacific",
+        "coordinates": {
+          "lat": 38.5,
+          "lng": -165.2
+        }
+      },
+      "assignedRep": {
+        "name": "Yuki Tanaka",
+        "email": "yuki.tanaka@dsv.com"
+      },
+      "value": {
+        "amount": 2340000,
+        "currency": "JPY"
+      }
+    },
+    {
+      "shipmentId": "SHP-SIN-2026-005672",
+      "bookingNumber": "DSV-SIN-2026-008901",
+      "mawbNumber": "618-5567 2341",
+      "customerReference": "SAMSUNG-2026-EU-4421",
+      "status": "IN_TRANSIT",
+      "statusLabel": "In Transit",
+      "priority": "HIGH",
+      "alerts": [],
+      "temperatureSensitive": false,
+      "customer": {
+        "code": "SAMSUNG-SG",
+        "name": "Samsung Electronics",
+        "contact": "Kevin Park",
+        "email": "kevin.park@samsung.com"
+      },
+      "routing": {
+        "origin": {
+          "code": "SIN",
+          "city": "Singapore",
+          "country": "Singapore"
+        },
+        "destination": {
+          "code": "FRA",
+          "city": "Frankfurt",
+          "country": "Germany"
+        },
+        "carrier": "Singapore Airlines",
+        "carrierCode": "SQ",
+        "flightNumber": "SQ26"
+      },
+      "cargo": {
+        "description": "Semiconductors - Memory Chips",
+        "commodity": "ELECTRONICS",
+        "pieces": 15,
+        "weight": 890.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-17T20:00:00+08:00",
+        "etd": "2026-02-18T01:15:00+08:00",
+        "eta": "2026-02-18T07:30:00+01:00",
+        "estimatedDelivery": "2026-02-18T16:00:00+01:00"
+      },
+      "currentLocation": {
+        "code": "IN_FLIGHT",
+        "name": "In Flight - Over India",
+        "coordinates": {
+          "lat": 22.8,
+          "lng": 78.5
+        }
+      },
+      "assignedRep": {
+        "name": "David Lim",
+        "email": "david.lim@dsv.com"
+      },
+      "value": {
+        "amount": 8900000,
+        "currency": "USD"
+      }
+    },
+    {
+      "shipmentId": "SHP-PEK-2026-003421",
+      "bookingNumber": "DSV-PEK-2026-006543",
+      "mawbNumber": "999-3321 6543",
+      "customerReference": "HUAWEI-2026-EU-2234",
+      "status": "DELIVERED",
+      "statusLabel": "Delivered",
+      "priority": "STANDARD",
+      "alerts": [],
+      "temperatureSensitive": false,
+      "customer": {
+        "code": "HUAWEI-CN",
+        "name": "Huawei Technologies",
+        "contact": "Li Wei",
+        "email": "li.wei@huawei.com"
+      },
+      "routing": {
+        "origin": {
+          "code": "PEK",
+          "city": "Beijing",
+          "country": "China"
+        },
+        "destination": {
+          "code": "AMS",
+          "city": "Amsterdam",
+          "country": "Netherlands"
+        },
+        "carrier": "Air China Cargo",
+        "carrierCode": "CA",
+        "flightNumber": "CA975"
+      },
+      "cargo": {
+        "description": "Telecommunications Equipment",
+        "commodity": "ELECTRONICS",
+        "pieces": 28,
+        "weight": 3450.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-15T06:00:00+08:00",
+        "etd": "2026-02-15T14:20:00+08:00",
+        "eta": "2026-02-15T18:45:00+01:00",
+        "actualDelivery": "2026-02-16T11:30:00+01:00"
+      },
+      "currentLocation": {
+        "code": "DELIVERED",
+        "name": "Delivered to Consignee",
+        "facility": "Huawei EU Distribution Center",
+        "coordinates": {
+          "lat": 52.3702,
+          "lng": 4.8952
+        }
+      },
+      "assignedRep": {
+        "name": "Chen Ming",
+        "email": "chen.ming@dsv.com"
+      },
+      "value": {
+        "amount": 4500000,
+        "currency": "CNY"
+      }
+    },
+    {
+      "shipmentId": "SHP-ICN-2026-006789",
+      "bookingNumber": "DSV-ICN-2026-009876",
+      "mawbNumber": "180-6678 9012",
+      "customerReference": "LG-2026-US-5567",
+      "status": "CUSTOMS",
+      "statusLabel": "Customs Clearance",
+      "priority": "STANDARD",
+      "alerts": [],
+      "temperatureSensitive": false,
+      "customer": {
+        "code": "LG-KR",
+        "name": "LG Electronics",
+        "contact": "Park Ji-sung",
+        "email": "jisung.park@lge.com"
+      },
+      "routing": {
+        "origin": {
+          "code": "ICN",
+          "city": "Seoul",
+          "country": "South Korea"
+        },
+        "destination": {
+          "code": "JFK",
+          "city": "New York",
+          "country": "United States"
+        },
+        "carrier": "Korean Air Cargo",
+        "carrierCode": "KE",
+        "flightNumber": "KE85"
+      },
+      "cargo": {
+        "description": "Consumer Electronics - OLED Displays",
+        "commodity": "ELECTRONICS",
+        "pieces": 42,
+        "weight": 2180.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-16T08:00:00+09:00",
+        "etd": "2026-02-16T14:30:00+09:00",
+        "eta": "2026-02-16T14:45:00-05:00",
+        "estimatedDelivery": "2026-02-17T16:00:00-05:00"
+      },
+      "currentLocation": {
+        "code": "JFK",
+        "name": "JFK International",
+        "facility": "Korean Air Cargo Terminal",
+        "coordinates": {
+          "lat": 40.6413,
+          "lng": -73.7781
+        }
+      },
+      "assignedRep": {
+        "name": "Kim Soo-jin",
+        "email": "soojin.kim@dsv.com"
+      },
+      "value": {
+        "amount": 3200000,
+        "currency": "KRW"
+      }
+    },
+    {
+      "shipmentId": "SHP-MAD-2026-004532",
+      "bookingNumber": "DSV-MAD-2026-007654",
+      "mawbNumber": "075-4421 7654",
+      "customerReference": "INDITEX-2026-CN-8821",
+      "status": "IN_TRANSIT",
+      "statusLabel": "In Transit",
+      "priority": "HIGH",
+      "alerts": [],
+      "temperatureSensitive": false,
+      "customer": {
+        "code": "INDITEX-ES",
+        "name": "Inditex (Zara)",
+        "contact": "Carlos Rodriguez",
+        "email": "carlos.rodriguez@inditex.com"
+      },
+      "routing": {
+        "origin": {
+          "code": "MAD",
+          "city": "Madrid",
+          "country": "Spain"
+        },
+        "destination": {
+          "code": "PVG",
+          "city": "Shanghai",
+          "country": "China"
+        },
+        "carrier": "Iberia Cargo",
+        "carrierCode": "IB",
+        "flightNumber": "IB6888"
+      },
+      "cargo": {
+        "description": "Fashion Apparel - Spring Collection",
+        "commodity": "FASHION",
+        "pieces": 120,
+        "weight": 4850.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-17T05:00:00+01:00",
+        "etd": "2026-02-17T12:40:00+01:00",
+        "eta": "2026-02-18T06:30:00+08:00",
+        "estimatedDelivery": "2026-02-18T18:00:00+08:00"
+      },
+      "currentLocation": {
+        "code": "IN_FLIGHT",
+        "name": "In Flight - Over Central Asia",
+        "coordinates": {
+          "lat": 42.5,
+          "lng": 62.8
+        }
+      },
+      "assignedRep": {
+        "name": "Elena Garcia",
+        "email": "elena.garcia@dsv.com"
+      },
+      "value": {
+        "amount": 2800000,
+        "currency": "EUR"
+      }
+    },
+    {
+      "shipmentId": "SHP-VIE-2026-002178",
+      "bookingNumber": "DSV-VIE-2026-004321",
+      "mawbNumber": "257-2134 5678",
+      "customerReference": "REDBULL-2026-US-1123",
+      "status": "DELIVERED",
+      "statusLabel": "Delivered",
+      "priority": "STANDARD",
+      "alerts": [],
+      "temperatureSensitive": false,
+      "customer": {
+        "code": "REDBULL-AT",
+        "name": "Red Bull GmbH",
+        "contact": "Franz Huber",
+        "email": "franz.huber@redbull.com"
+      },
+      "routing": {
+        "origin": {
+          "code": "VIE",
+          "city": "Vienna",
+          "country": "Austria"
+        },
+        "destination": {
+          "code": "MIA",
+          "city": "Miami",
+          "country": "United States"
+        },
+        "carrier": "Austrian Airlines",
+        "carrierCode": "OS",
+        "flightNumber": "OS87"
+      },
+      "cargo": {
+        "description": "Promotional Materials - F1 Event",
+        "commodity": "GENERAL",
+        "pieces": 65,
+        "weight": 3200.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-12T07:00:00+01:00",
+        "etd": "2026-02-12T10:30:00+01:00",
+        "eta": "2026-02-12T16:15:00-05:00",
+        "actualDelivery": "2026-02-13T10:00:00-05:00"
+      },
+      "currentLocation": {
+        "code": "DELIVERED",
+        "name": "Delivered to Consignee",
+        "facility": "Miami Grand Prix Venue",
+        "coordinates": {
+          "lat": 25.7617,
+          "lng": -80.1918
+        }
+      },
+      "assignedRep": {
+        "name": "Hans Gruber",
+        "email": "hans.gruber@dsv.com"
+      },
+      "value": {
+        "amount": 450000,
+        "currency": "EUR"
+      }
+    },
+    {
+      "shipmentId": "SHP-DUS-2026-007812",
+      "bookingNumber": "DSV-DUS-2026-011234",
+      "mawbNumber": "020-7712 3456",
+      "customerReference": "HENKEL-2026-BR-4421",
+      "status": "IN_TRANSIT",
+      "statusLabel": "In Transit",
+      "priority": "STANDARD",
+      "alerts": [],
+      "temperatureSensitive": false,
+      "customer": {
+        "code": "HENKEL-DE",
+        "name": "Henkel AG",
+        "contact": "Michael Braun",
+        "email": "michael.braun@henkel.com"
+      },
+      "routing": {
+        "origin": {
+          "code": "DUS",
+          "city": "Dusseldorf",
+          "country": "Germany"
+        },
+        "destination": {
+          "code": "GRU",
+          "city": "Sao Paulo",
+          "country": "Brazil"
+        },
+        "carrier": "Lufthansa Cargo",
+        "carrierCode": "LH",
+        "flightNumber": "LH506"
+      },
+      "cargo": {
+        "description": "Industrial Adhesives - Manufacturing",
+        "commodity": "CHEMICALS",
+        "pieces": 34,
+        "weight": 5600.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-17T06:00:00+01:00",
+        "etd": "2026-02-17T22:10:00+01:00",
+        "eta": "2026-02-18T05:30:00-03:00",
+        "estimatedDelivery": "2026-02-18T18:00:00-03:00"
+      },
+      "currentLocation": {
+        "code": "IN_FLIGHT",
+        "name": "In Flight - Over Atlantic",
+        "coordinates": {
+          "lat": 5.2,
+          "lng": -28.5
+        }
+      },
+      "assignedRep": {
+        "name": "Thomas Müller",
+        "email": "thomas.mueller@dsv.com"
+      },
+      "value": {
+        "amount": 890000,
+        "currency": "EUR"
+      }
+    },
+    {
+      "shipmentId": "SHP-MUC-2026-009123",
+      "bookingNumber": "DSV-MUC-2026-013456",
+      "mawbNumber": "020-9012 3456",
+      "customerReference": "AUDI-2026-CN-7723",
+      "status": "BOOKED",
+      "statusLabel": "Booked",
+      "priority": "HIGH",
+      "alerts": [],
+      "temperatureSensitive": false,
+      "customer": {
+        "code": "AUDI-DE",
+        "name": "Audi AG",
+        "contact": "Werner Schmidt",
+        "email": "werner.schmidt@audi.de"
+      },
+      "routing": {
+        "origin": {
+          "code": "MUC",
+          "city": "Munich",
+          "country": "Germany"
+        },
+        "destination": {
+          "code": "PVG",
+          "city": "Shanghai",
+          "country": "China"
+        },
+        "carrier": "Lufthansa Cargo",
+        "carrierCode": "LH",
+        "flightNumber": "LH726"
+      },
+      "cargo": {
+        "description": "Automotive Parts - EV Battery Components",
+        "commodity": "AUTO",
+        "pieces": 16,
+        "weight": 2890.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-19T05:00:00+01:00",
+        "etd": "2026-02-19T13:50:00+01:00",
+        "eta": "2026-02-20T07:15:00+08:00",
+        "estimatedDelivery": "2026-02-20T18:00:00+08:00"
+      },
+      "currentLocation": {
+        "code": "ORIGIN",
+        "name": "Awaiting Pickup",
+        "facility": "Audi Ingolstadt Plant",
+        "coordinates": {
+          "lat": 48.7665,
+          "lng": 11.4258
+        }
+      },
+      "assignedRep": {
+        "name": "Anna van der Berg",
+        "email": "anna.vanderberg@dsv.com"
+      },
+      "value": {
+        "amount": 1850000,
+        "currency": "EUR"
+      }
+    },
+    {
+      "shipmentId": "SHP-ORD-2026-003456",
+      "bookingNumber": "DSV-ORD-2026-006789",
+      "mawbNumber": "006-3345 6789",
+      "customerReference": "ABBOTT-2026-IE-2234",
+      "status": "IN_TRANSIT",
+      "statusLabel": "In Transit",
+      "priority": "HIGH",
+      "alerts": [],
+      "temperatureSensitive": true,
+      "temperatureRange": {
+        "min": 2,
+        "max": 8,
+        "unit": "C",
+        "setPoint": 5
+      },
+      "customer": {
+        "code": "ABBOTT-US",
+        "name": "Abbott Laboratories",
+        "contact": "Jennifer Davis",
+        "email": "jennifer.davis@abbott.com"
+      },
+      "routing": {
+        "origin": {
+          "code": "ORD",
+          "city": "Chicago",
+          "country": "United States"
+        },
+        "destination": {
+          "code": "DUB",
+          "city": "Dublin",
+          "country": "Ireland"
+        },
+        "carrier": "American Airlines Cargo",
+        "carrierCode": "AA",
+        "flightNumber": "AA722"
+      },
+      "cargo": {
+        "description": "Diagnostic Medical Devices",
+        "commodity": "MEDICAL",
+        "pieces": 12,
+        "weight": 680.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-17T14:00:00-06:00",
+        "etd": "2026-02-17T19:45:00-06:00",
+        "eta": "2026-02-18T08:30:00Z",
+        "estimatedDelivery": "2026-02-18T16:00:00Z"
+      },
+      "currentLocation": {
+        "code": "IN_FLIGHT",
+        "name": "In Flight - Over Atlantic",
+        "coordinates": {
+          "lat": 52.5,
+          "lng": -32.8
+        }
+      },
+      "assignedRep": {
+        "name": "James Wilson",
+        "email": "james.wilson@dsv.com"
+      },
+      "value": {
+        "amount": 2100000,
+        "currency": "USD"
+      }
+    },
+    {
+      "shipmentId": "SHP-HKG-2026-008234",
+      "bookingNumber": "DSV-HKG-2026-012567",
+      "mawbNumber": "160-8123 4567",
+      "customerReference": "CATL-2026-DE-5567",
+      "status": "IN_TRANSIT",
+      "statusLabel": "In Transit",
+      "priority": "HIGH",
+      "alerts": [],
+      "temperatureSensitive": false,
+      "customer": {
+        "code": "CATL-CN",
+        "name": "CATL",
+        "contact": "Wang Lei",
+        "email": "wang.lei@catl.com"
+      },
+      "routing": {
+        "origin": {
+          "code": "HKG",
+          "city": "Hong Kong",
+          "country": "Hong Kong"
+        },
+        "destination": {
+          "code": "FRA",
+          "city": "Frankfurt",
+          "country": "Germany"
+        },
+        "carrier": "Cathay Pacific Cargo",
+        "carrierCode": "CX",
+        "flightNumber": "CX289"
+      },
+      "cargo": {
+        "description": "EV Battery Cells - Lithium Ion",
+        "commodity": "DG_BATTERY",
+        "pieces": 24,
+        "weight": 4200.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-17T18:00:00+08:00",
+        "etd": "2026-02-18T00:30:00+08:00",
+        "eta": "2026-02-18T06:45:00+01:00",
+        "estimatedDelivery": "2026-02-18T18:00:00+01:00"
+      },
+      "currentLocation": {
+        "code": "IN_FLIGHT",
+        "name": "In Flight - Over Middle East",
+        "coordinates": {
+          "lat": 28.5,
+          "lng": 52.3
+        }
+      },
+      "assignedRep": {
+        "name": "David Lim",
+        "email": "david.lim@dsv.com"
+      },
+      "value": {
+        "amount": 6500000,
+        "currency": "HKD"
+      }
+    },
+    {
+      "shipmentId": "SHP-MEL-2026-001234",
+      "bookingNumber": "DSV-MEL-2026-002567",
+      "mawbNumber": "081-1123 4567",
+      "customerReference": "CSL-2026-US-1123",
+      "status": "IN_TRANSIT",
+      "statusLabel": "In Transit",
+      "priority": "CRITICAL",
+      "alerts": [],
+      "temperatureSensitive": true,
+      "temperatureRange": {
+        "min": 2,
+        "max": 8,
+        "unit": "C",
+        "setPoint": 5
+      },
+      "customer": {
+        "code": "CSL-AU",
+        "name": "CSL Behring",
+        "contact": "Dr. Sarah Mitchell",
+        "email": "sarah.mitchell@csl.com.au"
+      },
+      "routing": {
+        "origin": {
+          "code": "MEL",
+          "city": "Melbourne",
+          "country": "Australia"
+        },
+        "destination": {
+          "code": "LAX",
+          "city": "Los Angeles",
+          "country": "United States"
+        },
+        "carrier": "Qantas Freight",
+        "carrierCode": "QF",
+        "flightNumber": "QF95"
+      },
+      "cargo": {
+        "description": "Plasma Products - Immunoglobulins",
+        "commodity": "PHARMA",
+        "pieces": 6,
+        "weight": 1450.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-17T06:00:00+11:00",
+        "etd": "2026-02-17T16:30:00+11:00",
+        "eta": "2026-02-17T11:45:00-08:00",
+        "estimatedDelivery": "2026-02-18T10:00:00-08:00"
+      },
+      "currentLocation": {
+        "code": "IN_FLIGHT",
+        "name": "In Flight - Over Pacific",
+        "coordinates": {
+          "lat": -15.5,
+          "lng": -165.2
+        }
+      },
+      "assignedRep": {
+        "name": "Michael Chen",
+        "email": "michael.chen@dsv.com"
+      },
+      "value": {
+        "amount": 8900000,
+        "currency": "AUD"
+      }
+    },
+    {
+      "shipmentId": "SHP-JNB-2026-002345",
+      "bookingNumber": "DSV-JNB-2026-003678",
+      "mawbNumber": "083-2234 5678",
+      "customerReference": "SASOL-2026-EU-3345",
+      "status": "BOOKED",
+      "statusLabel": "Booked",
+      "priority": "STANDARD",
+      "alerts": [],
+      "temperatureSensitive": false,
+      "customer": {
+        "code": "SASOL-ZA",
+        "name": "Sasol Limited",
+        "contact": "Thabo Molefe",
+        "email": "thabo.molefe@sasol.com"
+      },
+      "routing": {
+        "origin": {
+          "code": "JNB",
+          "city": "Johannesburg",
+          "country": "South Africa"
+        },
+        "destination": {
+          "code": "AMS",
+          "city": "Amsterdam",
+          "country": "Netherlands"
+        },
+        "carrier": "South African Airways",
+        "carrierCode": "SA",
+        "flightNumber": "SA264"
+      },
+      "cargo": {
+        "description": "Chemical Samples - Laboratory Testing",
+        "commodity": "CHEMICALS",
+        "pieces": 8,
+        "weight": 320.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-19T08:00:00+02:00",
+        "etd": "2026-02-19T20:55:00+02:00",
+        "eta": "2026-02-20T06:30:00+01:00",
+        "estimatedDelivery": "2026-02-20T14:00:00+01:00"
+      },
+      "currentLocation": {
+        "code": "ORIGIN",
+        "name": "Awaiting Pickup",
+        "facility": "Sasol Secunda Complex",
+        "coordinates": {
+          "lat": -26.5225,
+          "lng": 29.17
+        }
+      },
+      "assignedRep": {
+        "name": "Erik Nielsen",
+        "email": "erik.nielsen@dsv.com"
+      },
+      "value": {
+        "amount": 180000,
+        "currency": "ZAR"
+      }
+    },
+    {
+      "shipmentId": "SHP-MIA-2026-005678",
+      "bookingNumber": "DSV-MIA-2026-008901",
+      "mawbNumber": "006-5567 8901",
+      "customerReference": "PFIZER-2026-BR-7789",
+      "status": "DELIVERED",
+      "statusLabel": "Delivered",
+      "priority": "HIGH",
+      "alerts": [],
+      "temperatureSensitive": true,
+      "temperatureRange": {
+        "min": -80,
+        "max": -60,
+        "unit": "C",
+        "setPoint": -70
+      },
+      "customer": {
+        "code": "PFIZER-US",
+        "name": "Pfizer Inc.",
+        "contact": "Robert Johnson",
+        "email": "robert.johnson@pfizer.com"
+      },
+      "routing": {
+        "origin": {
+          "code": "MIA",
+          "city": "Miami",
+          "country": "United States"
+        },
+        "destination": {
+          "code": "GRU",
+          "city": "Sao Paulo",
+          "country": "Brazil"
+        },
+        "carrier": "LATAM Cargo",
+        "carrierCode": "LA",
+        "flightNumber": "LA8181"
+      },
+      "cargo": {
+        "description": "mRNA Vaccines - Ultra Cold Chain",
+        "commodity": "PHARMA",
+        "pieces": 4,
+        "weight": 380.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-14T04:00:00-05:00",
+        "etd": "2026-02-14T08:30:00-05:00",
+        "eta": "2026-02-14T18:45:00-03:00",
+        "actualDelivery": "2026-02-15T09:30:00-03:00"
+      },
+      "currentLocation": {
+        "code": "DELIVERED",
+        "name": "Delivered to Consignee",
+        "facility": "Pfizer Brazil Distribution",
+        "coordinates": {
+          "lat": -23.5505,
+          "lng": -46.6333
+        }
+      },
+      "assignedRep": {
+        "name": "Carlos Santos",
+        "email": "carlos.santos@dsv.com"
+      },
+      "value": {
+        "amount": 15000000,
+        "currency": "USD"
+      }
+    },
+    {
+      "shipmentId": "SHP-DOH-2026-003456",
+      "bookingNumber": "DSV-DOH-2026-006789",
+      "mawbNumber": "157-3345 6789",
+      "customerReference": "QATARGAS-2026-JP-4456",
+      "status": "IN_TRANSIT",
+      "statusLabel": "In Transit",
+      "priority": "STANDARD",
+      "alerts": [],
+      "temperatureSensitive": false,
+      "customer": {
+        "code": "QATARGAS-QA",
+        "name": "QatarEnergy",
+        "contact": "Mohammed Al-Thani",
+        "email": "mohammed.althani@qatarenergy.qa"
+      },
+      "routing": {
+        "origin": {
+          "code": "DOH",
+          "city": "Doha",
+          "country": "Qatar"
+        },
+        "destination": {
+          "code": "NRT",
+          "city": "Tokyo",
+          "country": "Japan"
+        },
+        "carrier": "Qatar Airways Cargo",
+        "carrierCode": "QR",
+        "flightNumber": "QR806"
+      },
+      "cargo": {
+        "description": "LNG Equipment - Compressor Parts",
+        "commodity": "INDUSTRIAL",
+        "pieces": 18,
+        "weight": 6800.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-17T16:00:00+03:00",
+        "etd": "2026-02-17T23:30:00+03:00",
+        "eta": "2026-02-18T17:15:00+09:00",
+        "estimatedDelivery": "2026-02-19T12:00:00+09:00"
+      },
+      "currentLocation": {
+        "code": "IN_FLIGHT",
+        "name": "In Flight - Over India",
+        "coordinates": {
+          "lat": 18.5,
+          "lng": 82.3
+        }
+      },
+      "assignedRep": {
+        "name": "Fatima Hassan",
+        "email": "fatima.hassan@dsv.com"
+      },
+      "value": {
+        "amount": 2400000,
+        "currency": "QAR"
+      }
+    },
+    {
+      "shipmentId": "SHP-SFO-2026-007890",
+      "bookingNumber": "DSV-SFO-2026-011234",
+      "mawbNumber": "016-7789 0123",
+      "customerReference": "APPLE-2026-CN-9912",
+      "status": "IN_TRANSIT",
+      "statusLabel": "In Transit",
+      "priority": "URGENT",
+      "alerts": [],
+      "temperatureSensitive": false,
+      "customer": {
+        "code": "APPLE-US",
+        "name": "Apple Inc.",
+        "contact": "David Chen",
+        "email": "david.chen@apple.com"
+      },
+      "routing": {
+        "origin": {
+          "code": "SFO",
+          "city": "San Francisco",
+          "country": "United States"
+        },
+        "destination": {
+          "code": "PVG",
+          "city": "Shanghai",
+          "country": "China"
+        },
+        "carrier": "United Cargo",
+        "carrierCode": "UA",
+        "flightNumber": "UA857"
+      },
+      "cargo": {
+        "description": "Consumer Electronics - Product Launch",
+        "commodity": "ELECTRONICS",
+        "pieces": 85,
+        "weight": 3200.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-17T18:00:00-08:00",
+        "etd": "2026-02-18T00:30:00-08:00",
+        "eta": "2026-02-19T05:45:00+08:00",
+        "estimatedDelivery": "2026-02-19T14:00:00+08:00"
+      },
+      "currentLocation": {
+        "code": "IN_FLIGHT",
+        "name": "In Flight - Over Pacific",
+        "coordinates": {
+          "lat": 42.5,
+          "lng": -172.8
+        }
+      },
+      "assignedRep": {
+        "name": "Chen Ming",
+        "email": "chen.ming@dsv.com"
+      },
+      "value": {
+        "amount": 12000000,
+        "currency": "USD"
+      }
+    },
+    {
+      "shipmentId": "SHP-BKK-2026-004567",
+      "bookingNumber": "DSV-BKK-2026-007890",
+      "mawbNumber": "217-4456 7890",
+      "customerReference": "CPALL-2026-JP-5567",
+      "status": "CUSTOMS",
+      "statusLabel": "Customs Clearance",
+      "priority": "STANDARD",
+      "alerts": [],
+      "temperatureSensitive": true,
+      "temperatureRange": {
+        "min": 2,
+        "max": 8,
+        "unit": "C",
+        "setPoint": 5
+      },
+      "customer": {
+        "code": "CPALL-TH",
+        "name": "CP ALL Public Company",
+        "contact": "Somchai Prasert",
+        "email": "somchai.prasert@cpall.co.th"
+      },
+      "routing": {
+        "origin": {
+          "code": "BKK",
+          "city": "Bangkok",
+          "country": "Thailand"
+        },
+        "destination": {
+          "code": "NRT",
+          "city": "Tokyo",
+          "country": "Japan"
+        },
+        "carrier": "Thai Airways",
+        "carrierCode": "TG",
+        "flightNumber": "TG676"
+      },
+      "cargo": {
+        "description": "Fresh Food Products - Ready Meals",
+        "commodity": "PERISHABLE",
+        "pieces": 48,
+        "weight": 2400.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-17T02:00:00+07:00",
+        "etd": "2026-02-17T07:35:00+07:00",
+        "eta": "2026-02-17T15:45:00+09:00",
+        "estimatedDelivery": "2026-02-18T08:00:00+09:00"
+      },
+      "currentLocation": {
+        "code": "NRT",
+        "name": "Narita International",
+        "facility": "Japan Customs Area",
+        "coordinates": {
+          "lat": 35.7647,
+          "lng": 140.3864
+        }
+      },
+      "assignedRep": {
+        "name": "Yuki Tanaka",
+        "email": "yuki.tanaka@dsv.com"
+      },
+      "value": {
+        "amount": 850000,
+        "currency": "THB"
+      }
+    },
+    {
+      "shipmentId": "SHP-ATL-2026-008901",
+      "bookingNumber": "DSV-ATL-2026-012345",
+      "mawbNumber": "006-8890 1234",
+      "customerReference": "COCACOLA-2026-ZA-6678",
+      "status": "DELIVERED",
+      "statusLabel": "Delivered",
+      "priority": "STANDARD",
+      "alerts": [],
+      "temperatureSensitive": false,
+      "customer": {
+        "code": "COCA-US",
+        "name": "The Coca-Cola Company",
+        "contact": "Mark Williams",
+        "email": "mark.williams@coca-cola.com"
+      },
+      "routing": {
+        "origin": {
+          "code": "ATL",
+          "city": "Atlanta",
+          "country": "United States"
+        },
+        "destination": {
+          "code": "JNB",
+          "city": "Johannesburg",
+          "country": "South Africa"
+        },
+        "carrier": "Delta Cargo",
+        "carrierCode": "DL",
+        "flightNumber": "DL200"
+      },
+      "cargo": {
+        "description": "Beverage Concentrate - Syrup",
+        "commodity": "FOOD",
+        "pieces": 32,
+        "weight": 4800.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-13T06:00:00-05:00",
+        "etd": "2026-02-13T18:20:00-05:00",
+        "eta": "2026-02-14T15:30:00+02:00",
+        "actualDelivery": "2026-02-15T11:00:00+02:00"
+      },
+      "currentLocation": {
+        "code": "DELIVERED",
+        "name": "Delivered to Consignee",
+        "facility": "Coca-Cola SA Bottling",
+        "coordinates": {
+          "lat": -26.2041,
+          "lng": 28.0473
+        }
+      },
+      "assignedRep": {
+        "name": "Sophie Dubois",
+        "email": "sophie.dubois@dsv.com"
+      },
+      "value": {
+        "amount": 320000,
+        "currency": "USD"
+      }
+    },
+    {
+      "shipmentId": "SHP-SEA-2026-002345",
+      "bookingNumber": "DSV-SEA-2026-004567",
+      "mawbNumber": "027-2234 5678",
+      "customerReference": "AMAZON-2026-EU-3345",
+      "status": "IN_TRANSIT",
+      "statusLabel": "In Transit",
+      "priority": "HIGH",
+      "alerts": [],
+      "temperatureSensitive": false,
+      "customer": {
+        "code": "AMAZON-US",
+        "name": "Amazon.com Inc.",
+        "contact": "Lisa Thompson",
+        "email": "lisa.thompson@amazon.com"
+      },
+      "routing": {
+        "origin": {
+          "code": "SEA",
+          "city": "Seattle",
+          "country": "United States"
+        },
+        "destination": {
+          "code": "LHR",
+          "city": "London",
+          "country": "United Kingdom"
+        },
+        "carrier": "FedEx",
+        "carrierCode": "FX",
+        "flightNumber": "FX6228"
+      },
+      "cargo": {
+        "description": "E-Commerce Fulfillment - Mixed Goods",
+        "commodity": "GENERAL",
+        "pieces": 156,
+        "weight": 8900.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-17T20:00:00-08:00",
+        "etd": "2026-02-18T02:15:00-08:00",
+        "eta": "2026-02-18T18:30:00Z",
+        "estimatedDelivery": "2026-02-19T10:00:00Z"
+      },
+      "currentLocation": {
+        "code": "IN_FLIGHT",
+        "name": "In Flight - Over Greenland",
+        "coordinates": {
+          "lat": 68.5,
+          "lng": -42.8
+        }
+      },
+      "assignedRep": {
+        "name": "James Wilson",
+        "email": "james.wilson@dsv.com"
+      },
+      "value": {
+        "amount": 1200000,
+        "currency": "USD"
+      }
+    },
+    {
+      "shipmentId": "SHP-EWR-2026-006789",
+      "bookingNumber": "DSV-EWR-2026-010123",
+      "mawbNumber": "006-6678 9012",
+      "customerReference": "JNJ-2026-CH-7789",
+      "status": "BOOKED",
+      "statusLabel": "Booked",
+      "priority": "HIGH",
+      "alerts": [],
+      "temperatureSensitive": true,
+      "temperatureRange": {
+        "min": 15,
+        "max": 25,
+        "unit": "C",
+        "setPoint": 20
+      },
+      "customer": {
+        "code": "JNJ-US",
+        "name": "Johnson & Johnson",
+        "contact": "Patricia Brown",
+        "email": "patricia.brown@jnj.com"
+      },
+      "routing": {
+        "origin": {
+          "code": "EWR",
+          "city": "Newark",
+          "country": "United States"
+        },
+        "destination": {
+          "code": "ZRH",
+          "city": "Zurich",
+          "country": "Switzerland"
+        },
+        "carrier": "Swiss WorldCargo",
+        "carrierCode": "LX",
+        "flightNumber": "LX17"
+      },
+      "cargo": {
+        "description": "Medical Devices - Surgical Instruments",
+        "commodity": "MEDICAL",
+        "pieces": 14,
+        "weight": 520.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-19T10:00:00-05:00",
+        "etd": "2026-02-19T17:30:00-05:00",
+        "eta": "2026-02-20T07:15:00+01:00",
+        "estimatedDelivery": "2026-02-20T14:00:00+01:00"
+      },
+      "currentLocation": {
+        "code": "ORIGIN",
+        "name": "Awaiting Pickup",
+        "facility": "J&J New Brunswick HQ",
+        "coordinates": {
+          "lat": 40.4862,
+          "lng": -74.4518
+        }
+      },
+      "assignedRep": {
+        "name": "Marco Jansen",
+        "email": "marco.jansen@dsv.com"
+      },
+      "value": {
+        "amount": 3800000,
+        "currency": "USD"
+      }
+    },
+    {
+      "shipmentId": "SHP-DFW-2026-003456",
+      "bookingNumber": "DSV-DFW-2026-006789",
+      "mawbNumber": "006-3345 6789",
+      "customerReference": "EXXON-2026-SG-4456",
+      "status": "IN_TRANSIT",
+      "statusLabel": "In Transit",
+      "priority": "STANDARD",
+      "alerts": [],
+      "temperatureSensitive": false,
+      "customer": {
+        "code": "EXXON-US",
+        "name": "ExxonMobil",
+        "contact": "John Anderson",
+        "email": "john.anderson@exxonmobil.com"
+      },
+      "routing": {
+        "origin": {
+          "code": "DFW",
+          "city": "Dallas",
+          "country": "United States"
+        },
+        "destination": {
+          "code": "SIN",
+          "city": "Singapore",
+          "country": "Singapore"
+        },
+        "carrier": "Singapore Airlines",
+        "carrierCode": "SQ",
+        "flightNumber": "SQ21"
+      },
+      "cargo": {
+        "description": "Oil & Gas Equipment - Refinery Parts",
+        "commodity": "INDUSTRIAL",
+        "pieces": 22,
+        "weight": 7200.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-17T05:00:00-06:00",
+        "etd": "2026-02-17T11:45:00-06:00",
+        "eta": "2026-02-18T18:30:00+08:00",
+        "estimatedDelivery": "2026-02-19T12:00:00+08:00"
+      },
+      "currentLocation": {
+        "code": "IN_FLIGHT",
+        "name": "In Flight - Over Pacific",
+        "coordinates": {
+          "lat": 25.5,
+          "lng": 145.2
+        }
+      },
+      "assignedRep": {
+        "name": "David Lim",
+        "email": "david.lim@dsv.com"
+      },
+      "value": {
+        "amount": 1850000,
+        "currency": "USD"
+      }
+    },
+    {
+      "shipmentId": "SHP-YYZ-2026-004567",
+      "bookingNumber": "DSV-YYZ-2026-007890",
+      "mawbNumber": "014-4456 7890",
+      "customerReference": "BOMBARDIER-2026-UK-5567",
+      "status": "DELIVERED",
+      "statusLabel": "Delivered",
+      "priority": "HIGH",
+      "alerts": [],
+      "temperatureSensitive": false,
+      "customer": {
+        "code": "BOMB-CA",
+        "name": "Bombardier Inc.",
+        "contact": "Pierre Tremblay",
+        "email": "pierre.tremblay@bombardier.com"
+      },
+      "routing": {
+        "origin": {
+          "code": "YYZ",
+          "city": "Toronto",
+          "country": "Canada"
+        },
+        "destination": {
+          "code": "LHR",
+          "city": "London",
+          "country": "United Kingdom"
+        },
+        "carrier": "Air Canada Cargo",
+        "carrierCode": "AC",
+        "flightNumber": "AC848"
+      },
+      "cargo": {
+        "description": "Aerospace Components - Landing Gear",
+        "commodity": "AEROSPACE",
+        "pieces": 6,
+        "weight": 1850.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-14T07:00:00-05:00",
+        "etd": "2026-02-14T21:00:00-05:00",
+        "eta": "2026-02-15T09:00:00Z",
+        "actualDelivery": "2026-02-15T16:30:00Z"
+      },
+      "currentLocation": {
+        "code": "DELIVERED",
+        "name": "Delivered to Consignee",
+        "facility": "Bombardier Belfast",
+        "coordinates": {
+          "lat": 54.6181,
+          "lng": -5.8722
+        }
+      },
+      "assignedRep": {
+        "name": "Hans Gruber",
+        "email": "hans.gruber@dsv.com"
+      },
+      "value": {
+        "amount": 4500000,
+        "currency": "CAD"
+      }
+    },
+    {
+      "shipmentId": "SHP-FCO-2026-005678",
+      "bookingNumber": "DSV-FCO-2026-008901",
+      "mawbNumber": "055-5567 8901",
+      "customerReference": "GUCCI-2026-JP-6678",
+      "status": "IN_TRANSIT",
+      "statusLabel": "In Transit",
+      "priority": "HIGH",
+      "alerts": [],
+      "temperatureSensitive": false,
+      "customer": {
+        "code": "GUCCI-IT",
+        "name": "Gucci",
+        "contact": "Alessandro Bianchi",
+        "email": "alessandro.bianchi@gucci.com"
+      },
+      "routing": {
+        "origin": {
+          "code": "FCO",
+          "city": "Rome",
+          "country": "Italy"
+        },
+        "destination": {
+          "code": "NRT",
+          "city": "Tokyo",
+          "country": "Japan"
+        },
+        "carrier": "Alitalia",
+        "carrierCode": "AZ",
+        "flightNumber": "AZ784"
+      },
+      "cargo": {
+        "description": "Luxury Fashion - Accessories",
+        "commodity": "HIGHVALUE",
+        "pieces": 38,
+        "weight": 1250.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-17T08:00:00+01:00",
+        "etd": "2026-02-17T14:30:00+01:00",
+        "eta": "2026-02-18T10:15:00+09:00",
+        "estimatedDelivery": "2026-02-18T18:00:00+09:00"
+      },
+      "currentLocation": {
+        "code": "IN_FLIGHT",
+        "name": "In Flight - Over Russia",
+        "coordinates": {
+          "lat": 58.5,
+          "lng": 85.2
+        }
+      },
+      "assignedRep": {
+        "name": "Giovanni Bianchi",
+        "email": "giovanni.bianchi@dsv.com"
+      },
+      "value": {
+        "amount": 6800000,
+        "currency": "EUR"
+      }
+    },
+    {
+      "shipmentId": "SHP-ZAG-2026-001234",
+      "bookingNumber": "DSV-ZAG-2026-002345",
+      "mawbNumber": "831-1123 4567",
+      "customerReference": "PLIVA-2026-US-1123",
+      "status": "BOOKED",
+      "statusLabel": "Booked",
+      "priority": "HIGH",
+      "alerts": [],
+      "temperatureSensitive": true,
+      "temperatureRange": {
+        "min": 15,
+        "max": 25,
+        "unit": "C",
+        "setPoint": 20
+      },
+      "customer": {
+        "code": "PLIVA-HR",
+        "name": "PLIVA Croatia",
+        "contact": "Ivan Horvat",
+        "email": "ivan.horvat@pliva.com"
+      },
+      "routing": {
+        "origin": {
+          "code": "ZAG",
+          "city": "Zagreb",
+          "country": "Croatia"
+        },
+        "destination": {
+          "code": "JFK",
+          "city": "New York",
+          "country": "United States"
+        },
+        "carrier": "Croatia Airlines",
+        "carrierCode": "OU",
+        "flightNumber": "OU500"
+      },
+      "cargo": {
+        "description": "Generic Pharmaceuticals",
+        "commodity": "PHARMA",
+        "pieces": 10,
+        "weight": 680.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-20T06:00:00+01:00",
+        "etd": "2026-02-20T10:30:00+01:00",
+        "eta": "2026-02-20T14:15:00-05:00",
+        "estimatedDelivery": "2026-02-21T10:00:00-05:00"
+      },
+      "currentLocation": {
+        "code": "ORIGIN",
+        "name": "Awaiting Pickup",
+        "facility": "PLIVA Zagreb Plant",
+        "coordinates": {
+          "lat": 45.815,
+          "lng": 15.9819
+        }
+      },
+      "assignedRep": {
+        "name": "Erik Nielsen",
+        "email": "erik.nielsen@dsv.com"
+      },
+      "value": {
+        "amount": 1200000,
+        "currency": "EUR"
+      }
+    },
+    {
+      "shipmentId": "SHP-BOM-2026-006789",
+      "bookingNumber": "DSV-BOM-2026-010123",
+      "mawbNumber": "098-6678 9012",
+      "customerReference": "TATA-2026-UK-7789",
+      "status": "IN_TRANSIT",
+      "statusLabel": "In Transit",
+      "priority": "STANDARD",
+      "alerts": [],
+      "temperatureSensitive": false,
+      "customer": {
+        "code": "TATA-IN",
+        "name": "Tata Motors",
+        "contact": "Rajesh Sharma",
+        "email": "rajesh.sharma@tatamotors.com"
+      },
+      "routing": {
+        "origin": {
+          "code": "BOM",
+          "city": "Mumbai",
+          "country": "India"
+        },
+        "destination": {
+          "code": "LHR",
+          "city": "London",
+          "country": "United Kingdom"
+        },
+        "carrier": "Air India Cargo",
+        "carrierCode": "AI",
+        "flightNumber": "AI131"
+      },
+      "cargo": {
+        "description": "Automotive Parts - Jaguar Land Rover",
+        "commodity": "AUTO",
+        "pieces": 28,
+        "weight": 3800.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-17T20:00:00+05:30",
+        "etd": "2026-02-18T02:30:00+05:30",
+        "eta": "2026-02-18T07:15:00Z",
+        "estimatedDelivery": "2026-02-18T16:00:00Z"
+      },
+      "currentLocation": {
+        "code": "IN_FLIGHT",
+        "name": "In Flight - Over Middle East",
+        "coordinates": {
+          "lat": 28.5,
+          "lng": 48.2
+        }
+      },
+      "assignedRep": {
+        "name": "Priya Patel",
+        "email": "priya.patel@dsv.com"
+      },
+      "value": {
+        "amount": 45000000,
+        "currency": "INR"
+      }
+    },
+    {
+      "shipmentId": "SHP-DEL-2026-007890",
+      "bookingNumber": "DSV-DEL-2026-011234",
+      "mawbNumber": "098-7789 0123",
+      "customerReference": "DRREDDY-2026-US-8890",
+      "status": "CUSTOMS",
+      "statusLabel": "Customs Clearance",
+      "priority": "HIGH",
+      "alerts": [],
+      "temperatureSensitive": true,
+      "temperatureRange": {
+        "min": 15,
+        "max": 25,
+        "unit": "C",
+        "setPoint": 20
+      },
+      "customer": {
+        "code": "DRL-IN",
+        "name": "Dr. Reddy's Laboratories",
+        "contact": "Anil Kumar",
+        "email": "anil.kumar@drreddys.com"
+      },
+      "routing": {
+        "origin": {
+          "code": "DEL",
+          "city": "New Delhi",
+          "country": "India"
+        },
+        "destination": {
+          "code": "EWR",
+          "city": "Newark",
+          "country": "United States"
+        },
+        "carrier": "Air India Cargo",
+        "carrierCode": "AI",
+        "flightNumber": "AI101"
+      },
+      "cargo": {
+        "description": "Generic Pharmaceuticals - FDA Approved",
+        "commodity": "PHARMA",
+        "pieces": 16,
+        "weight": 1450.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-16T22:00:00+05:30",
+        "etd": "2026-02-17T03:30:00+05:30",
+        "eta": "2026-02-17T08:45:00-05:00",
+        "estimatedDelivery": "2026-02-18T10:00:00-05:00"
+      },
+      "currentLocation": {
+        "code": "EWR",
+        "name": "Newark Liberty International",
+        "facility": "US FDA Inspection",
+        "coordinates": {
+          "lat": 40.6895,
+          "lng": -74.1745
+        }
+      },
+      "assignedRep": {
+        "name": "Priya Patel",
+        "email": "priya.patel@dsv.com"
+      },
+      "value": {
+        "amount": 2800000,
+        "currency": "USD"
+      }
+    },
+    {
+      "shipmentId": "SHP-KUL-2026-003456",
+      "bookingNumber": "DSV-KUL-2026-006789",
+      "mawbNumber": "232-3345 6789",
+      "customerReference": "INTEL-2026-US-4456",
+      "status": "IN_TRANSIT",
+      "statusLabel": "In Transit",
+      "priority": "URGENT",
+      "alerts": [],
+      "temperatureSensitive": false,
+      "customer": {
+        "code": "INTEL-MY",
+        "name": "Intel Malaysia",
+        "contact": "Ahmad Razak",
+        "email": "ahmad.razak@intel.com"
+      },
+      "routing": {
+        "origin": {
+          "code": "KUL",
+          "city": "Kuala Lumpur",
+          "country": "Malaysia"
+        },
+        "destination": {
+          "code": "PHX",
+          "city": "Phoenix",
+          "country": "United States"
+        },
+        "carrier": "Malaysia Airlines",
+        "carrierCode": "MH",
+        "flightNumber": "MH134"
+      },
+      "cargo": {
+        "description": "Semiconductors - Processor Chips",
+        "commodity": "ELECTRONICS",
+        "pieces": 12,
+        "weight": 380.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-17T16:00:00+08:00",
+        "etd": "2026-02-17T23:30:00+08:00",
+        "eta": "2026-02-18T06:45:00-07:00",
+        "estimatedDelivery": "2026-02-18T14:00:00-07:00"
+      },
+      "currentLocation": {
+        "code": "IN_FLIGHT",
+        "name": "In Flight - Over Pacific",
+        "coordinates": {
+          "lat": 32.5,
+          "lng": -155.8
+        }
+      },
+      "assignedRep": {
+        "name": "David Lim",
+        "email": "david.lim@dsv.com"
+      },
+      "value": {
+        "amount": 28000000,
+        "currency": "USD"
+      }
+    },
+    {
+      "shipmentId": "SHP-CGK-2026-004567",
+      "bookingNumber": "DSV-CGK-2026-007890",
+      "mawbNumber": "126-4456 7890",
+      "customerReference": "UNILEVER-2026-NL-5567",
+      "status": "DELIVERED",
+      "statusLabel": "Delivered",
+      "priority": "STANDARD",
+      "alerts": [],
+      "temperatureSensitive": false,
+      "customer": {
+        "code": "ULVR-ID",
+        "name": "Unilever Indonesia",
+        "contact": "Budi Santoso",
+        "email": "budi.santoso@unilever.com"
+      },
+      "routing": {
+        "origin": {
+          "code": "CGK",
+          "city": "Jakarta",
+          "country": "Indonesia"
+        },
+        "destination": {
+          "code": "AMS",
+          "city": "Amsterdam",
+          "country": "Netherlands"
+        },
+        "carrier": "Garuda Indonesia",
+        "carrierCode": "GA",
+        "flightNumber": "GA88"
+      },
+      "cargo": {
+        "description": "Personal Care Products - Samples",
+        "commodity": "CONSUMER",
+        "pieces": 45,
+        "weight": 1800.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-13T08:00:00+07:00",
+        "etd": "2026-02-13T14:30:00+07:00",
+        "eta": "2026-02-13T21:45:00+01:00",
+        "actualDelivery": "2026-02-14T11:30:00+01:00"
+      },
+      "currentLocation": {
+        "code": "DELIVERED",
+        "name": "Delivered to Consignee",
+        "facility": "Unilever R&D Vlaardingen",
+        "coordinates": {
+          "lat": 51.9125,
+          "lng": 4.3479
+        }
+      },
+      "assignedRep": {
+        "name": "Anna van der Berg",
+        "email": "anna.vanderberg@dsv.com"
+      },
+      "value": {
+        "amount": 150000,
+        "currency": "EUR"
+      }
+    },
+    {
+      "shipmentId": "SHP-GIG-2026-005678",
+      "bookingNumber": "DSV-GIG-2026-008901",
+      "mawbNumber": "957-5567 8901",
+      "customerReference": "VALE-2026-CN-6678",
+      "status": "IN_TRANSIT",
+      "statusLabel": "In Transit",
+      "priority": "STANDARD",
+      "alerts": [],
+      "temperatureSensitive": false,
+      "customer": {
+        "code": "VALE-BR",
+        "name": "Vale S.A.",
+        "contact": "Ricardo Silva",
+        "email": "ricardo.silva@vale.com"
+      },
+      "routing": {
+        "origin": {
+          "code": "GIG",
+          "city": "Rio de Janeiro",
+          "country": "Brazil"
+        },
+        "destination": {
+          "code": "PVG",
+          "city": "Shanghai",
+          "country": "China"
+        },
+        "carrier": "LATAM Cargo",
+        "carrierCode": "LA",
+        "flightNumber": "LA8084"
+      },
+      "cargo": {
+        "description": "Mining Equipment - Spare Parts",
+        "commodity": "INDUSTRIAL",
+        "pieces": 14,
+        "weight": 5200.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-17T04:00:00-03:00",
+        "etd": "2026-02-17T11:30:00-03:00",
+        "eta": "2026-02-18T16:45:00+08:00",
+        "estimatedDelivery": "2026-02-19T12:00:00+08:00"
+      },
+      "currentLocation": {
+        "code": "IN_FLIGHT",
+        "name": "In Flight - Over Africa",
+        "coordinates": {
+          "lat": -8.5,
+          "lng": 25.2
+        }
+      },
+      "assignedRep": {
+        "name": "Carlos Santos",
+        "email": "carlos.santos@dsv.com"
+      },
+      "value": {
+        "amount": 1800000,
+        "currency": "BRL"
+      }
+    },
+    {
+      "shipmentId": "SHP-LIS-2026-006789",
+      "bookingNumber": "DSV-LIS-2026-010123",
+      "mawbNumber": "047-6678 9012",
+      "customerReference": "BIAL-2026-US-7789",
+      "status": "BOOKED",
+      "statusLabel": "Booked",
+      "priority": "HIGH",
+      "alerts": [],
+      "temperatureSensitive": true,
+      "temperatureRange": {
+        "min": 2,
+        "max": 8,
+        "unit": "C",
+        "setPoint": 5
+      },
+      "customer": {
+        "code": "BIAL-PT",
+        "name": "BIAL Pharmaceuticals",
+        "contact": "Maria Santos",
+        "email": "maria.santos@bial.com"
+      },
+      "routing": {
+        "origin": {
+          "code": "LIS",
+          "city": "Lisbon",
+          "country": "Portugal"
+        },
+        "destination": {
+          "code": "BOS",
+          "city": "Boston",
+          "country": "United States"
+        },
+        "carrier": "TAP Air Portugal",
+        "carrierCode": "TP",
+        "flightNumber": "TP216"
+      },
+      "cargo": {
+        "description": "Neurological Pharmaceuticals",
+        "commodity": "PHARMA",
+        "pieces": 8,
+        "weight": 420.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-20T07:00:00Z",
+        "etd": "2026-02-20T11:30:00Z",
+        "eta": "2026-02-20T14:45:00-05:00",
+        "estimatedDelivery": "2026-02-21T10:00:00-05:00"
+      },
+      "currentLocation": {
+        "code": "ORIGIN",
+        "name": "Awaiting Pickup",
+        "facility": "BIAL S. Mamede do Coronado",
+        "coordinates": {
+          "lat": 41.2138,
+          "lng": -8.5616
+        }
+      },
+      "assignedRep": {
+        "name": "Elena Garcia",
+        "email": "elena.garcia@dsv.com"
+      },
+      "value": {
+        "amount": 3200000,
+        "currency": "EUR"
+      }
+    },
+    {
+      "shipmentId": "SHP-WAW-2026-007890",
+      "bookingNumber": "DSV-WAW-2026-011234",
+      "mawbNumber": "080-7789 0123",
+      "customerReference": "PGNIG-2026-DE-8890",
+      "status": "IN_TRANSIT",
+      "statusLabel": "In Transit",
+      "priority": "STANDARD",
+      "alerts": [],
+      "temperatureSensitive": false,
+      "customer": {
+        "code": "PGNIG-PL",
+        "name": "PGNiG",
+        "contact": "Piotr Kowalski",
+        "email": "piotr.kowalski@pgnig.pl"
+      },
+      "routing": {
+        "origin": {
+          "code": "WAW",
+          "city": "Warsaw",
+          "country": "Poland"
+        },
+        "destination": {
+          "code": "FRA",
+          "city": "Frankfurt",
+          "country": "Germany"
+        },
+        "carrier": "LOT Polish Airlines",
+        "carrierCode": "LO",
+        "flightNumber": "LO379"
+      },
+      "cargo": {
+        "description": "Gas Industry Equipment",
+        "commodity": "INDUSTRIAL",
+        "pieces": 8,
+        "weight": 2400.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-18T05:00:00+01:00",
+        "etd": "2026-02-18T09:15:00+01:00",
+        "eta": "2026-02-18T10:45:00+01:00",
+        "estimatedDelivery": "2026-02-18T16:00:00+01:00"
+      },
+      "currentLocation": {
+        "code": "IN_FLIGHT",
+        "name": "In Flight",
+        "coordinates": {
+          "lat": 51.2,
+          "lng": 12.5
+        }
+      },
+      "assignedRep": {
+        "name": "Thomas Müller",
+        "email": "thomas.mueller@dsv.com"
+      },
+      "value": {
+        "amount": 680000,
+        "currency": "PLN"
+      }
+    },
+    {
+      "shipmentId": "SHP-PRG-2026-008901",
+      "bookingNumber": "DSV-PRG-2026-012345",
+      "mawbNumber": "064-8890 1234",
+      "customerReference": "SKODA-2026-CN-9901",
+      "status": "CUSTOMS",
+      "statusLabel": "Customs Clearance",
+      "priority": "HIGH",
+      "alerts": [],
+      "temperatureSensitive": false,
+      "customer": {
+        "code": "SKODA-CZ",
+        "name": "Škoda Auto",
+        "contact": "Jan Novak",
+        "email": "jan.novak@skoda-auto.cz"
+      },
+      "routing": {
+        "origin": {
+          "code": "PRG",
+          "city": "Prague",
+          "country": "Czech Republic"
+        },
+        "destination": {
+          "code": "PVG",
+          "city": "Shanghai",
+          "country": "China"
+        },
+        "carrier": "Czech Airlines",
+        "carrierCode": "OK",
+        "flightNumber": "OK1289"
+      },
+      "cargo": {
+        "description": "Automotive Parts - Transmission",
+        "commodity": "AUTO",
+        "pieces": 18,
+        "weight": 3200.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-16T06:00:00+01:00",
+        "etd": "2026-02-16T11:30:00+01:00",
+        "eta": "2026-02-17T04:45:00+08:00",
+        "estimatedDelivery": "2026-02-17T18:00:00+08:00"
+      },
+      "currentLocation": {
+        "code": "PVG",
+        "name": "Shanghai Pudong",
+        "facility": "China Customs",
+        "coordinates": {
+          "lat": 31.1443,
+          "lng": 121.8083
+        }
+      },
+      "assignedRep": {
+        "name": "Chen Ming",
+        "email": "chen.ming@dsv.com"
+      },
+      "value": {
+        "amount": 1450000,
+        "currency": "EUR"
+      }
+    },
+    {
+      "shipmentId": "SHP-TLV-2026-001234",
+      "bookingNumber": "DSV-TLV-2026-002345",
+      "mawbNumber": "114-1123 4567",
+      "customerReference": "TEVA-2026-US-1123",
+      "status": "IN_TRANSIT",
+      "statusLabel": "In Transit",
+      "priority": "HIGH",
+      "alerts": [],
+      "temperatureSensitive": true,
+      "temperatureRange": {
+        "min": 15,
+        "max": 25,
+        "unit": "C",
+        "setPoint": 20
+      },
+      "customer": {
+        "code": "TEVA-IL",
+        "name": "Teva Pharmaceutical",
+        "contact": "David Cohen",
+        "email": "david.cohen@tevapharm.com"
+      },
+      "routing": {
+        "origin": {
+          "code": "TLV",
+          "city": "Tel Aviv",
+          "country": "Israel"
+        },
+        "destination": {
+          "code": "JFK",
+          "city": "New York",
+          "country": "United States"
+        },
+        "carrier": "El Al Cargo",
+        "carrierCode": "LY",
+        "flightNumber": "LY1"
+      },
+      "cargo": {
+        "description": "Generic Pharmaceuticals",
+        "commodity": "PHARMA",
+        "pieces": 14,
+        "weight": 920.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-17T18:00:00+02:00",
+        "etd": "2026-02-17T23:55:00+02:00",
+        "eta": "2026-02-18T05:30:00-05:00",
+        "estimatedDelivery": "2026-02-18T14:00:00-05:00"
+      },
+      "currentLocation": {
+        "code": "IN_FLIGHT",
+        "name": "In Flight - Over Atlantic",
+        "coordinates": {
+          "lat": 38.5,
+          "lng": -52.8
+        }
+      },
+      "assignedRep": {
+        "name": "Marco Jansen",
+        "email": "marco.jansen@dsv.com"
+      },
+      "value": {
+        "amount": 4500000,
+        "currency": "USD"
+      }
+    },
+    {
+      "shipmentId": "SHP-DUB-2026-002345",
+      "bookingNumber": "DSV-DUB-2026-003456",
+      "mawbNumber": "053-2234 5678",
+      "customerReference": "MEDTRONIC-2026-JP-2234",
+      "status": "DELIVERED",
+      "statusLabel": "Delivered",
+      "priority": "HIGH",
+      "alerts": [],
+      "temperatureSensitive": false,
+      "customer": {
+        "code": "MDT-IE",
+        "name": "Medtronic Ireland",
+        "contact": "Ciara Murphy",
+        "email": "ciara.murphy@medtronic.com"
+      },
+      "routing": {
+        "origin": {
+          "code": "DUB",
+          "city": "Dublin",
+          "country": "Ireland"
+        },
+        "destination": {
+          "code": "NRT",
+          "city": "Tokyo",
+          "country": "Japan"
+        },
+        "carrier": "Aer Lingus Cargo",
+        "carrierCode": "EI",
+        "flightNumber": "EI278"
+      },
+      "cargo": {
+        "description": "Medical Devices - Cardiac",
+        "commodity": "MEDICAL",
+        "pieces": 6,
+        "weight": 340.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-14T06:00:00Z",
+        "etd": "2026-02-14T11:30:00Z",
+        "eta": "2026-02-15T07:45:00+09:00",
+        "actualDelivery": "2026-02-15T14:30:00+09:00"
+      },
+      "currentLocation": {
+        "code": "DELIVERED",
+        "name": "Delivered to Consignee",
+        "facility": "Medtronic Japan HQ",
+        "coordinates": {
+          "lat": 35.6762,
+          "lng": 139.6503
+        }
+      },
+      "assignedRep": {
+        "name": "Yuki Tanaka",
+        "email": "yuki.tanaka@dsv.com"
+      },
+      "value": {
+        "amount": 8900000,
+        "currency": "EUR"
+      }
+    },
+    {
+      "shipmentId": "SHP-STN-2026-009012",
+      "bookingNumber": "DSV-STN-2026-013456",
+      "mawbNumber": "172-9012 3456",
+      "customerReference": "GSK-2026-SG-9012",
+      "status": "IN_TRANSIT",
+      "statusLabel": "In Transit",
+      "priority": "CRITICAL",
+      "alerts": [],
+      "temperatureSensitive": true,
+      "temperatureRange": {
+        "min": 2,
+        "max": 8,
+        "unit": "C",
+        "setPoint": 5
+      },
+      "customer": {
+        "code": "GSK-UK",
+        "name": "GlaxoSmithKline",
+        "contact": "Emma Watson",
+        "email": "emma.watson@gsk.com"
+      },
+      "routing": {
+        "origin": {
+          "code": "STN",
+          "city": "London Stansted",
+          "country": "United Kingdom"
+        },
+        "destination": {
+          "code": "SIN",
+          "city": "Singapore",
+          "country": "Singapore"
+        },
+        "carrier": "Emirates",
+        "carrierCode": "EK",
+        "flightNumber": "EK40"
+      },
+      "cargo": {
+        "description": "Vaccines - Shingrix",
+        "commodity": "PHARMA",
+        "pieces": 10,
+        "weight": 1680.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-17T22:00:00Z",
+        "etd": "2026-02-18T07:30:00Z",
+        "eta": "2026-02-18T19:15:00+08:00",
+        "estimatedDelivery": "2026-02-19T10:00:00+08:00"
+      },
+      "currentLocation": {
+        "code": "IN_FLIGHT",
+        "name": "In Flight - Over Arabian Sea",
+        "coordinates": {
+          "lat": 18.5,
+          "lng": 68.2
+        }
+      },
+      "assignedRep": {
+        "name": "James Wilson",
+        "email": "james.wilson@dsv.com"
+      },
+      "value": {
+        "amount": 9500000,
+        "currency": "GBP"
+      }
+    },
+    {
+      "shipmentId": "SHP-HEL-2026-001234",
+      "bookingNumber": "DSV-HEL-2026-002345",
+      "mawbNumber": "105-1123 4567",
+      "customerReference": "NOKIA-2026-US-1123",
+      "status": "IN_TRANSIT",
+      "statusLabel": "In Transit",
+      "priority": "HIGH",
+      "alerts": [],
+      "temperatureSensitive": false,
+      "customer": {
+        "code": "NOKIA-FI",
+        "name": "Nokia Corporation",
+        "contact": "Mikko Virtanen",
+        "email": "mikko.virtanen@nokia.com"
+      },
+      "routing": {
+        "origin": {
+          "code": "HEL",
+          "city": "Helsinki",
+          "country": "Finland"
+        },
+        "destination": {
+          "code": "DFW",
+          "city": "Dallas",
+          "country": "United States"
+        },
+        "carrier": "Finnair Cargo",
+        "carrierCode": "AY",
+        "flightNumber": "AY5"
+      },
+      "cargo": {
+        "description": "5G Network Equipment",
+        "commodity": "ELECTRONICS",
+        "pieces": 22,
+        "weight": 1850.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-17T06:00:00+02:00",
+        "etd": "2026-02-17T10:30:00+02:00",
+        "eta": "2026-02-17T14:45:00-06:00",
+        "estimatedDelivery": "2026-02-18T10:00:00-06:00"
+      },
+      "currentLocation": {
+        "code": "IN_FLIGHT",
+        "name": "In Flight - Over Atlantic",
+        "coordinates": {
+          "lat": 55.5,
+          "lng": -32.8
+        }
+      },
+      "assignedRep": {
+        "name": "Erik Nielsen",
+        "email": "erik.nielsen@dsv.com"
+      },
+      "value": {
+        "amount": 3200000,
+        "currency": "EUR"
+      }
+    },
+    {
+      "shipmentId": "SHP-OSL-2026-002345",
+      "bookingNumber": "DSV-OSL-2026-003456",
+      "mawbNumber": "117-2234 5678",
+      "customerReference": "EQUINOR-2026-BR-2234",
+      "status": "BOOKED",
+      "statusLabel": "Booked",
+      "priority": "STANDARD",
+      "alerts": [],
+      "temperatureSensitive": false,
+      "customer": {
+        "code": "EQUINOR-NO",
+        "name": "Equinor ASA",
+        "contact": "Anders Berg",
+        "email": "anders.berg@equinor.com"
+      },
+      "routing": {
+        "origin": {
+          "code": "OSL",
+          "city": "Oslo",
+          "country": "Norway"
+        },
+        "destination": {
+          "code": "GIG",
+          "city": "Rio de Janeiro",
+          "country": "Brazil"
+        },
+        "carrier": "SAS Cargo",
+        "carrierCode": "SK",
+        "flightNumber": "SK478"
+      },
+      "cargo": {
+        "description": "Offshore Drilling Equipment",
+        "commodity": "INDUSTRIAL",
+        "pieces": 8,
+        "weight": 4500.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-20T07:00:00+01:00",
+        "etd": "2026-02-20T12:30:00+01:00",
+        "eta": "2026-02-21T04:45:00-03:00",
+        "estimatedDelivery": "2026-02-21T16:00:00-03:00"
+      },
+      "currentLocation": {
+        "code": "ORIGIN",
+        "name": "Awaiting Pickup",
+        "facility": "Equinor Stavanger",
+        "coordinates": {
+          "lat": 58.97,
+          "lng": 5.7331
+        }
+      },
+      "assignedRep": {
+        "name": "Erik Nielsen",
+        "email": "erik.nielsen@dsv.com"
+      },
+      "value": {
+        "amount": 2800000,
+        "currency": "NOK"
+      }
+    },
+    {
+      "shipmentId": "SHP-ARN-2026-003456",
+      "bookingNumber": "DSV-ARN-2026-004567",
+      "mawbNumber": "117-3345 6789",
+      "customerReference": "ERICSSON-2026-IN-3345",
+      "status": "IN_TRANSIT",
+      "statusLabel": "In Transit",
+      "priority": "HIGH",
+      "alerts": [],
+      "temperatureSensitive": false,
+      "customer": {
+        "code": "ERICSSON-SE",
+        "name": "Ericsson AB",
+        "contact": "Erik Lindqvist",
+        "email": "erik.lindqvist@ericsson.com"
+      },
+      "routing": {
+        "origin": {
+          "code": "ARN",
+          "city": "Stockholm",
+          "country": "Sweden"
+        },
+        "destination": {
+          "code": "DEL",
+          "city": "New Delhi",
+          "country": "India"
+        },
+        "carrier": "SAS Cargo",
+        "carrierCode": "SK",
+        "flightNumber": "SK501"
+      },
+      "cargo": {
+        "description": "Telecom Infrastructure Equipment",
+        "commodity": "ELECTRONICS",
+        "pieces": 18,
+        "weight": 2200.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-17T08:00:00+01:00",
+        "etd": "2026-02-17T13:15:00+01:00",
+        "eta": "2026-02-18T01:30:00+05:30",
+        "estimatedDelivery": "2026-02-18T12:00:00+05:30"
+      },
+      "currentLocation": {
+        "code": "IN_FLIGHT",
+        "name": "In Flight - Over Iran",
+        "coordinates": {
+          "lat": 32.5,
+          "lng": 52.8
+        }
+      },
+      "assignedRep": {
+        "name": "Priya Patel",
+        "email": "priya.patel@dsv.com"
+      },
+      "value": {
+        "amount": 4500000,
+        "currency": "SEK"
+      }
+    },
+    {
+      "shipmentId": "SHP-BUD-2026-004567",
+      "bookingNumber": "DSV-BUD-2026-005678",
+      "mawbNumber": "182-4456 7890",
+      "customerReference": "GEDEON-2026-US-4456",
+      "status": "DELIVERED",
+      "statusLabel": "Delivered",
+      "priority": "HIGH",
+      "alerts": [],
+      "temperatureSensitive": true,
+      "temperatureRange": {
+        "min": 15,
+        "max": 25,
+        "unit": "C",
+        "setPoint": 20
+      },
+      "customer": {
+        "code": "GEDEON-HU",
+        "name": "Gedeon Richter",
+        "contact": "Istvan Nagy",
+        "email": "istvan.nagy@gedeonrichter.com"
+      },
+      "routing": {
+        "origin": {
+          "code": "BUD",
+          "city": "Budapest",
+          "country": "Hungary"
+        },
+        "destination": {
+          "code": "JFK",
+          "city": "New York",
+          "country": "United States"
+        },
+        "carrier": "LOT Polish Airlines",
+        "carrierCode": "LO",
+        "flightNumber": "LO411"
+      },
+      "cargo": {
+        "description": "Pharmaceutical Products - Womens Health",
+        "commodity": "PHARMA",
+        "pieces": 12,
+        "weight": 890.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-13T06:00:00+01:00",
+        "etd": "2026-02-13T11:30:00+01:00",
+        "eta": "2026-02-13T15:45:00-05:00",
+        "actualDelivery": "2026-02-14T09:30:00-05:00"
+      },
+      "currentLocation": {
+        "code": "DELIVERED",
+        "name": "Delivered to Consignee",
+        "facility": "Gedeon Richter USA",
+        "coordinates": {
+          "lat": 40.7128,
+          "lng": -74.006
+        }
+      },
+      "assignedRep": {
+        "name": "Marco Jansen",
+        "email": "marco.jansen@dsv.com"
+      },
+      "value": {
+        "amount": 2100000,
+        "currency": "EUR"
+      }
+    },
+    {
+      "shipmentId": "SHP-VNO-2026-005678",
+      "bookingNumber": "DSV-VNO-2026-006789",
+      "mawbNumber": "657-5567 8901",
+      "customerReference": "ORION-2026-JP-5567",
+      "status": "IN_TRANSIT",
+      "statusLabel": "In Transit",
+      "priority": "CRITICAL",
+      "alerts": [],
+      "temperatureSensitive": true,
+      "temperatureRange": {
+        "min": 2,
+        "max": 8,
+        "unit": "C",
+        "setPoint": 5
+      },
+      "customer": {
+        "code": "ORION-FI",
+        "name": "Orion Corporation",
+        "contact": "Matti Korhonen",
+        "email": "matti.korhonen@orion.fi"
+      },
+      "routing": {
+        "origin": {
+          "code": "HEL",
+          "city": "Helsinki",
+          "country": "Finland"
+        },
+        "destination": {
+          "code": "NRT",
+          "city": "Tokyo",
+          "country": "Japan"
+        },
+        "carrier": "Finnair Cargo",
+        "carrierCode": "AY",
+        "flightNumber": "AY73"
+      },
+      "cargo": {
+        "description": "Oncology Pharmaceuticals",
+        "commodity": "PHARMA",
+        "pieces": 4,
+        "weight": 320.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-17T22:00:00+02:00",
+        "etd": "2026-02-18T09:30:00+02:00",
+        "eta": "2026-02-19T08:45:00+09:00",
+        "estimatedDelivery": "2026-02-19T16:00:00+09:00"
+      },
+      "currentLocation": {
+        "code": "IN_FLIGHT",
+        "name": "In Flight - Over Russia",
+        "coordinates": {
+          "lat": 62.5,
+          "lng": 118.2
+        }
+      },
+      "assignedRep": {
+        "name": "Yuki Tanaka",
+        "email": "yuki.tanaka@dsv.com"
+      },
+      "value": {
+        "amount": 6800000,
+        "currency": "EUR"
+      }
+    },
+    {
+      "shipmentId": "SHP-CPT-2026-006789",
+      "bookingNumber": "DSV-CPT-2026-007890",
+      "mawbNumber": "083-6678 9012",
+      "customerReference": "ASPEN-2026-EU-6678",
+      "status": "CUSTOMS",
+      "statusLabel": "Customs Clearance",
+      "priority": "HIGH",
+      "alerts": [],
+      "temperatureSensitive": true,
+      "temperatureRange": {
+        "min": 2,
+        "max": 8,
+        "unit": "C",
+        "setPoint": 5
+      },
+      "customer": {
+        "code": "ASPEN-ZA",
+        "name": "Aspen Pharmacare",
+        "contact": "Johan van der Merwe",
+        "email": "johan.vandermerwe@aspenpharma.com"
+      },
+      "routing": {
+        "origin": {
+          "code": "CPT",
+          "city": "Cape Town",
+          "country": "South Africa"
+        },
+        "destination": {
+          "code": "FRA",
+          "city": "Frankfurt",
+          "country": "Germany"
+        },
+        "carrier": "South African Airways",
+        "carrierCode": "SA",
+        "flightNumber": "SA260"
+      },
+      "cargo": {
+        "description": "Generic Pharmaceuticals - Antibiotics",
+        "commodity": "PHARMA",
+        "pieces": 16,
+        "weight": 1450.0,
+        "weightUnit": "KG"
+      },
+      "dates": {
+        "pickup": "2026-02-16T18:00:00+02:00",
+        "etd": "2026-02-16T23:30:00+02:00",
+        "eta": "2026-02-17T10:15:00+01:00",
+        "estimatedDelivery": "2026-02-17T18:00:00+01:00"
+      },
+      "currentLocation": {
+        "code": "FRA",
+        "name": "Frankfurt Airport",
+        "facility": "EU Pharma Customs",
+        "coordinates": {
+          "lat": 50.0379,
+          "lng": 8.5622
+        }
+      },
+      "assignedRep": {
+        "name": "Thomas Müller",
+        "email": "thomas.mueller@dsv.com"
+      },
+      "value": {
+        "amount": 3200000,
+        "currency": "ZAR"
+      }
+    }
+  ],
+  "summary": {
+    "totalShipments": 50,
+    "byStatus": {
+      "IN_TRANSIT": 28,
+      "DELIVERED": 10,
+      "BOOKED": 6,
+      "CUSTOMS": 5,
+      "CUSTOMS_HOLD": 1
+    },
+    "temperatureSensitive": 18,
+    "activeAlerts": 2,
+    "criticalAlerts": 1,
+    "byPriority": {
+      "CRITICAL": 4,
+      "URGENT": 3,
+      "HIGH": 22,
+      "STANDARD": 21
+    }
+  }
+}
