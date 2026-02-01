@@ -1,10 +1,10 @@
-# DSV Air & Sea - AI Freight Forwarding Demo
+# HappyRobot Forwarding - AI Freight Forwarding Demo
 
 A demonstration of AI-powered proactive communication for temperature-sensitive air freight, showcasing real-time monitoring and customer engagement.
 
 ## Overview
 
-This application demonstrates DSV's intelligent freight forwarding platform with AI-powered email classification, temperature monitoring, and proactive customer communication. When temperature deviations are detected on sensitive cargo, AI agents autonomously reach out to customers with detailed information and resolution plans.
+This application demonstrates HappyRobot's intelligent freight forwarding platform with AI-powered email classification, temperature monitoring, and proactive customer communication. When temperature deviations are detected on sensitive cargo, AI agents autonomously reach out to customers with detailed information and resolution plans.
 
 ### Key Features
 
@@ -15,7 +15,6 @@ This application demonstrates DSV's intelligent freight forwarding platform with
 - **Real-time Updates** - Redis + SSE for instant dashboard updates without timeouts
 - **Shipment Milestones** - Detailed timeline tracking with temperature data at each checkpoint
 - **HappyRobot AI Integration** - Voice agent workflows for customer communication
-- **DSV Branding** - Navy, white, and silver color scheme inspired by Apple design principles
 
 ## Tech Stack
 
@@ -43,7 +42,7 @@ This application demonstrates DSV's intelligent freight forwarding platform with
 
 ```bash
 git clone <repository-url>
-cd dsv_demo
+cd happyrobot-forwarding-demo
 npm install
 ```
 
@@ -89,8 +88,6 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) to see the dashboard.
-
-For detailed setup instructions, see [DSV_SETUP.md](./DSV_SETUP.md).
 
 ## API Endpoints
 
@@ -174,7 +171,7 @@ Content-Type: application/json
   "missingInfo": ["pickupDate"],
   "assignedRep": {
     "name": "Sarah Chen",
-    "email": "sarah.chen@dsv.com"
+    "email": "sarah.chen@happyrobot.ai"
   }
 }
 ```
@@ -253,7 +250,7 @@ Content-Type: application/json
 
 ### Phase 1: Email Classification (`/inbox`)
 
-**Presenter:** "This is DSV's AI-powered inbox. Customer emails are automatically classified, prioritized, and assigned to the right representatives."
+**Presenter:** "This is HappyRobot's AI-powered inbox. Customer emails are automatically classified, prioritized, and assigned to the right representatives."
 
 **What You See:**
 - Classified emails with priority badges
@@ -344,12 +341,12 @@ Content-Type: application/json
               ▼                                ▼
 ┌──────────────────────────┐     ┌──────────────────────────────┐
 │  PostgreSQL (Prisma)     │     │  Redis Pub/Sub               │
-│  ├── Email               │     │  ├── dsv:email:received      │
-│  ├── Booking             │     │  ├── dsv:booking:created     │
-│  ├── Shipment            │     │  ├── dsv:shipment:updated    │
-│  ├── ShipmentMilestone   │     │  ├── dsv:temperature:alert   │
-│  └── HappyRobotRun       │     │  ├── dsv:milestone:updated   │
-└──────────────────────────┘     │  └── dsv:demo:reset          │
+│  ├── Email               │     │  ├── hr:email:received       │
+│  ├── Booking             │     │  ├── hr:booking:created      │
+│  ├── Shipment            │     │  ├── hr:shipment:updated     │
+│  ├── ShipmentMilestone   │     │  ├── hr:temperature:alert    │
+│  └── HappyRobotRun       │     │  ├── hr:milestone:updated    │
+└──────────────────────────┘     │  └── hr:demo:reset           │
                                  └──────────────────────────────┘
                                               │
                                               ▼
@@ -406,8 +403,6 @@ Content-Type: application/json
    ```bash
    railway run npx prisma db push
    ```
-
-See [DSV_SETUP.md](./DSV_SETUP.md) for detailed deployment instructions.
 
 ## Troubleshooting
 
@@ -494,7 +489,7 @@ ngrok http 3000
 │   │   │   └── temperature-alert/  # Alert event
 │   │   └── webhooks/
 │   │       └── happyrobot/     # Receive callbacks
-│   └── globals.css             # DSV brand colors
+│   └── globals.css             # Brand colors
 ├── components/
 │   ├── AirFreightMap.tsx       # Mapbox globe visualization
 │   ├── TemperatureAlertModal.tsx  # Alert popup with AI trigger
@@ -502,9 +497,9 @@ ngrok http 3000
 ├── hooks/
 │   ├── useSSE.ts               # SSE connection hook
 │   ├── useHappyRobot.ts        # HappyRobot workflow hook
-│   └── [legacy hooks from Sysco demo...]
+│   └── [legacy hooks...]
 ├── prisma/
-│   ├── schema.prisma           # Database schema (DSV models)
+│   ├── schema.prisma           # Database schema
 │   └── seed.ts                 # Legacy seed (not used)
 ├── lib/
 │   ├── prisma.ts               # Database client (db.ts)
@@ -515,7 +510,6 @@ ngrok http 3000
 │       ├── shipments-dashboard.json
 │       ├── map-view.json
 │       └── shipment-milestones.json
-└── DSV_SETUP.md                # Comprehensive setup guide
 ```
 
 ### Adding Mock Data
@@ -561,7 +555,6 @@ Then reset demo to load: POST `/api/demo/reset`
 
 ## Support
 
-- **Detailed Setup:** [DSV_SETUP.md](./DSV_SETUP.md)
 - **HappyRobot Docs:** https://docs.happyrobot.ai
 - **Railway Docs:** https://docs.railway.app
 - **Mapbox GL JS:** https://docs.mapbox.com/mapbox-gl-js
@@ -572,4 +565,4 @@ MIT
 
 ---
 
-**DSV Air & Sea - Proactive freight forwarding powered by AI**
+**HappyRobot Forwarding - Proactive freight forwarding powered by AI**

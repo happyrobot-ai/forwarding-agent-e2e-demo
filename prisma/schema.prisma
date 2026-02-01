@@ -200,7 +200,7 @@ enum AgentStatus {
   FAILED
 }
 
-// HappyRobot workflow runs tracking (for DSV demo)
+// HappyRobot workflow runs tracking
 model HappyRobotRun {
   id          String   @id @default(uuid())
   runId       String   @unique @map("run_id") // HappyRobot's run_xxx ID
@@ -340,7 +340,7 @@ enum ServiceCenterStatus {
   OFFLINE     // Closed or unavailable
 }
 
-// ===== DSV FREIGHT FORWARDING MODELS =====
+// ===== HAPPYROBOT FREIGHT FORWARDING MODELS =====
 
 // Email inbox classification system
 model Email {

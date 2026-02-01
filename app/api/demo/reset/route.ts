@@ -6,7 +6,7 @@ export async function POST() {
   try {
     console.log('[Demo Reset] Starting reset...');
 
-    // Clear DSV demo data
+    // Clear HappyRobot Forwarding demo data
     await prisma.happyRobotRun.deleteMany();
     await prisma.shipmentMilestone.deleteMany();
     await prisma.shipment.deleteMany();
@@ -35,7 +35,7 @@ export async function POST() {
           fromName: email.from.name,
           fromEmail: email.from.email,
           fromCompany: email.from.company,
-          toEmail: email.to || 'operations@dsv.com',
+          toEmail: email.to || 'operations@happyrobot.ai',
           subject: email.subject,
           receivedAt: new Date(email.receivedAt),
           classification: email.classification,

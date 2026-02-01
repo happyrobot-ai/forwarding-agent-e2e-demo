@@ -19,7 +19,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "DSV Air & Sea - AI Platform",
+  title: "HappyRobot Forwarding - AI Platform",
   description: "Intelligent freight forwarding powered by AI",
 };
 

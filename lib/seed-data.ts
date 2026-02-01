@@ -1,4 +1,4 @@
-// DSV Demo Seed Data
+// HappyRobot Forwarding Demo Seed Data
 import emailData from './seed-data/email-inbox.json';
 import shipmentsData from './seed-data/shipments-dashboard.json';
 import mapData from './seed-data/map-view.json';

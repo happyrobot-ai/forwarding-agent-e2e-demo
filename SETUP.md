@@ -1,8 +1,8 @@
-# DSV Demo Setup Guide
+# HappyRobot Forwarding Demo Setup Guide
 
 ## Overview
 
-This is a DSV freight forwarding demo showcasing AI-powered proactive communication for temperature-sensitive shipments.
+This is a HappyRobot freight forwarding demo showcasing AI-powered proactive communication for temperature-sensitive shipments.
 
 ## Architecture
 
@@ -28,7 +28,7 @@ This is a DSV freight forwarding demo showcasing AI-powered proactive communicat
 - **Database**: PostgreSQL (Railway)
 - **Real-time**: Redis + SSE (Railway)
 - **AI Voice**: HappyRobot workflows
-- **Styling**: Tailwind CSS (DSV navy/white/silver theme)
+- **Styling**: Tailwind CSS
 
 ## Setup Steps
 
@@ -89,7 +89,7 @@ npx prisma migrate deploy
 ```bash
 # Push to GitHub
 git add .
-git commit -m "Initial DSV demo setup"
+git commit -m "Initial HappyRobot Forwarding demo setup"
 git push
 
 # Deploy
@@ -209,13 +209,13 @@ eventSource.onmessage = (event) => {
   const { type, channel, data } = JSON.parse(event.data);
 
   switch (channel) {
-    case 'dsv:email:received':
+    case 'hr:email:received':
       // Update inbox
       break;
-    case 'dsv:booking:created':
+    case 'hr:booking:created':
       // Update dashboard
       break;
-    case 'dsv:temperature:alert':
+    case 'hr:temperature:alert':
       // Show alert popup
       break;
   }
@@ -231,12 +231,12 @@ Click "Reset Demo" in sidebar to restore initial state:
 
 ## Color Scheme
 
-DSV Brand Colors (Apple-inspired):
+HappyRobot Brand Colors:
 
 ```css
---dsv-navy: #003366       /* Primary brand color */
---dsv-silver: #C0C5CE     /* Secondary/accents */
---dsv-silver-light: #E8EAED /* Borders/surfaces */
+--hr-navy: #003366       /* Primary brand color */
+--hr-silver: #C0C5CE     /* Secondary/accents */
+--hr-silver-light: #E8EAED /* Borders/surfaces */
 ```
 
 ## Navigation

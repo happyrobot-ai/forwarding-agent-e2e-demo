@@ -12,7 +12,7 @@ export function getHappyRobotRunUrl(runId: string): string {
     const match = webhookUrl.match(/\/hooks\/([^/?]+)/);
     if (match) {
       const workflowId = match[1];
-      return `https://v2.platform.happyrobot.ai/dsv/workflow/${workflowId}/runs`;
+      return `https://v2.platform.happyrobot.ai/happyrobot-forwarding/workflow/${workflowId}/runs`;
     }
   }
 

@@ -7,20 +7,20 @@
   --background: #FFFFFF;
   --foreground: #1A1D29;
 
-  /* DSV Brand Colors - Navy, White, Silver */
-  --dsv-navy: #003366;
-  --dsv-navy-light: #004C99;
-  --dsv-navy-dark: #001F3F;
-  --dsv-silver: #C0C5CE;
-  --dsv-silver-light: #E8EAED;
-  --dsv-silver-dark: #8B92A3;
+  /* HappyRobot Brand Colors - Navy, White, Silver */
+  --hr-navy: #003366;
+  --hr-navy-light: #004C99;
+  --hr-navy-dark: #001F3F;
+  --hr-silver: #C0C5CE;
+  --hr-silver-light: #E8EAED;
+  --hr-silver-dark: #8B92A3;
 
   /* Enterprise color palette - Light mode (Apple inspired) */
-  --dsv-bg: #FFFFFF;
-  --dsv-card: #FAFBFC;
-  --dsv-border: #E8EAED;
-  --dsv-surface: #F5F6F8;
-  --dsv-accent: #003366;
+  --hr-bg: #FFFFFF;
+  --hr-card: #FAFBFC;
+  --hr-border: #E8EAED;
+  --hr-surface: #F5F6F8;
+  --hr-accent: #003366;
 
   /* Status colors - Light mode (Elegant, muted) */
   --status-success-bg: #E6F4EA;
@@ -43,37 +43,37 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 
-  /* DSV Brand semantic colors */
-  --color-dsv-navy: var(--dsv-navy);
-  --color-dsv-navy-light: var(--dsv-navy-light);
-  --color-dsv-navy-dark: var(--dsv-navy-dark);
-  --color-dsv-silver: var(--dsv-silver);
-  --color-dsv-silver-light: var(--dsv-silver-light);
-  --color-dsv-silver-dark: var(--dsv-silver-dark);
-  --color-dsv-bg: var(--dsv-bg);
-  --color-dsv-card: var(--dsv-card);
-  --color-dsv-border: var(--dsv-border);
-  --color-dsv-surface: var(--dsv-surface);
-  --color-dsv-accent: var(--dsv-accent);
+  /* HappyRobot Brand semantic colors */
+  --color-hr-navy: var(--hr-navy);
+  --color-hr-navy-light: var(--hr-navy-light);
+  --color-hr-navy-dark: var(--hr-navy-dark);
+  --color-hr-silver: var(--hr-silver);
+  --color-hr-silver-light: var(--hr-silver-light);
+  --color-hr-silver-dark: var(--hr-silver-dark);
+  --color-hr-bg: var(--hr-bg);
+  --color-hr-card: var(--hr-card);
+  --color-hr-border: var(--hr-border);
+  --color-hr-surface: var(--hr-surface);
+  --color-hr-accent: var(--hr-accent);
 }
 
 .dark {
   --background: #1A1D29;
   --foreground: #FFFFFF;
 
-  /* DSV Dark mode - Navy accented with silver highlights */
-  --dsv-navy: #4D7CA8;
-  --dsv-navy-light: #6B9FD4;
-  --dsv-navy-dark: #003366;
-  --dsv-silver: #8B92A3;
-  --dsv-silver-light: #C0C5CE;
-  --dsv-silver-dark: #5F6573;
+  /* HappyRobot Dark mode - Navy accented with silver highlights */
+  --hr-navy: #4D7CA8;
+  --hr-navy-light: #6B9FD4;
+  --hr-navy-dark: #003366;
+  --hr-silver: #8B92A3;
+  --hr-silver-light: #C0C5CE;
+  --hr-silver-dark: #5F6573;
 
-  --dsv-bg: #1A1D29;
-  --dsv-card: #24273A;
-  --dsv-border: #3A3F52;
-  --dsv-surface: #1F2232;
-  --dsv-accent: #4D7CA8;
+  --hr-bg: #1A1D29;
+  --hr-card: #24273A;
+  --hr-border: #3A3F52;
+  --hr-surface: #1F2232;
+  --hr-accent: #4D7CA8;
 
   /* Status colors - Dark mode (Elegant, sophisticated) */
   --status-success-bg: #1E3A2A;

@@ -1,6 +1,6 @@
 # Local Development Setup
 
-Quick guide to run the DSV demo locally on your machine.
+Quick guide to run the HappyRobot Forwarding demo locally on your machine.
 
 ## Prerequisites
 
@@ -129,14 +129,14 @@ You already have PostgreSQL installed. Make sure it's running:
 brew services start postgresql@16
 
 # Create a database
-createdb dsv_demo
+createdb happyrobot_forwarding
 ```
 
 ### 3. Create `.env.local`
 
 ```bash
 # Local Postgres
-DATABASE_URL="postgresql://mahika@localhost:5432/dsv_demo"
+DATABASE_URL="postgresql://mahika@localhost:5432/happyrobot_forwarding"
 
 # Local Redis
 REDIS_URL="redis://localhost:6379"
@@ -259,7 +259,7 @@ If using local Redis:
 ### "Database connection failed"
 
 - Check `DATABASE_URL` format
-- Ensure database exists: `createdb dsv_demo`
+- Ensure database exists: `createdb happyrobot_forwarding`
 - Test: `psql $DATABASE_URL -c "SELECT 1"`
 
 ### "Port 3000 already in use"
@@ -289,4 +289,4 @@ Once running locally:
 4. Click "Reset Demo" to load initial data
 5. Watch the temperature alert auto-popup after 2 seconds on map view
 
-For production deployment, see [DSV_SETUP.md](./DSV_SETUP.md).
+For production deployment, see [SETUP.md](./SETUP.md).

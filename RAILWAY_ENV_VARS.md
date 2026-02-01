@@ -88,7 +88,7 @@ If you're using Pusher for real-time features:
 
 ## After First Deploy
 
-1. Get your Railway app URL (e.g., `https://dsv-demo.up.railway.app`)
+1. Get your Railway app URL (e.g., `https://happyrobot-forwarding-demo.up.railway.app`)
 2. Set `APP_URL` = your Railway URL
 3. Set `NEXT_PUBLIC_APP_URL` = your Railway URL
 4. Run database migrations:

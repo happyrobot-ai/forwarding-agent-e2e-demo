@@ -354,30 +354,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
     },
   ];
 
-  // Logo selection based on theme and sidebar state
-  const getLogoSrc = () => {
-    if (isCollapsed) {
-      return theme === "dark"
-        ? "/happyrobot/Footer-logo-white.png"
-        : "/happyrobot/Footer-logo-black.png";
-    }
-    return theme === "dark"
-      ? "/happyrobot/Footer-expand-happyrobot_white.png"
-      : "/happyrobot/Footer-expand-happyrobot-blacl.png";
-  };
-
-  // HappyRobot footer logo selection
-  const getFooterLogoSrc = () => {
-    if (isCollapsed) {
-      return theme === "dark"
-        ? "/happyrobot/Footer-logo-white.png"
-        : "/happyrobot/Footer-logo-black.png";
-    }
-    return theme === "dark"
-      ? "/happyrobot/Footer-expand-happyrobot_white.png"
-      : "/happyrobot/Footer-expand-happyrobot-blacl.png";
-  };
-
   return (
     <div className="min-h-screen bg-white dark:bg-[#1A1D29] flex">
       {/* Sidebar */}
@@ -402,16 +378,24 @@ export function Layout({ children }: { children: React.ReactNode }) {
         >
           <div className="relative flex items-center">
             {isCollapsed ? (
-              <div className="flex items-center justify-center h-8 w-8 rounded bg-[#003366] dark:bg-[#4D7CA8]">
-                <span className="text-white font-bold text-lg">D</span>
-              </div>
+              <Image
+                src="/happyrobot/hr-icon-black.png"
+                alt="HappyRobot Forwarding"
+                width={32}
+                height={32}
+                className={cn("object-contain", theme === "dark" && "invert")}
+              />
             ) : (
-              <div className="flex items-center gap-2">
-                <div className="flex items-center justify-center h-8 w-8 rounded bg-[#003366] dark:bg-[#4D7CA8]">
-                  <span className="text-white font-bold text-lg">D</span>
-                </div>
-                <span className="text-xl font-semibold text-[#003366] dark:text-[#4D7CA8]">DSV</span>
-                <span className="text-sm text-[#8B92A3] ml-1">Air & Sea</span>
+              <div className="flex items-center gap-3">
+                <Image
+                  src="/happyrobot/hr-icon-black.png"
+                  alt="HappyRobot Forwarding"
+                  width={32}
+                  height={32}
+                  className={cn("object-contain", theme === "dark" && "invert")}
+                />
+                <span className="text-lg font-semibold text-zinc-900 dark:text-white">HappyRobot</span>
+                <span className="text-sm text-zinc-500 dark:text-zinc-400">Forwarding</span>
               </div>
             )}
           </div>
@@ -574,11 +558,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
           {isCollapsed ? (
             <div className="flex justify-center">
               <Image
-                src={getFooterLogoSrc()}
-                alt="HappyRobot AI"
+                src="/happyrobot/hr-icon-black.png"
+                alt="HappyRobot Forwarding"
                 width={32}
                 height={32}
-                className="object-contain"
+                className={cn("object-contain", theme === "dark" && "invert")}
               />
             </div>
           ) : (
@@ -586,13 +570,16 @@ export function Layout({ children }: { children: React.ReactNode }) {
               <div className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-gray-500">
                 Powered by
               </div>
-              <Image
-                src={getFooterLogoSrc()}
-                alt="HappyRobot AI"
-                width={140}
-                height={28}
-                className="object-contain"
-              />
+              <div className="flex items-center gap-2">
+                <Image
+                  src="/happyrobot/hr-icon-black.png"
+                  alt="HappyRobot Forwarding"
+                  width={24}
+                  height={24}
+                  className={cn("object-contain", theme === "dark" && "invert")}
+                />
+                <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">HappyRobot</span>
+              </div>
             </div>
           )}
         </div>

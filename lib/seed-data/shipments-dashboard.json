@@ -2,7 +2,7 @@
   "shipments": [
     {
       "shipmentId": "SHP-ZRH-2026-004892",
-      "bookingNumber": "DSV-ZRH-2026-008471",
+      "bookingNumber": "HR-ZRH-2026-008471",
       "mawbNumber": "618-2847 1956",
       "customerReference": "NVS-QR-2026-1247",
       "status": "ALERT",
@@ -68,7 +68,7 @@
       },
       "assignedRep": {
         "name": "Marco Jansen",
-        "email": "marco.jansen@dsv.com"
+        "email": "marco.jansen@happyrobot.ai"
       },
       "value": {
         "amount": 3245000,
@@ -77,7 +77,7 @@
     },
     {
       "shipmentId": "SHP-AMS-2026-003847",
-      "bookingNumber": "DSV-AMS-2026-007823",
+      "bookingNumber": "HR-AMS-2026-007823",
       "mawbNumber": "074-5523 8847",
       "customerReference": "BMW-PO-2026-44521",
       "status": "IN_TRANSIT",
@@ -129,7 +129,7 @@
       },
       "assignedRep": {
         "name": "Anna van der Berg",
-        "email": "anna.vanderberg@dsv.com"
+        "email": "anna.vanderberg@happyrobot.ai"
       },
       "value": {
         "amount": 892000,
@@ -138,7 +138,7 @@
     },
     {
       "shipmentId": "SHP-FRA-2026-005621",
-      "bookingNumber": "DSV-FRA-2026-009102",
+      "bookingNumber": "HR-FRA-2026-009102",
       "mawbNumber": "020-9912 3345",
       "customerReference": "SIEMENS-2026-78432",
       "status": "CUSTOMS",
@@ -191,7 +191,7 @@
       },
       "assignedRep": {
         "name": "Thomas Müller",
-        "email": "thomas.mueller@dsv.com"
+        "email": "thomas.mueller@happyrobot.ai"
       },
       "value": {
         "amount": 1450000,
@@ -200,7 +200,7 @@
     },
     {
       "shipmentId": "SHP-CPH-2026-002198",
-      "bookingNumber": "DSV-CPH-2026-005647",
+      "bookingNumber": "HR-CPH-2026-005647",
       "mawbNumber": "117-6678 4421",
       "customerReference": "NOVO-2026-BIO-9921",
       "status": "IN_TRANSIT",
@@ -258,7 +258,7 @@
       },
       "assignedRep": {
         "name": "Erik Nielsen",
-        "email": "erik.nielsen@dsv.com"
+        "email": "erik.nielsen@happyrobot.ai"
       },
       "value": {
         "amount": 2180000,
@@ -267,7 +267,7 @@
     },
     {
       "shipmentId": "SHP-LHR-2026-006234",
-      "bookingNumber": "DSV-LHR-2026-010456",
+      "bookingNumber": "HR-LHR-2026-010456",
       "mawbNumber": "125-4432 7789",
       "customerReference": "ASTRA-UK-2026-3341",
       "status": "DELIVERED",
@@ -326,7 +326,7 @@
       },
       "assignedRep": {
         "name": "James Wilson",
-        "email": "james.wilson@dsv.com"
+        "email": "james.wilson@happyrobot.ai"
       },
       "value": {
         "amount": 4200000,
@@ -335,7 +335,7 @@
     },
     {
       "shipmentId": "SHP-CDG-2026-004501",
-      "bookingNumber": "DSV-CDG-2026-008234",
+      "bookingNumber": "HR-CDG-2026-008234",
       "mawbNumber": "057-8821 5567",
       "customerReference": "LVMH-2026-HK-8872",
       "status": "IN_TRANSIT",
@@ -388,7 +388,7 @@
       },
       "assignedRep": {
         "name": "Pierre Laurent",
-        "email": "pierre.laurent@dsv.com"
+        "email": "pierre.laurent@happyrobot.ai"
       },
       "value": {
         "amount": 8500000,
@@ -397,7 +397,7 @@
     },
     {
       "shipmentId": "SHP-MXP-2026-003892",
-      "bookingNumber": "DSV-MXP-2026-007456",
+      "bookingNumber": "HR-MXP-2026-007456",
       "mawbNumber": "055-3347 8812",
       "customerReference": "FERRARI-2026-US-442",
       "status": "CUSTOMS_HOLD",
@@ -457,7 +457,7 @@
       },
       "assignedRep": {
         "name": "Giovanni Bianchi",
-        "email": "giovanni.bianchi@dsv.com"
+        "email": "giovanni.bianchi@happyrobot.ai"
       },
       "value": {
         "amount": 1250000,
@@ -466,7 +466,7 @@
     },
     {
       "shipmentId": "SHP-DXB-2026-001547",
-      "bookingNumber": "DSV-DXB-2026-003298",
+      "bookingNumber": "HR-DXB-2026-003298",
       "mawbNumber": "176-2234 9981",
       "customerReference": "ARAMCO-2026-KR-112",
       "status": "BOOKED",
@@ -519,7 +519,7 @@
       },
       "assignedRep": {
         "name": "Fatima Hassan",
-        "email": "fatima.hassan@dsv.com"
+        "email": "fatima.hassan@happyrobot.ai"
       },
       "value": {
         "amount": 3400000,
@@ -528,7 +528,7 @@
     },
     {
       "shipmentId": "SHP-GVA-2026-007823",
-      "bookingNumber": "DSV-GVA-2026-011234",
+      "bookingNumber": "HR-GVA-2026-011234",
       "mawbNumber": "085-4421 7823",
       "customerReference": "ROCHE-2026-CT-4421",
       "status": "BOOKED",
@@ -587,7 +587,7 @@
       },
       "assignedRep": {
         "name": "Marco Jansen",
-        "email": "marco.jansen@dsv.com"
+        "email": "marco.jansen@happyrobot.ai"
       },
       "value": {
         "amount": 5800000,
@@ -596,7 +596,7 @@
     },
     {
       "shipmentId": "SHP-BRU-2026-002341",
-      "bookingNumber": "DSV-BRU-2026-004567",
+      "bookingNumber": "HR-BRU-2026-004567",
       "mawbNumber": "082-3321 4567",
       "customerReference": "JANSSEN-2026-VAC-112",
       "status": "IN_TRANSIT",
@@ -654,7 +654,7 @@
       },
       "assignedRep": {
         "name": "Sophie Dubois",
-        "email": "sophie.dubois@dsv.com"
+        "email": "sophie.dubois@happyrobot.ai"
       },
       "value": {
         "amount": 12500000,
@@ -663,7 +663,7 @@
     },
     {
       "shipmentId": "SHP-NRT-2026-008934",
-      "bookingNumber": "DSV-NRT-2026-012456",
+      "bookingNumber": "HR-NRT-2026-012456",
       "mawbNumber": "131-8823 4561",
       "customerReference": "TOYOTA-2026-US-8834",
       "status": "IN_TRANSIT",
@@ -715,7 +715,7 @@
       },
       "assignedRep": {
         "name": "Yuki Tanaka",
-        "email": "yuki.tanaka@dsv.com"
+        "email": "yuki.tanaka@happyrobot.ai"
       },
       "value": {
         "amount": 2340000,
@@ -724,7 +724,7 @@
     },
     {
       "shipmentId": "SHP-SIN-2026-005672",
-      "bookingNumber": "DSV-SIN-2026-008901",
+      "bookingNumber": "HR-SIN-2026-008901",
       "mawbNumber": "618-5567 2341",
       "customerReference": "SAMSUNG-2026-EU-4421",
       "status": "IN_TRANSIT",
@@ -776,7 +776,7 @@
       },
       "assignedRep": {
         "name": "David Lim",
-        "email": "david.lim@dsv.com"
+        "email": "david.lim@happyrobot.ai"
       },
       "value": {
         "amount": 8900000,
@@ -785,7 +785,7 @@
     },
     {
       "shipmentId": "SHP-PEK-2026-003421",
-      "bookingNumber": "DSV-PEK-2026-006543",
+      "bookingNumber": "HR-PEK-2026-006543",
       "mawbNumber": "999-3321 6543",
       "customerReference": "HUAWEI-2026-EU-2234",
       "status": "DELIVERED",
@@ -838,7 +838,7 @@
       },
       "assignedRep": {
         "name": "Chen Ming",
-        "email": "chen.ming@dsv.com"
+        "email": "chen.ming@happyrobot.ai"
       },
       "value": {
         "amount": 4500000,
@@ -847,7 +847,7 @@
     },
     {
       "shipmentId": "SHP-ICN-2026-006789",
-      "bookingNumber": "DSV-ICN-2026-009876",
+      "bookingNumber": "HR-ICN-2026-009876",
       "mawbNumber": "180-6678 9012",
       "customerReference": "LG-2026-US-5567",
       "status": "CUSTOMS",
@@ -900,7 +900,7 @@
       },
       "assignedRep": {
         "name": "Kim Soo-jin",
-        "email": "soojin.kim@dsv.com"
+        "email": "soojin.kim@happyrobot.ai"
       },
       "value": {
         "amount": 3200000,
@@ -909,7 +909,7 @@
     },
     {
       "shipmentId": "SHP-MAD-2026-004532",
-      "bookingNumber": "DSV-MAD-2026-007654",
+      "bookingNumber": "HR-MAD-2026-007654",
       "mawbNumber": "075-4421 7654",
       "customerReference": "INDITEX-2026-CN-8821",
       "status": "IN_TRANSIT",
@@ -961,7 +961,7 @@
       },
       "assignedRep": {
         "name": "Elena Garcia",
-        "email": "elena.garcia@dsv.com"
+        "email": "elena.garcia@happyrobot.ai"
       },
       "value": {
         "amount": 2800000,
@@ -970,7 +970,7 @@
     },
     {
       "shipmentId": "SHP-VIE-2026-002178",
-      "bookingNumber": "DSV-VIE-2026-004321",
+      "bookingNumber": "HR-VIE-2026-004321",
       "mawbNumber": "257-2134 5678",
       "customerReference": "REDBULL-2026-US-1123",
       "status": "DELIVERED",
@@ -1023,7 +1023,7 @@
       },
       "assignedRep": {
         "name": "Hans Gruber",
-        "email": "hans.gruber@dsv.com"
+        "email": "hans.gruber@happyrobot.ai"
       },
       "value": {
         "amount": 450000,
@@ -1032,7 +1032,7 @@
     },
     {
       "shipmentId": "SHP-DUS-2026-007812",
-      "bookingNumber": "DSV-DUS-2026-011234",
+      "bookingNumber": "HR-DUS-2026-011234",
       "mawbNumber": "020-7712 3456",
       "customerReference": "HENKEL-2026-BR-4421",
       "status": "IN_TRANSIT",
@@ -1084,7 +1084,7 @@
       },
       "assignedRep": {
         "name": "Thomas Müller",
-        "email": "thomas.mueller@dsv.com"
+        "email": "thomas.mueller@happyrobot.ai"
       },
       "value": {
         "amount": 890000,
@@ -1093,7 +1093,7 @@
     },
     {
       "shipmentId": "SHP-MUC-2026-009123",
-      "bookingNumber": "DSV-MUC-2026-013456",
+      "bookingNumber": "HR-MUC-2026-013456",
       "mawbNumber": "020-9012 3456",
       "customerReference": "AUDI-2026-CN-7723",
       "status": "BOOKED",
@@ -1146,7 +1146,7 @@
       },
       "assignedRep": {
         "name": "Anna van der Berg",
-        "email": "anna.vanderberg@dsv.com"
+        "email": "anna.vanderberg@happyrobot.ai"
       },
       "value": {
         "amount": 1850000,
@@ -1155,7 +1155,7 @@
     },
     {
       "shipmentId": "SHP-ORD-2026-003456",
-      "bookingNumber": "DSV-ORD-2026-006789",
+      "bookingNumber": "HR-ORD-2026-006789",
       "mawbNumber": "006-3345 6789",
       "customerReference": "ABBOTT-2026-IE-2234",
       "status": "IN_TRANSIT",
@@ -1213,7 +1213,7 @@
       },
       "assignedRep": {
         "name": "James Wilson",
-        "email": "james.wilson@dsv.com"
+        "email": "james.wilson@happyrobot.ai"
       },
       "value": {
         "amount": 2100000,
@@ -1222,7 +1222,7 @@
     },
     {
       "shipmentId": "SHP-HKG-2026-008234",
-      "bookingNumber": "DSV-HKG-2026-012567",
+      "bookingNumber": "HR-HKG-2026-012567",
       "mawbNumber": "160-8123 4567",
       "customerReference": "CATL-2026-DE-5567",
       "status": "IN_TRANSIT",
@@ -1274,7 +1274,7 @@
       },
       "assignedRep": {
         "name": "David Lim",
-        "email": "david.lim@dsv.com"
+        "email": "david.lim@happyrobot.ai"
       },
       "value": {
         "amount": 6500000,
@@ -1283,7 +1283,7 @@
     },
     {
       "shipmentId": "SHP-MEL-2026-001234",
-      "bookingNumber": "DSV-MEL-2026-002567",
+      "bookingNumber": "HR-MEL-2026-002567",
       "mawbNumber": "081-1123 4567",
       "customerReference": "CSL-2026-US-1123",
       "status": "IN_TRANSIT",
@@ -1341,7 +1341,7 @@
       },
       "assignedRep": {
         "name": "Michael Chen",
-        "email": "michael.chen@dsv.com"
+        "email": "michael.chen@happyrobot.ai"
       },
       "value": {
         "amount": 8900000,
@@ -1350,7 +1350,7 @@
     },
     {
       "shipmentId": "SHP-JNB-2026-002345",
-      "bookingNumber": "DSV-JNB-2026-003678",
+      "bookingNumber": "HR-JNB-2026-003678",
       "mawbNumber": "083-2234 5678",
       "customerReference": "SASOL-2026-EU-3345",
       "status": "BOOKED",
@@ -1403,7 +1403,7 @@
       },
       "assignedRep": {
         "name": "Erik Nielsen",
-        "email": "erik.nielsen@dsv.com"
+        "email": "erik.nielsen@happyrobot.ai"
       },
       "value": {
         "amount": 180000,
@@ -1412,7 +1412,7 @@
     },
     {
       "shipmentId": "SHP-MIA-2026-005678",
-      "bookingNumber": "DSV-MIA-2026-008901",
+      "bookingNumber": "HR-MIA-2026-008901",
       "mawbNumber": "006-5567 8901",
       "customerReference": "PFIZER-2026-BR-7789",
       "status": "DELIVERED",
@@ -1471,7 +1471,7 @@
       },
       "assignedRep": {
         "name": "Carlos Santos",
-        "email": "carlos.santos@dsv.com"
+        "email": "carlos.santos@happyrobot.ai"
       },
       "value": {
         "amount": 15000000,
@@ -1480,7 +1480,7 @@
     },
     {
       "shipmentId": "SHP-DOH-2026-003456",
-      "bookingNumber": "DSV-DOH-2026-006789",
+      "bookingNumber": "HR-DOH-2026-006789",
       "mawbNumber": "157-3345 6789",
       "customerReference": "QATARGAS-2026-JP-4456",
       "status": "IN_TRANSIT",
@@ -1532,7 +1532,7 @@
       },
       "assignedRep": {
         "name": "Fatima Hassan",
-        "email": "fatima.hassan@dsv.com"
+        "email": "fatima.hassan@happyrobot.ai"
       },
       "value": {
         "amount": 2400000,
@@ -1541,7 +1541,7 @@
     },
     {
       "shipmentId": "SHP-SFO-2026-007890",
-      "bookingNumber": "DSV-SFO-2026-011234",
+      "bookingNumber": "HR-SFO-2026-011234",
       "mawbNumber": "016-7789 0123",
       "customerReference": "APPLE-2026-CN-9912",
       "status": "IN_TRANSIT",
@@ -1593,7 +1593,7 @@
       },
       "assignedRep": {
         "name": "Chen Ming",
-        "email": "chen.ming@dsv.com"
+        "email": "chen.ming@happyrobot.ai"
       },
       "value": {
         "amount": 12000000,
@@ -1602,7 +1602,7 @@
     },
     {
       "shipmentId": "SHP-BKK-2026-004567",
-      "bookingNumber": "DSV-BKK-2026-007890",
+      "bookingNumber": "HR-BKK-2026-007890",
       "mawbNumber": "217-4456 7890",
       "customerReference": "CPALL-2026-JP-5567",
       "status": "CUSTOMS",
@@ -1661,7 +1661,7 @@
       },
       "assignedRep": {
         "name": "Yuki Tanaka",
-        "email": "yuki.tanaka@dsv.com"
+        "email": "yuki.tanaka@happyrobot.ai"
       },
       "value": {
         "amount": 850000,
@@ -1670,7 +1670,7 @@
     },
     {
       "shipmentId": "SHP-ATL-2026-008901",
-      "bookingNumber": "DSV-ATL-2026-012345",
+      "bookingNumber": "HR-ATL-2026-012345",
       "mawbNumber": "006-8890 1234",
       "customerReference": "COCACOLA-2026-ZA-6678",
       "status": "DELIVERED",
@@ -1723,7 +1723,7 @@
       },
       "assignedRep": {
         "name": "Sophie Dubois",
-        "email": "sophie.dubois@dsv.com"
+        "email": "sophie.dubois@happyrobot.ai"
       },
       "value": {
         "amount": 320000,
@@ -1732,7 +1732,7 @@
     },
     {
       "shipmentId": "SHP-SEA-2026-002345",
-      "bookingNumber": "DSV-SEA-2026-004567",
+      "bookingNumber": "HR-SEA-2026-004567",
       "mawbNumber": "027-2234 5678",
       "customerReference": "AMAZON-2026-EU-3345",
       "status": "IN_TRANSIT",
@@ -1784,7 +1784,7 @@
       },
       "assignedRep": {
         "name": "James Wilson",
-        "email": "james.wilson@dsv.com"
+        "email": "james.wilson@happyrobot.ai"
       },
       "value": {
         "amount": 1200000,
@@ -1793,7 +1793,7 @@
     },
     {
       "shipmentId": "SHP-EWR-2026-006789",
-      "bookingNumber": "DSV-EWR-2026-010123",
+      "bookingNumber": "HR-EWR-2026-010123",
       "mawbNumber": "006-6678 9012",
       "customerReference": "JNJ-2026-CH-7789",
       "status": "BOOKED",
@@ -1852,7 +1852,7 @@
       },
       "assignedRep": {
         "name": "Marco Jansen",
-        "email": "marco.jansen@dsv.com"
+        "email": "marco.jansen@happyrobot.ai"
       },
       "value": {
         "amount": 3800000,
@@ -1861,7 +1861,7 @@
     },
     {
       "shipmentId": "SHP-DFW-2026-003456",
-      "bookingNumber": "DSV-DFW-2026-006789",
+      "bookingNumber": "HR-DFW-2026-006789",
       "mawbNumber": "006-3345 6789",
       "customerReference": "EXXON-2026-SG-4456",
       "status": "IN_TRANSIT",
@@ -1913,7 +1913,7 @@
       },
       "assignedRep": {
         "name": "David Lim",
-        "email": "david.lim@dsv.com"
+        "email": "david.lim@happyrobot.ai"
       },
       "value": {
         "amount": 1850000,
@@ -1922,7 +1922,7 @@
     },
     {
       "shipmentId": "SHP-YYZ-2026-004567",
-      "bookingNumber": "DSV-YYZ-2026-007890",
+      "bookingNumber": "HR-YYZ-2026-007890",
       "mawbNumber": "014-4456 7890",
       "customerReference": "BOMBARDIER-2026-UK-5567",
       "status": "DELIVERED",
@@ -1975,7 +1975,7 @@
       },
       "assignedRep": {
         "name": "Hans Gruber",
-        "email": "hans.gruber@dsv.com"
+        "email": "hans.gruber@happyrobot.ai"
       },
       "value": {
         "amount": 4500000,
@@ -1984,7 +1984,7 @@
     },
     {
       "shipmentId": "SHP-FCO-2026-005678",
-      "bookingNumber": "DSV-FCO-2026-008901",
+      "bookingNumber": "HR-FCO-2026-008901",
       "mawbNumber": "055-5567 8901",
       "customerReference": "GUCCI-2026-JP-6678",
       "status": "IN_TRANSIT",
@@ -2036,7 +2036,7 @@
       },
       "assignedRep": {
         "name": "Giovanni Bianchi",
-        "email": "giovanni.bianchi@dsv.com"
+        "email": "giovanni.bianchi@happyrobot.ai"
       },
       "value": {
         "amount": 6800000,
@@ -2045,7 +2045,7 @@
     },
     {
       "shipmentId": "SHP-ZAG-2026-001234",
-      "bookingNumber": "DSV-ZAG-2026-002345",
+      "bookingNumber": "HR-ZAG-2026-002345",
       "mawbNumber": "831-1123 4567",
       "customerReference": "PLIVA-2026-US-1123",
       "status": "BOOKED",
@@ -2104,7 +2104,7 @@
       },
       "assignedRep": {
         "name": "Erik Nielsen",
-        "email": "erik.nielsen@dsv.com"
+        "email": "erik.nielsen@happyrobot.ai"
       },
       "value": {
         "amount": 1200000,
@@ -2113,7 +2113,7 @@
     },
     {
       "shipmentId": "SHP-BOM-2026-006789",
-      "bookingNumber": "DSV-BOM-2026-010123",
+      "bookingNumber": "HR-BOM-2026-010123",
       "mawbNumber": "098-6678 9012",
       "customerReference": "TATA-2026-UK-7789",
       "status": "IN_TRANSIT",
@@ -2165,7 +2165,7 @@
       },
       "assignedRep": {
         "name": "Priya Patel",
-        "email": "priya.patel@dsv.com"
+        "email": "priya.patel@happyrobot.ai"
       },
       "value": {
         "amount": 45000000,
@@ -2174,7 +2174,7 @@
     },
     {
       "shipmentId": "SHP-DEL-2026-007890",
-      "bookingNumber": "DSV-DEL-2026-011234",
+      "bookingNumber": "HR-DEL-2026-011234",
       "mawbNumber": "098-7789 0123",
       "customerReference": "DRREDDY-2026-US-8890",
       "status": "CUSTOMS",
@@ -2233,7 +2233,7 @@
       },
       "assignedRep": {
         "name": "Priya Patel",
-        "email": "priya.patel@dsv.com"
+        "email": "priya.patel@happyrobot.ai"
       },
       "value": {
         "amount": 2800000,
@@ -2242,7 +2242,7 @@
     },
     {
       "shipmentId": "SHP-KUL-2026-003456",
-      "bookingNumber": "DSV-KUL-2026-006789",
+      "bookingNumber": "HR-KUL-2026-006789",
       "mawbNumber": "232-3345 6789",
       "customerReference": "INTEL-2026-US-4456",
       "status": "IN_TRANSIT",
@@ -2294,7 +2294,7 @@
       },
       "assignedRep": {
         "name": "David Lim",
-        "email": "david.lim@dsv.com"
+        "email": "david.lim@happyrobot.ai"
       },
       "value": {
         "amount": 28000000,
@@ -2303,7 +2303,7 @@
     },
     {
       "shipmentId": "SHP-CGK-2026-004567",
-      "bookingNumber": "DSV-CGK-2026-007890",
+      "bookingNumber": "HR-CGK-2026-007890",
       "mawbNumber": "126-4456 7890",
       "customerReference": "UNILEVER-2026-NL-5567",
       "status": "DELIVERED",
@@ -2356,7 +2356,7 @@
       },
       "assignedRep": {
         "name": "Anna van der Berg",
-        "email": "anna.vanderberg@dsv.com"
+        "email": "anna.vanderberg@happyrobot.ai"
       },
       "value": {
         "amount": 150000,
@@ -2365,7 +2365,7 @@
     },
     {
       "shipmentId": "SHP-GIG-2026-005678",
-      "bookingNumber": "DSV-GIG-2026-008901",
+      "bookingNumber": "HR-GIG-2026-008901",
       "mawbNumber": "957-5567 8901",
       "customerReference": "VALE-2026-CN-6678",
       "status": "IN_TRANSIT",
@@ -2417,7 +2417,7 @@
       },
       "assignedRep": {
         "name": "Carlos Santos",
-        "email": "carlos.santos@dsv.com"
+        "email": "carlos.santos@happyrobot.ai"
       },
       "value": {
         "amount": 1800000,
@@ -2426,7 +2426,7 @@
     },
     {
       "shipmentId": "SHP-LIS-2026-006789",
-      "bookingNumber": "DSV-LIS-2026-010123",
+      "bookingNumber": "HR-LIS-2026-010123",
       "mawbNumber": "047-6678 9012",
       "customerReference": "BIAL-2026-US-7789",
       "status": "BOOKED",
@@ -2485,7 +2485,7 @@
       },
       "assignedRep": {
         "name": "Elena Garcia",
-        "email": "elena.garcia@dsv.com"
+        "email": "elena.garcia@happyrobot.ai"
       },
       "value": {
         "amount": 3200000,
@@ -2494,7 +2494,7 @@
     },
     {
       "shipmentId": "SHP-WAW-2026-007890",
-      "bookingNumber": "DSV-WAW-2026-011234",
+      "bookingNumber": "HR-WAW-2026-011234",
       "mawbNumber": "080-7789 0123",
       "customerReference": "PGNIG-2026-DE-8890",
       "status": "IN_TRANSIT",
@@ -2546,7 +2546,7 @@
       },
       "assignedRep": {
         "name": "Thomas Müller",
-        "email": "thomas.mueller@dsv.com"
+        "email": "thomas.mueller@happyrobot.ai"
       },
       "value": {
         "amount": 680000,
@@ -2555,7 +2555,7 @@
     },
     {
       "shipmentId": "SHP-PRG-2026-008901",
-      "bookingNumber": "DSV-PRG-2026-012345",
+      "bookingNumber": "HR-PRG-2026-012345",
       "mawbNumber": "064-8890 1234",
       "customerReference": "SKODA-2026-CN-9901",
       "status": "CUSTOMS",
@@ -2608,7 +2608,7 @@
       },
       "assignedRep": {
         "name": "Chen Ming",
-        "email": "chen.ming@dsv.com"
+        "email": "chen.ming@happyrobot.ai"
       },
       "value": {
         "amount": 1450000,
@@ -2617,7 +2617,7 @@
     },
     {
       "shipmentId": "SHP-TLV-2026-001234",
-      "bookingNumber": "DSV-TLV-2026-002345",
+      "bookingNumber": "HR-TLV-2026-002345",
       "mawbNumber": "114-1123 4567",
       "customerReference": "TEVA-2026-US-1123",
       "status": "IN_TRANSIT",
@@ -2675,7 +2675,7 @@
       },
       "assignedRep": {
         "name": "Marco Jansen",
-        "email": "marco.jansen@dsv.com"
+        "email": "marco.jansen@happyrobot.ai"
       },
       "value": {
         "amount": 4500000,
@@ -2684,7 +2684,7 @@
     },
     {
       "shipmentId": "SHP-DUB-2026-002345",
-      "bookingNumber": "DSV-DUB-2026-003456",
+      "bookingNumber": "HR-DUB-2026-003456",
       "mawbNumber": "053-2234 5678",
       "customerReference": "MEDTRONIC-2026-JP-2234",
       "status": "DELIVERED",
@@ -2737,7 +2737,7 @@
       },
       "assignedRep": {
         "name": "Yuki Tanaka",
-        "email": "yuki.tanaka@dsv.com"
+        "email": "yuki.tanaka@happyrobot.ai"
       },
       "value": {
         "amount": 8900000,
@@ -2746,7 +2746,7 @@
     },
     {
       "shipmentId": "SHP-STN-2026-009012",
-      "bookingNumber": "DSV-STN-2026-013456",
+      "bookingNumber": "HR-STN-2026-013456",
       "mawbNumber": "172-9012 3456",
       "customerReference": "GSK-2026-SG-9012",
       "status": "IN_TRANSIT",
@@ -2804,7 +2804,7 @@
       },
       "assignedRep": {
         "name": "James Wilson",
-        "email": "james.wilson@dsv.com"
+        "email": "james.wilson@happyrobot.ai"
       },
       "value": {
         "amount": 9500000,
@@ -2813,7 +2813,7 @@
     },
     {
       "shipmentId": "SHP-HEL-2026-001234",
-      "bookingNumber": "DSV-HEL-2026-002345",
+      "bookingNumber": "HR-HEL-2026-002345",
       "mawbNumber": "105-1123 4567",
       "customerReference": "NOKIA-2026-US-1123",
       "status": "IN_TRANSIT",
@@ -2865,7 +2865,7 @@
       },
       "assignedRep": {
         "name": "Erik Nielsen",
-        "email": "erik.nielsen@dsv.com"
+        "email": "erik.nielsen@happyrobot.ai"
       },
       "value": {
         "amount": 3200000,
@@ -2874,7 +2874,7 @@
     },
     {
       "shipmentId": "SHP-OSL-2026-002345",
-      "bookingNumber": "DSV-OSL-2026-003456",
+      "bookingNumber": "HR-OSL-2026-003456",
       "mawbNumber": "117-2234 5678",
       "customerReference": "EQUINOR-2026-BR-2234",
       "status": "BOOKED",
@@ -2927,7 +2927,7 @@
       },
       "assignedRep": {
         "name": "Erik Nielsen",
-        "email": "erik.nielsen@dsv.com"
+        "email": "erik.nielsen@happyrobot.ai"
       },
       "value": {
         "amount": 2800000,
@@ -2936,7 +2936,7 @@
     },
     {
       "shipmentId": "SHP-ARN-2026-003456",
-      "bookingNumber": "DSV-ARN-2026-004567",
+      "bookingNumber": "HR-ARN-2026-004567",
       "mawbNumber": "117-3345 6789",
       "customerReference": "ERICSSON-2026-IN-3345",
       "status": "IN_TRANSIT",
@@ -2988,7 +2988,7 @@
       },
       "assignedRep": {
         "name": "Priya Patel",
-        "email": "priya.patel@dsv.com"
+        "email": "priya.patel@happyrobot.ai"
       },
       "value": {
         "amount": 4500000,
@@ -2997,7 +2997,7 @@
     },
     {
       "shipmentId": "SHP-BUD-2026-004567",
-      "bookingNumber": "DSV-BUD-2026-005678",
+      "bookingNumber": "HR-BUD-2026-005678",
       "mawbNumber": "182-4456 7890",
       "customerReference": "GEDEON-2026-US-4456",
       "status": "DELIVERED",
@@ -3056,7 +3056,7 @@
       },
       "assignedRep": {
         "name": "Marco Jansen",
-        "email": "marco.jansen@dsv.com"
+        "email": "marco.jansen@happyrobot.ai"
       },
       "value": {
         "amount": 2100000,
@@ -3065,7 +3065,7 @@
     },
     {
       "shipmentId": "SHP-VNO-2026-005678",
-      "bookingNumber": "DSV-VNO-2026-006789",
+      "bookingNumber": "HR-VNO-2026-006789",
       "mawbNumber": "657-5567 8901",
       "customerReference": "ORION-2026-JP-5567",
       "status": "IN_TRANSIT",
@@ -3123,7 +3123,7 @@
       },
       "assignedRep": {
         "name": "Yuki Tanaka",
-        "email": "yuki.tanaka@dsv.com"
+        "email": "yuki.tanaka@happyrobot.ai"
       },
       "value": {
         "amount": 6800000,
@@ -3132,7 +3132,7 @@
     },
     {
       "shipmentId": "SHP-CPT-2026-006789",
-      "bookingNumber": "DSV-CPT-2026-007890",
+      "bookingNumber": "HR-CPT-2026-007890",
       "mawbNumber": "083-6678 9012",
       "customerReference": "ASPEN-2026-EU-6678",
       "status": "CUSTOMS",
@@ -3191,7 +3191,7 @@
       },
       "assignedRep": {
         "name": "Thomas Müller",
-        "email": "thomas.mueller@dsv.com"
+        "email": "thomas.mueller@happyrobot.ai"
       },
       "value": {
         "amount": 3200000,
