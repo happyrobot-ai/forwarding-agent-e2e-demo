@@ -89,8 +89,8 @@ interface ResolutionState {
 }
 
 // HappyRobot Platform configuration (from env)
-const HAPPYROBOT_ORG = process.env.NEXT_PUBLIC_HAPPYROBOT_ORG || "sysco";
-const HAPPYROBOT_WORKFLOW_ID = process.env.NEXT_PUBLIC_HAPPYROBOT_WORKFLOW_ID || "3mz6dek05ofl";
+const HAPPYROBOT_ORG = process.env.NEXT_PUBLIC_HAPPYROBOT_ORG || "globallogisticspod";
+const HAPPYROBOT_WORKFLOW_ID = process.env.NEXT_PUBLIC_HAPPYROBOT_WORKFLOW_ID || "oazff9guhfgb";
 
 // HappyRobot run URL helper - links to individual run in platform
 const getRunUrl = (runId: string) =>
