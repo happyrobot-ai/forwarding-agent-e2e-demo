@@ -1231,7 +1231,7 @@ function AskAITab({
                 <Sparkles className="h-8 w-8 text-[#003366] dark:text-[#4D7CA8]" />
               </div>
               <h3 className="text-lg font-semibold text-[#003366] dark:text-white mb-2">
-                Agent Chat about {customer.company}
+                Chat with your Agents about {customer.company}
               </h3>
               <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">
                 Ask questions about this customer&apos;s activity, contacts, preferences, sentiment, and more.
