@@ -385,23 +385,22 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <div className="relative flex items-center">
             {isCollapsed ? (
               <Image
-                src="/happyrobot/hr-icon-black.png"
-                alt="HappyRobot Forwarding"
-                width={32}
-                height={32}
-                className={cn("object-contain", theme === "dark" && "invert")}
+                src={theme === "dark" ? "/jas/jas-logo-white.svg" : "/jas/jas-logo-blue.svg"}
+                alt="JAS Worldwide"
+                width={40}
+                height={20}
+                className="object-contain"
               />
             ) : (
               <div className="flex items-center gap-3">
                 <Image
-                  src="/happyrobot/hr-icon-black.png"
-                  alt="HappyRobot Forwarding"
-                  width={32}
-                  height={32}
-                  className={cn("object-contain", theme === "dark" && "invert")}
+                  src={theme === "dark" ? "/jas/jas-logo-white.svg" : "/jas/jas-logo-blue.svg"}
+                  alt="JAS Worldwide"
+                  width={56}
+                  height={28}
+                  className="object-contain"
                 />
-                <span className="text-lg font-semibold text-zinc-900 dark:text-white">HappyRobot</span>
-                <span className="text-sm text-zinc-500 dark:text-zinc-400">Forwarding</span>
+                <span className="text-sm text-zinc-500 dark:text-zinc-400">Worldwide</span>
               </div>
             )}
           </div>
@@ -564,11 +563,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
           {isCollapsed ? (
             <div className="flex justify-center">
               <Image
-                src="/happyrobot/hr-icon-black.png"
-                alt="HappyRobot Forwarding"
-                width={32}
-                height={32}
-                className={cn("object-contain", theme === "dark" && "invert")}
+                src={theme === "dark" ? "/jas/jas-logo-white.svg" : "/jas/jas-logo-blue.svg"}
+                alt="JAS Worldwide"
+                width={36}
+                height={18}
+                className="object-contain"
               />
             </div>
           ) : (
@@ -578,13 +577,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
               </div>
               <div className="flex items-center gap-2">
                 <Image
-                  src="/happyrobot/hr-icon-black.png"
-                  alt="HappyRobot Forwarding"
-                  width={24}
-                  height={24}
-                  className={cn("object-contain", theme === "dark" && "invert")}
+                  src={theme === "dark" ? "/jas/jas-logo-white.svg" : "/jas/jas-logo-blue.svg"}
+                  alt="JAS Worldwide"
+                  width={40}
+                  height={20}
+                  className="object-contain"
                 />
-                <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">HappyRobot</span>
+                <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Worldwide</span>
               </div>
             </div>
           )}
