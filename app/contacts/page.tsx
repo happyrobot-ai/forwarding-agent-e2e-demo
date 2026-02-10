@@ -932,7 +932,7 @@ export default function ContactsPage() {
         <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
           {/* Tabs */}
           <div className="border-b border-[#E8EAED] dark:border-[#3A3F52] px-6 flex items-center gap-1 shrink-0 bg-[#FAFBFC] dark:bg-[#24273A]">
-            {/* Ask AI Tab — first position */}
+            {/* Agent Chat Tab — first position */}
             <button
               onClick={() => setActiveTab("ai")}
               className={cn(
@@ -943,7 +943,7 @@ export default function ContactsPage() {
               )}
             >
               <Sparkles className="h-4 w-4" />
-              Ask AI
+              Agent Chat
             </button>
             {(
               [
@@ -1057,7 +1057,7 @@ export default function ContactsPage() {
   );
 }
 
-// --- Ask AI Tab ---
+// --- Agent Chat Tab ---
 
 function serializeCustomerContext(customer: Customer): string {
   const lines: string[] = [];
@@ -1231,7 +1231,7 @@ function AskAITab({
                 <Sparkles className="h-8 w-8 text-[#003366] dark:text-[#4D7CA8]" />
               </div>
               <h3 className="text-lg font-semibold text-[#003366] dark:text-white mb-2">
-                Ask AI about {customer.company}
+                Agent Chat about {customer.company}
               </h3>
               <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">
                 Ask questions about this customer&apos;s activity, contacts, preferences, sentiment, and more.
