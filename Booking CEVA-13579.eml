@@ -1,0 +1,398 @@
+Delivered-To: forwarding@happyrobot.ai
+Received: by 2002:a05:6130:2188:b0:948:b5ed:93af with SMTP id cm8csp253088uab;
+        Wed, 11 Feb 2026 09:05:13 -0800 (PST)
+X-Received: by 2002:a5d:5d88:0:b0:431:266:d13a with SMTP id ffacd0b85a97d-4378ac8747emr197718f8f.48.1770829513519;
+        Wed, 11 Feb 2026 09:05:13 -0800 (PST)
+ARC-Seal: i=3; a=rsa-sha256; t=1770829513; cv=pass;
+        d=google.com; s=arc-20240605;
+        b=UMbc3wdKbK+lvxIyfKYQKYRhvxrKJFUL2bELOZaQL/KcGZK03qxoH/3hITpJNQs05O
+         0/NoXAgIA3972SYhI/leokNAITKztimYkAMDw1wGqUof7GLYIGEkA3ay3wgthEZ5oh1I
+         ID7gL+XR7F52UeABiI7+TRf4Rh87YubMXApa1C9szsDCZoMvcGUjV0VMNTr9utbHbBad
+         qrQl+CbtflEZlCG8Bh2+PlNaNETxqRUi/iqC0JcNjtFOSv5BZbp0IGt1b753qptNJ9qA
+         IuAaZOvccxC7pW9qGOkKO5KsUpqTK/PSSSVrPvpBMUQms1R5A6Fbz9iAv7JhKog2u92g
+         fUgg==
+ARC-Message-Signature: i=3; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=mime-version:content-language:accept-language:in-reply-to
+         :references:message-id:date:thread-index:thread-topic:subject:to
+         :from:dkim-signature;
+        bh=2CGzuP/I/Dgnf1iUnbOzluAEJP2CU7tKWZmo/hqHZGA=;
+        fh=mf+40dTmIE3YdIeGQPugbW2cxKXbwlLlbzImLg0ryxU=;
+        b=Kj79THbAs/i/T+9Qz7uu2yCpj5fXHt90brZjykhzzbPhVzA+2qAYGMfMmvt4hqMeL+
+         C48aF8LTmXzXEUXdAZMEa/Fik2rsJtGIYQUaFAmgM6biDzNWXTp0YRPJlOEf3+dVBK0Q
+         8tgV6OZCMIynuLvDSX6PeXCp4wpDVpE5Hafb7tCc1JGPNA6GeVOw13S5iUY6Tl+ZVoji
+         MlfogXpoWFuBFyzl0SEfFufk5KMy9NCf5qm4aFUABf9VXoC/ErKlESMxcNHk77XEhkd6
+         CQvP/a6jy/1VMnB3XaAcoUyaZtVAnSGs+G1+WgHqW0C68KeRhEal2kRXIfCsKT/8xbNk
+         6JXw==;
+        dara=google.com
+ARC-Authentication-Results: i=3; mx.google.com;
+       dkim=pass header.i=@outlook.com header.s=selector1 header.b=tWS9rkpK;
+       arc=pass (i=2 spf=pass spfdomain=outlook.com dkim=pass dkdomain=outlook.com dmarc=pass fromdomain=outlook.com);
+       spf=pass (google.com: domain of hr_forwarding@outlook.com designates 52.103.38.2 as permitted sender) smtp.mailfrom=hr_forwarding@outlook.com
+Return-Path: <hr_forwarding@outlook.com>
+Received: from mxa.germany.inbound.cf-emailsecurity.net (mxa-egress002.germany.inbound.cf-emailsecurity.net. [134.195.26.129])
+        by mx.google.com with ESMTPS id ffacd0b85a97d-43783d32d4csi5270001f8f.114.2026.02.11.09.05.13
+        for <forwarding@happyrobot.ai>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 11 Feb 2026 09:05:13 -0800 (PST)
+Received-SPF: pass (google.com: domain of hr_forwarding@outlook.com designates 52.103.38.2 as permitted sender) client-ip=52.103.38.2;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@outlook.com header.s=selector1 header.b=tWS9rkpK;
+       arc=pass (i=2 spf=pass spfdomain=outlook.com dkim=pass dkdomain=outlook.com dmarc=pass fromdomain=outlook.com);
+       spf=pass (google.com: domain of hr_forwarding@outlook.com designates 52.103.38.2 as permitted sender) smtp.mailfrom=hr_forwarding@outlook.com
+Received: from localhost (localhost [127.0.0.1])
+	by mxa.germany.inbound.cf-emailsecurity.net (Postfix) with ESMTP id 4fB4Yh6zyyz19M8d
+	for <forwarding@happyrobot.ai>; Wed, 11 Feb 2026 17:05:12 +0000 (UTC)
+ARC-Seal: i=2; cv=pass; t=1770829512; a=rsa-sha256; d=cf-emailsecurity.net; s=arc202505e;
+	 b=PpoaB9n1sZL7ffILehvGqetTMFLaJq6fwY/PiL2rGT97Hn/JREeuLIndZ4pV9R7r+w1duj2G/
+	  Hdh+uTK03/ZwhGc0oX+idIpA69Fty7v+bie5QlMJnAzSr7WCK6eNTWQli4fCqn3IydY7xPkJg+U
+	  nqT26eUBVsUo0ciBKnvOF+nOWHiXpXSAmyblroY3ZRs6Ac1SY6BRAvR4F+oS2P/ch6MIeVJQFbP
+	  JsI0c/kPRJh+h+8rRT+rilwWZOcVVu70PmbdPGY/+/dW0Rn/u6g0T95JlJUBjcmto+6mRs/n1mJ
+	  NC4Y9Gf4sOOS1EZbPomXXLLeN0xl1/Gb09f22yoUIkvQ==;
+ARC-Message-Signature: i=2; a=rsa-sha256; c=relaxed/relaxed; d=cf-emailsecurity.net; s=arc202505e;
+	 h=from:from:reply-to:reply-to:subject:subject:message-id:message-id:to:to:cc:mime-version
+	  :mime-version:content-type:content-type:x-area1security-disposition
+	  :x-area1security-disposition:x-cfemailsecurity-disposition
+	  :x-cfemailsecurity-disposition;
+	 bh=2CGzuP/I/Dgnf1iUnbOzluAEJP2CU7tKWZmo/hqHZGA=;
+	 b=G85crdqCB0zIU0OGDH7FMFVaB+J172CEpKHx3hMq4ZH2VQHFeqxkLq9C4Alp7fRxF0I3q0+nm
+	  9ofgl8oPD3JZrrXfW3bxJOZePNWEb1ej+oGsegvilFmyy6FMWmzr3tixHUVz/VeNku2y8+wjdqr
+	  uy3pMV8Iqif53USi8/TbwOySgm7xb8KfYITsMlEVzfyXKeeDkjiOUROZKqSm+QCU27ZfPToPuFi
+	  yzSKHS32rMbutOGOHTE/F/TivGOO0qXScXMdeEtaKEcX++N50Mj1nEHYu8X2byeHWz4kR0/adIA
+	  v5DFzSV9P00Ow78+wb/IFm+rasiGnGpXm/H66zJj8oHQ==;
+ARC-Authentication-Results: i=2; edge.inbound.cf-emailsecurity.net;
+	 dmarc=pass (p=none) header.from=outlook.com;
+	 spf=pass smtp.mailfrom=outlook.com;
+	 dkim=pass header.i=@outlook.com header.s=selector1 header.b=tWS9rkpK;
+	 arc=pass (i=1 )
+Received-SPF: pass (edge.inbound.cf-emailsecurity.net: outlook.com designates 52.103.38.2 as permitted sender) client-ip=52.103.38.2; envelope-from=hr_forwarding@outlook.com; helo=mail-ukwestazolkn19010002.outbound.protection.outlook.com;
+Authentication-Results: edge.inbound.cf-emailsecurity.net;
+	 dmarc=pass (p=none) header.from=outlook.com;
+	 spf=pass smtp.mailfrom=outlook.com;
+	 dkim=pass header.i=@outlook.com header.s=selector1 header.b=tWS9rkpK;
+	 arc=pass (i=1 )
+Received: from edge.inbound.cf-emailsecurity.net (localhost [127.0.0.1])
+        by localhost
+        with SMTP (Cloudflare Email Security 2026.1.7) id MLIA62YN
+        for forwarding@happyrobot.ai;
+        Wed, 11 Feb 2026 17:05:10 +0000 (Z)
+Received: from CWXP265CU008.outbound.protection.outlook.com (mail-ukwestazolkn19010002.outbound.protection.outlook.com [52.103.38.2])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (secp384r1) server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mxa.germany.inbound.cf-emailsecurity.net (Postfix) with ESMTPS id 4fB4Yf1cX4z19M47
+	for <forwarding@happyrobot.ai>; Wed, 11 Feb 2026 17:05:10 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=F3xLyQnKU8A96ngG9bCIITV4J3wpQ73kfhgVGbHTFbUAYZUQ8vVIjGtxu41Avk7jqUOAnpzv57X032/ZU50TntpezsqPzFRtPXU2Tsk0ajNfqNvGHx6I91Z13wG/Cd61PZUQxH+Y8HOZ14Cy1fas+q0cWnKoc/PJDtaDlEHbDCvAPi0L6gR/UVx2nNNSgDA9i+Ewq+RF7Et6x9ra7JsZ5QpUmZzF6Q9X0GVyP2wML2CbvFsAU6efm6aPVchscNWDEEdbA3DcgaduFlDHOPpyzih8FeLDERmceN2PDO4CsQIYy8nFKTK4x2iLdz59jWDsjYlA7at9Mfn0o2QaNMICSQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=2CGzuP/I/Dgnf1iUnbOzluAEJP2CU7tKWZmo/hqHZGA=;
+ b=iH7Yw5l8OS+nvI+r8bOgmrJzwi84wth28c3ozPiFEa8rcqwPmbQOLTtB0LOolSPcRpVJTmqEtiR9fwml6Nq2RlOPw0M1Gntkf0nlfoOAHVzBDSUTz/WhIbN3iTl2jJcRqInfb74h7bv4Eg7BEZsUQVxhXHYb1zQi5cj0fn1AmTTIV6g75Xu1WOZERy6c0dHje5dg1aT9S7R28jRHPrbInI5PQQ7z9Bmoe0/cgPbmWVGa5zw4SX1UqLYT8iRAiw8ZeCpIO0HbF0DPnlKp/wm41MIgQ2xHKnNuduVWzdUD2tSeQhqQhtfsLmdZuJg8ha/MS6QXE/pp1xM4j5ddnFH5kQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
+ dkim=none; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=outlook.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=2CGzuP/I/Dgnf1iUnbOzluAEJP2CU7tKWZmo/hqHZGA=;
+ b=tWS9rkpKlRmliH/e1hvCIbLxTA5/4/MbbC872Ye4Od/AntRAyVxT5nS6g1KRDxQTXTNLMrVDTfqBjnoYUpH15OS5uLkb6OrgKECE05qbjj6KyP62h+ZrJJgb2syvgoGIsONStfq9CSXLdaYwBDb54HnGjvfactsT3zQlHyniKPfiUMII5HviwQzc7/fi62/KkVTedPEYEahBZZes81hRVu/PyVGpICsS35fKxsT4CFQd+Vdf7mErfkPFxQmqcBQsHxk5LbjiBNkk6no5yWjCPuLRjbu4Y97T4wzpb20sty3SwGT5Jw2D6RWyrIBuePX0ROwULonBjV95BRUJjV8rXQ==
+Received: from LO2P265MB5085.GBRP265.PROD.OUTLOOK.COM (2603:10a6:600:250::6)
+ by LO6P265MB6799.GBRP265.PROD.OUTLOOK.COM (2603:10a6:600:2fa::5) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9611.10; Wed, 11 Feb
+ 2026 17:05:08 +0000
+Received: from LO2P265MB5085.GBRP265.PROD.OUTLOOK.COM
+ ([fe80::e997:bc28:b6e5:54a0]) by LO2P265MB5085.GBRP265.PROD.OUTLOOK.COM
+ ([fe80::e997:bc28:b6e5:54a0%6]) with mapi id 15.20.9611.008; Wed, 11 Feb 2026
+ 17:05:08 +0000
+From: Happy Robot <hr_forwarding@outlook.com>
+To: HappyRobot Forwarding <forwarding@happyrobot.ai>
+Subject: RE: Booking CEVA-13579
+Thread-Topic: Booking CEVA-13579
+Thread-Index: AQHcm3h/L0RdhVTMYUuJpPDAjOwJWrV9ujSM
+Date: Wed, 11 Feb 2026 17:05:08 +0000
+Message-ID:
+ <LO2P265MB508515A006E169BEC3D20FB28263A@LO2P265MB5085.GBRP265.PROD.OUTLOOK.COM>
+References:
+ <CAAtB4MfZWiuWOeKf83=jA-ufbKXZJ2AKp_DTo7ua_ocXQPDzvA@mail.gmail.com>
+In-Reply-To:
+ <CAAtB4MfZWiuWOeKf83=jA-ufbKXZJ2AKp_DTo7ua_ocXQPDzvA@mail.gmail.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: LO2P265MB5085:EE_|LO6P265MB6799:EE_
+x-ms-office365-filtering-correlation-id: ae94c8a2-3e42-4477-43e1-08de698fb5b3
+x-microsoft-antispam:
+ BCL:0;ARA:14566002|41001999006|8060799015|12050799012|31061999003|8062599012|15080799012|19110799012|1680799066|9000799056|9400799043|51005399006|38102599003|461199028|9112599006|40105399003|440099028|3412199025|10035399007|3420499032|3430499032|102099032;
+x-microsoft-antispam-message-info:
+ =?us-ascii?Q?RgIfFdjAM/qrO/5AzvW7dct+bcU4trzC2cd9AAAaBxXh3mECSHV3ncyQCJqA?=
+ =?us-ascii?Q?WVEvnTi1BzLNGrumYMkrOnwLz3Ju+s3WC09mtSg9+nBNjDYopgGGYdJQlCze?=
+ =?us-ascii?Q?RiQghnaPJRsgbY8I5g15x9BhrsBxgYIZZgoEsjkedW9zi3r5+YWYVhrEB6yT?=
+ =?us-ascii?Q?B3fWK3ngeaiJ22PCXGhOLHzFBYy6VdvP0IMgpZQPjGFnuO5nGRJfZibgL8iS?=
+ =?us-ascii?Q?w8tiAYg2DenL2A3xuo/EOq0VgeW93xyZKKI/M0Ao1tz0QVoH9+/iirlprYul?=
+ =?us-ascii?Q?HiPfM0DWZA+qy+LmoURrtzhCoEMkq0iHTechRupwqIscQZStJpCw4q6Jagft?=
+ =?us-ascii?Q?ZwygRgmGGbL/PeIaURQmq/e8gRw9cYsOc3QGkbr713eV0+9HnIOjF9VFgONx?=
+ =?us-ascii?Q?ejHBzXb02QaBd1xp9A+TcQpNSjo8RsmMukJQLwlO3BqzYJ7Rpn/JkTqjkHof?=
+ =?us-ascii?Q?ZObqVTnvF/PGDygAKEoaVYmu4/oxZhUs2KYw6xgx/VgWA3rIKz2U3L6Rn3uS?=
+ =?us-ascii?Q?QHaW0yydoSiDyr5daoA6UEa8xx+kpc4g76li64EuJ/CKVLXuKv9grjQBtnhW?=
+ =?us-ascii?Q?tFV/pv+fm0V1D+2gjCgE0j+IjBgrQ0BjXlF1hWs2q+M4YCVaDmk31u4asoLk?=
+ =?us-ascii?Q?Z00PCsp4pngP5oUI1shWdTrTMdCafSvXygxmgZ6Us+Nfn6AilgdktKirTuVZ?=
+ =?us-ascii?Q?Gxf4UBL6P0I3347DvT7xcZnZDVGSt5KS9BhljLadVKMmYBHTehaDiJdWO61x?=
+ =?us-ascii?Q?SjOhuigcia8wlxwNbMuu6lYrc77y0o13wRXGfIqJW+qTeMdp69e8/v7REj7T?=
+ =?us-ascii?Q?E7AfQA9LVkfuuaYHqqzW6PTNlyN03W+g6FPC044FedVpgmUIw0Ik+zVd0zJk?=
+ =?us-ascii?Q?0KPoAm0dSmCwpoWgKSYbI26MC51TKg3Ig2EDZ1XGhp9rTK62Z16cJW7ombXT?=
+ =?us-ascii?Q?AQMPDjnlgWtU1YxQe10R8CSgytrG9t1gzA2OPKe2TgCBf1bIpYukSg3EVgj1?=
+ =?us-ascii?Q?4wYaF3DiiJ5sWLH+z4Uzsi4Uj8XYVuhvFxQbbQjZ/KWNNBsHmAi0rKLWmUIv?=
+ =?us-ascii?Q?fmrWaHscZfp3bKQ/M1oPSaXtLaXKDTdcAAN5QGqOHeOD2d9q/DJQGeVGPGuh?=
+ =?us-ascii?Q?y3iGeMWV3QuXAIyQW8kV/C8eV0SE7hCutt/rmzF3TTtdpl2bgLrgxpnt7vDe?=
+ =?us-ascii?Q?8a5SrK980CjHTl2YL0YqqrF1U9xmISJMC+t1zIXl6gMNrc0VhxtmL/uwG0rb?=
+ =?us-ascii?Q?dEFMQZm3NTLPNsucpf8ux1qmJtQTe2moGHgUGhz4nZcNrrYl0h4gbCZWBxiq?=
+ =?us-ascii?Q?BiAp0/F8IeySYkkSHU2CujII+zMIi6eNEAOYRUmOV3XUJy7tK/B0+YFdryWZ?=
+ =?us-ascii?Q?lJVo58j6eAI1k8o+vpuZAyuM7uwgyJt5vf4zh6LBZPs1iy61TQ=3D=3D?=
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?us-ascii?Q?J42WjZx5WDHC8BynAVzcjZBerNu5dZP0EkNwV9uGXajBGAaCs3xJ2SaPJGH7?=
+ =?us-ascii?Q?EZBON0pJ3FWbhiYfTPqoUQd9wHhQ57YZ2NSapG9qXCnxZlVVpdwGFKGcQ+vA?=
+ =?us-ascii?Q?IWvBwF2qB4ToDxkkZQOcz4J/fYFgWm+HXjIqkRWe2cEBTVkFL3Gea3Z+AqSN?=
+ =?us-ascii?Q?12ckvcfq08xstSjlsHjPmBBDqJhwpByArc/vZu8GEUdB6pI9jEH+slf80DVP?=
+ =?us-ascii?Q?T7aGRmpEZEQ/CIUhgiuO1KBCTMRclsCDx4f+DOoZWJY8NR2tmUCU9rmO3x7/?=
+ =?us-ascii?Q?ozl/M43FBNeVYtE3IaUFoePwkTT/uHCoCTqhXno8xgSFYIl5yyP+G/fhjZMT?=
+ =?us-ascii?Q?C63xD/BZly+KMY9mYzpdzm0dcQ+j00lPZWFXxFiuQ39vQdKdHlbHP6BeFEWp?=
+ =?us-ascii?Q?H6QVmHB/dGiEA3HIeV3CgciEBC8Pm/YozThmnF7JfO5mYq583T86Dur0GQBF?=
+ =?us-ascii?Q?Igj+J0W/UTJ52PJbk8R5rlc2/55m3U524VENEq5J2RP9eMk0h9m9R6FDwwtB?=
+ =?us-ascii?Q?tniUlvdxJEv+J7F6DnMDrCR1Rifp2Ge6RmsbLz/DiF2Az7JG7aBmFkL8FRWf?=
+ =?us-ascii?Q?IQgaPQLsZirKFk7qLs8IXDNy/D+pbHuFamBiRz8RjKNj2CSRXSsUdjEtd1Yr?=
+ =?us-ascii?Q?ToDRAKMyNFXYYxqw5tna3xzDuLVRMNF5Iw04nFURGK+pfSWsKTP+eIXcmryY?=
+ =?us-ascii?Q?FK3o/0VwLCpbwqhAOMVlQxkl2TzFEHpwzCHG4kYYSVg19pQYuVVVuNKFxoZP?=
+ =?us-ascii?Q?Sm6tnoVj9+mWXTEcgBCRuvuUZCgtTvcbh/zIHixUidhh7enAKqh/BjMYj315?=
+ =?us-ascii?Q?vjauqTBCLZ3gbCni58ZGN8OG3bIhie+EIisK0nEMsh6TOIYght/dPam8epJq?=
+ =?us-ascii?Q?5BmF+xUcFH5FRigh/777WeZr1oHK/vePRvQoPVC/gzCffDOHbuFlvUsAGY2N?=
+ =?us-ascii?Q?jvKbS4D0rpkgcynJQSSza+JfBzPdVulf0Rd3JwKa4nl3n305bTBhso5D5e/I?=
+ =?us-ascii?Q?7CIgkLhCjHdvaYAJkENxRGO3FF1zLndYQguFhiG4s59DNnFgZ7wb4DxNGI9/?=
+ =?us-ascii?Q?pf13xwhSyw5zIkq/LrojuRuTgSuZA+N/EwRpscRgk2DhGCVfXuzp512AZ1I8?=
+ =?us-ascii?Q?hIH0ZJUQEKIf7JBftZ+UWImPSfCeB4GiWAcTspEW+8I/mcxCxPwYpTJOdVm3?=
+ =?us-ascii?Q?UK48oPohb56RWUY7nBWk6jGuRWSe4G2Ct8dfHy5yVMeGWpUaTHhD4LMX6nyZ?=
+ =?us-ascii?Q?7CPTKH/5q2+sBsd9hfQJJVjYfw8iCAFm8+RqRbXetTFfaqtx4hOsDwDueD6Z?=
+ =?us-ascii?Q?VmYPDRVDy9IaAgX/ngeSWL/2eWRAv1765HYRO1iR75v1F15Stn0k37pwKrKy?=
+ =?us-ascii?Q?zMCJjZNBS1OWZv+itELX/sNXc9aS?=
+Content-Type: multipart/alternative;
+	boundary="_000_LO2P265MB508515A006E169BEC3D20FB28263ALO2P265MB5085GBRP_"
+MIME-Version: 1.0
+X-OriginatorOrg: outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: LO2P265MB5085.GBRP265.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-CrossTenant-Network-Message-Id: ae94c8a2-3e42-4477-43e1-08de698fb5b3
+X-MS-Exchange-CrossTenant-originalarrivaltime: 11 Feb 2026 17:05:08.2583
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
+X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: LO6P265MB6799
+X-Area1Security-Origin: EXTERNAL 
+X-CFEmailSecurity-Origin: EXTERNAL 
+X-Area1Security-Processed: 8436540aa5acf7beecba6719692cdf6c;1;NONE;2026-02-11T17:05:12;acc72528-fc3c-43be-b35e-541a06a7abc6
+X-CFEmailSecurity-Processed: 8436540aa5acf7beecba6719692cdf6c;1;NONE;2026-02-11T17:05:12;acc72528-fc3c-43be-b35e-541a06a7abc6
+
+--_000_LO2P265MB508515A006E169BEC3D20FB28263ALO2P265MB5085GBRP_
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+[CEVA Logistics]        Support
+
+Dear William,
+
+Thank you for your shipment status inquiry.
+
+The current status and estimated delivery information for your shipment is =
+as follows:
+
+Booking ID: CEVA-13579
+
+Use this ID to track the status and review the details of your booking.
+
+Shipment Status
+Current Location        I-10 Corridor, Louisiana
+Status  In Transit
+Final Delivery ETA      January 13th, 2026
+Destination Hub Miami, FL
+Hub ETA February 20th, 2026
+
+Kind regards,
+Josh - CEVA's AI
+
+[CEVA Logistics]
+
+This email and any attachments may contain confidential information intende=
+d only for the recipient. If you received this message in error, please not=
+ify the sender and delete it.
+
+www.cevalogistics.com <https://www.cevalogistics.com>
+
+--_000_LO2P265MB508515A006E169BEC3D20FB28263ALO2P265MB5085GBRP_
+Content-Type: text/html; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE html>
+<html lang=3D"en">
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dus-ascii"=
+>
+<meta name=3D"viewport" content=3D"width=3Ddevice-width, initial-scale=3D1.=
+0">
+<title>Shipment Status</title>
+<style>=0A=
+    body {=0A=
+      font-family: Arial, Helvetica, sans-serif;=0A=
+      background: #f3f5f7;=0A=
+      margin: 0;=0A=
+      padding: 20px;=0A=
+      color: #1f2937;=0A=
+    }=0A=
+    .wrap {=0A=
+      max-width: 680px;=0A=
+      margin: 0 auto;=0A=
+      background: #ffffff;=0A=
+      border-radius: 10px;=0A=
+      overflow: hidden;=0A=
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);=0A=
+      border: 1px solid #e5e7eb;=0A=
+    }=0A=
+    .topbar {=0A=
+      background: linear-gradient(90deg, #0B5AA6, #0E76BD);=0A=
+      padding: 16px 20px;=0A=
+    }=0A=
+    .content {=0A=
+      padding: 24px;=0A=
+    }=0A=
+    p {=0A=
+      font-size: 14px;=0A=
+      line-height: 1.65;=0A=
+      margin: 10px 0;=0A=
+    }=0A=
+    .section-title {=0A=
+      margin: 20px 0 10px;=0A=
+      font-size: 13px;=0A=
+      font-weight: bold;=0A=
+      color: #111827;=0A=
+      text-transform: uppercase;=0A=
+      letter-spacing: 0.6px;=0A=
+    }=0A=
+    table.grid {=0A=
+      width: 100%;=0A=
+      border-collapse: separate;=0A=
+      border-spacing: 0;=0A=
+      border: 1px solid #e5e7eb;=0A=
+      border-radius: 8px;=0A=
+      overflow: hidden;=0A=
+      margin-bottom: 18px;=0A=
+    }=0A=
+    table.grid td {=0A=
+      padding: 10px 12px;=0A=
+      font-size: 14px;=0A=
+      border-bottom: 1px solid #e5e7eb;=0A=
+    }=0A=
+    table.grid tr:last-child td {=0A=
+      border-bottom: none;=0A=
+    }=0A=
+    .label {=0A=
+      width: 40%;=0A=
+      background: #f9fafb;=0A=
+      font-weight: bold;=0A=
+      color: #374151;=0A=
+    }=0A=
+    .booking-id {=0A=
+      background: #eff6ff;=0A=
+      border: 1px solid #dbeafe;=0A=
+      padding: 14px;=0A=
+      border-radius: 10px;=0A=
+      margin: 16px 0 22px;=0A=
+    }=0A=
+    .booking-id strong {=0A=
+      color: #0B5AA6;=0A=
+      font-size: 15px;=0A=
+    }=0A=
+  </style>
+</head>
+<body>
+<div class=3D"wrap">
+<div class=3D"topbar">
+<table role=3D"presentation" width=3D"100%">
+<tbody>
+<tr>
+<td><img alt=3D"CEVA Logistics" width=3D"130" style=3D"display:block;border=
+:0;" src=3D"https://www.cevalogistics.com/public-cdn/images-spx/x_large_pic=
+ture/CEVA_BlueRed.png">
+</td>
+<td style=3D"text-align:right;"><span style=3D"color:#ffffff;font-size:16px=
+;font-weight:bold;">Support</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class=3D"content">
+<p>Dear <strong>William</strong>,</p>
+<p>Thank you for your shipment status inquiry.</p>
+<p>The current status and estimated delivery information for your shipment =
+is as follows:</p>
+<div class=3D"booking-id">
+<p style=3D"margin:0;">Booking ID: <strong>CEVA-13579</strong> </p>
+<p style=3D"margin:6px 0 0;font-size:13px;">Use this ID to track the status=
+ and review the details of your booking.
+</p>
+</div>
+<div class=3D"section-title">Shipment Status</div>
+<table class=3D"grid" role=3D"presentation">
+<tbody>
+<tr>
+<td class=3D"label">Current Location</td>
+<td>I-10 Corridor, Louisiana</td>
+</tr>
+<tr>
+<td class=3D"label">Status</td>
+<td>In Transit</td>
+</tr>
+<tr>
+<td class=3D"label">Final Delivery ETA</td>
+<td>January 13th, 2026</td>
+</tr>
+<tr>
+<td class=3D"label">Destination Hub</td>
+<td>Miami, FL</td>
+</tr>
+<tr>
+<td class=3D"label">Hub ETA</td>
+<td>February 20th, 2026</td>
+</tr>
+</tbody>
+</table>
+<!-- SIGNATURE_HTML_START -->
+<div style=3D"border-top:1px solid #e5e7eb;padding-top:16px;margin-top:18px=
+;font-size:13px;color:#374151;">
+<p style=3D"margin:0; line-height:1.6;">Kind regards,<br>
+<strong>Josh - CEVA's AI</strong><br>
+</p>
+</div>
+<div style=3D"background:#fafafa;border-top:1px solid #e5e7eb;padding:20px;=
+font-size:11px;color:#6b7280;line-height:1.5;text-align:center;margin-top:2=
+0px;">
+<div style=3D"margin-bottom:12px;"><img alt=3D"CEVA Logistics" width=3D"110=
+" style=3D"display:block;margin:0 auto;border:0;outline:none;" src=3D"https=
+://www.cevalogistics.com/public-cdn/images-spx/x_large_picture/CEVA_BlueRed=
+.png">
+</div>
+<p style=3D"margin:0;">This email and any attachments may contain confident=
+ial information intended only for the recipient. If you received this messa=
+ge in error, please notify the sender and delete it.</p>
+<p style=3D"margin:10px 0 0;"><a href=3D"https://www.cevalogistics.com" sty=
+le=3D"color:#0B5AA6;text-decoration:none;">www.cevalogistics.com
+</a></p>
+</div>
+<!-- SIGNATURE_HTML_END --></div>
+</div>
+</body>
+</html>
+
+--_000_LO2P265MB508515A006E169BEC3D20FB28263ALO2P265MB5085GBRP_--

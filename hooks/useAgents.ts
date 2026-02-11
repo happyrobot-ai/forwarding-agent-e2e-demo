@@ -9,6 +9,8 @@ export interface Agent {
   agentRole: string;
   agentName: string;
   summary: string;
+  customer?: string;
+  contact?: string;
   status: string;
   link: string;
   logs?: unknown[];
@@ -24,6 +26,8 @@ interface AgentApiResponse {
   agent_name: string;
   agent_role?: string;
   summary: string;
+  customer?: string;
+  contact?: string;
   status: string;
   link: string;
   incident_id?: string;
@@ -43,6 +47,8 @@ interface UseAgentsOptions {
   pollRunning?: boolean;
   /** Polling interval in ms (default: 5000) */
   pollInterval?: number;
+  /** Auto-refresh interval in ms to fetch new runs (default: 0 = disabled) */
+  refreshInterval?: number;
   /** Enable debug logging */
   debug?: boolean;
 }
@@ -74,6 +80,8 @@ function transformAgent(apiAgent: AgentApiResponse): Agent {
     agentRole: apiAgent.agent_role || "",
     agentName: apiAgent.agent_name,
     summary: apiAgent.summary,
+    customer: apiAgent.customer,
+    contact: apiAgent.contact,
     status: apiAgent.status,
     link: apiAgent.link,
     createdAt: apiAgent.created_at,
@@ -92,6 +100,7 @@ export function useAgents(options: UseAgentsOptions = {}): UseAgentsReturn {
     incidentId,
     pollRunning = false,
     pollInterval = 5000,
+    refreshInterval = 0,
     debug = false
   } = options;
 
@@ -107,6 +116,8 @@ export function useAgents(options: UseAgentsOptions = {}): UseAgentsReturn {
     {
       revalidateOnFocus: true,
       dedupingInterval: 3000,
+      // Auto-refresh to fetch new runs periodically
+      refreshInterval: refreshInterval > 0 ? refreshInterval : undefined,
     }
   );
 

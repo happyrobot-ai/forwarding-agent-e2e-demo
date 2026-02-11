@@ -1,0 +1,359 @@
+Delivered-To: forwarding@happyrobot.ai
+Received: by 2002:a05:6130:2188:b0:948:b5ed:93af with SMTP id cm8csp52057uab;
+        Wed, 11 Feb 2026 03:56:55 -0800 (PST)
+X-Received: by 2002:a05:6808:f90:b0:459:a26c:2c3c with SMTP id 5614622812f47-46368e0bf0emr995644b6e.26.1770811015230;
+        Wed, 11 Feb 2026 03:56:55 -0800 (PST)
+ARC-Seal: i=3; a=rsa-sha256; t=1770811015; cv=pass;
+        d=google.com; s=arc-20240605;
+        b=UgPnqac2mLZZeVAaE53arXekAHluJy2cW5g1COYZh8Yb63j3Ug3UwL4NF90ikRbocb
+         WNeIR1DFXyqQe0Jk3/b+cIX7hYaoRRmwcDHzeEkICRAA+mJt+aR33gAxAXMDdtxlXKKD
+         mQZQwaPX2XQ7YCjQcr+0M7+dylRkoX8OBAnS1Z3BUz45C2uwPFEQlkMRckM5MCpvyPFE
+         +ze8OujZmyLd+ZACdpfdgvhEFZ3IIm6I6teKkTiHrZ9U8yOu311SiztSFV6qUYkruf7k
+         bTwDmF3FMXq4BwVl3/GKqIXZTziW+FXc6S8+9/wsxfHWEomdBo5n3bnCA1C9Apd8/Ofs
+         ZEeA==
+ARC-Message-Signature: i=3; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=to:subject:message-id:date:from:mime-version:dkim-signature;
+        bh=GnnugrhvssPHatEmeOIufL5O97V7p5gujUsF0aB+uTw=;
+        fh=Uy0UEyukapZIBed3cW9Cke23hFgQtduJ8M2VZZQFbZY=;
+        b=DggC5qyf3o0+0c6d7zNjo+aFIWERFF6Ussb2+JHd1tjv05AtQatJeznWlDaSKe01+s
+         Abjd/zUvV46uEhWWxTRdSucl4bzbI13ZvqlCXjbfGtZf0xujCDgLlh9MfnbCxA6D5yy1
+         I3q1g4fOkMlMUSVB4d3Vy6EYGyQdA3+w22cd+0qUWYEBMlV9azrUo/6yQlktp93d1vgT
+         p7M9tehZAEY9ae1vnRhnxp4wyDh0hltEjM66tK+byMHEYURPL2RgqSPn4azTD3oebJyd
+         n+YpIg90Ra/KJKbJvBUHCWoTmf/Ync8dcNX4fUleH2Ta3IMpcYhaYamwwNz4rVbphJLm
+         /xDw==;
+        dara=google.com
+ARC-Authentication-Results: i=3; mx.google.com;
+       dkim=pass header.i=@happyrobot.ai header.s=google header.b=W5EY2gNk;
+       arc=pass (i=2 spf=pass spfdomain=happyrobot.ai dkim=pass dkdomain=happyrobot.ai dmarc=pass fromdomain=happyrobot.ai);
+       spf=pass (google.com: domain of guillermo@happyrobot.ai designates 209.85.216.46 as permitted sender) smtp.mailfrom=guillermo@happyrobot.ai;
+       dara=neutral header.i=@happyrobot.ai
+Return-Path: <guillermo@happyrobot.ai>
+Received: from mxa.us.inbound.cf-emailsecurity.net (mxa-egress002.us.inbound.cf-emailsecurity.net. [134.195.26.107])
+        by mx.google.com with ESMTPS id 5614622812f47-4636b101816si918445b6e.68.2026.02.11.03.56.55
+        for <forwarding@happyrobot.ai>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 11 Feb 2026 03:56:55 -0800 (PST)
+Received-SPF: pass (google.com: domain of guillermo@happyrobot.ai designates 209.85.216.46 as permitted sender) client-ip=209.85.216.46;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@happyrobot.ai header.s=google header.b=W5EY2gNk;
+       arc=pass (i=2 spf=pass spfdomain=happyrobot.ai dkim=pass dkdomain=happyrobot.ai dmarc=pass fromdomain=happyrobot.ai);
+       spf=pass (google.com: domain of guillermo@happyrobot.ai designates 209.85.216.46 as permitted sender) smtp.mailfrom=guillermo@happyrobot.ai;
+       dara=neutral header.i=@happyrobot.ai
+Received: from localhost (localhost [127.0.0.1])
+	by mxa.us.inbound.cf-emailsecurity.net (Postfix) with ESMTP id 4f9xjz02NMz22lbs
+	for <forwarding@happyrobot.ai>; Wed, 11 Feb 2026 11:56:55 +0000 (UTC)
+ARC-Seal: i=2; cv=pass; t=1770811014; a=rsa-sha256; d=fed.cf-emailsecurity.net; s=arc202507f;
+	 b=KgLOk0EYb4qq7GEiFFlDOWKEUIVd0Z3bzD81cHPfxguqca1laY0W07Diy2Req0XJecqw2zDyr
+	  L4d/KPwVw6pEDLKkkw6QJSXos9+jUo7SOwAIgvZSnJwYj9nGKfL5E8QZfqAX4GAW9p3/c0Wrv3r
+	  0Ry0c9yrVwMVYQ5RL0XccWHmxfpk2yaG18QMP+ZcdI95TFUhKUWk4xOV1iGYJ7HT9+oiqDseShE
+	  HKgonj43k++c7Jc3B68yunMDecaBqXitUhr0Rush0kBV0v/EEKJKZ2YenRq49bi7kTdADQ2BFJS
+	  a9Ir7rPgwtiJQIhtuHGOD0lVRw+uAg4m/tvWiJiZmL1Q==;
+ARC-Message-Signature: i=2; a=rsa-sha256; c=relaxed/relaxed; d=fed.cf-emailsecurity.net; s=arc202507f;
+	 h=from:from:reply-to:reply-to:subject:subject:message-id:message-id:to:to:cc:mime-version
+	  :mime-version:content-type:content-type:x-area1security-disposition
+	  :x-area1security-disposition:x-cfemailsecurity-disposition
+	  :x-cfemailsecurity-disposition;
+	 bh=GnnugrhvssPHatEmeOIufL5O97V7p5gujUsF0aB+uTw=;
+	 b=MkINxtlk5fiByf8GxSTwXC3dBPLXdEGdK0w1UPR/+3509Zo5XUBqVyQlp0fArRLH/YeOTBO+g
+	  WADdKik//VTFAfQnE+8RyozgZNMIV23pBqdQoUG9HJu+pskaNcVFvCL7USrlSJaq5zWMshIWRzQ
+	  wSdu3veZrk3hbYftz8uKsUzSARaluJU+x4MV/xY10y5dYO4vUQMkprsH4HFlqMA8a84WPNPlVjI
+	  hyuUgPDFcZIl5JlaGjiwgkjXcu6N5EBajf3X9lFI9yUlG5tpAVEDEqeNviJ78lS5ziCoycwZUEO
+	  QILP/yX8NE4qEry4gLvciFretO0aPqaSoDidkd1nJrDw==;
+ARC-Authentication-Results: i=2; edge.inbound.fed.cf-emailsecurity.net;
+	 dmarc=pass (p=none) header.from=happyrobot.ai;
+	 spf=pass smtp.mailfrom=happyrobot.ai;
+	 dkim=pass header.i=@happyrobot.ai header.s=google header.b=W5EY2gNk;
+	 arc=pass (i=1 )
+Received-SPF: pass (edge.inbound.fed.cf-emailsecurity.net: happyrobot.ai designates 209.85.216.46 as permitted sender) client-ip=209.85.216.46; envelope-from=guillermo@happyrobot.ai; helo=mail-pj1-f46.google.com;
+Authentication-Results: edge.inbound.fed.cf-emailsecurity.net;
+	 dmarc=pass (p=none) header.from=happyrobot.ai;
+	 spf=pass smtp.mailfrom=happyrobot.ai;
+	 dkim=pass header.i=@happyrobot.ai header.s=google header.b=W5EY2gNk;
+	 arc=pass (i=1 )
+Received: from edge.inbound.fed.cf-emailsecurity.net (localhost [127.0.0.1])
+        by localhost
+        with SMTP (Cloudflare Email Security 2026.1.7) id MLHZ5NER
+        for forwarding@happyrobot.ai;
+        Wed, 11 Feb 2026 11:56:54 +0000 (Z)
+Received: from mail-pj1-f46.google.com (mail-pj1-f46.google.com [209.85.216.46])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mxa.us.inbound.cf-emailsecurity.net (Postfix) with ESMTPS id 4f9xjy2Dhhz22lBw
+	for <forwarding@happyrobot.ai>; Wed, 11 Feb 2026 11:56:54 +0000 (UTC)
+Received: by mail-pj1-f46.google.com with SMTP id 98e67ed59e1d1-354a7b089bbso4074512a91.2
+        for <forwarding@happyrobot.ai>; Wed, 11 Feb 2026 03:56:54 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1770811013; cv=none;
+        d=google.com; s=arc-20240605;
+        b=d+n3FBkBkTll5LjEmCudzRsBum4xXIcJi6wkKoIbowsvRW5eJkhMHyg4hpDne1Lw7o
+         VzS8URWI4S6vB2gc7sYy7fqZbcX6W5wPBNWvuen2D7kcusZOvOPZV/yySwnVXw684/Pw
+         54ZzcPR/xERUtn/6KDHgNFpDDTN46zl4lG1HmLNdlyswIBWx8iwkQbJQ0mb/z3bgDFsC
+         OpOKyK34z7OihDsJiLrf4eWEfxrRhT6uKQhK3IKkMBAQYw6lKT2xhrQztgQeMr6SusPD
+         ge1DimGqy/K4SM/P5XIzY+ZiVYzMJHjoQKDqjUWyJDP7iRk0W8AaBY/6FjmBNwRTi7g3
+         t+Vw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=to:subject:message-id:date:from:mime-version:dkim-signature;
+        bh=GnnugrhvssPHatEmeOIufL5O97V7p5gujUsF0aB+uTw=;
+        fh=Uy0UEyukapZIBed3cW9Cke23hFgQtduJ8M2VZZQFbZY=;
+        b=P+kIrOlb68Qyk8RWUEplMDTKArZPHl9LPQjLqmsxpcM8S3uG+snAeTdssj63bRzjrS
+         7rUMvc1k2xXmueyeZyGjufZU2c10loNrPwmWDxTBYJA8izTiJ6SdNXgz9x3meY4ZR8ab
+         0bdfdJhKQdl43FE/9+pa3fErYCX50ksQtIQrBZs4FoXPrkP4vqtrqlyIZD0zm6lwEifo
+         lzgObgVu8xcKXmSlncZXUhhDWwRiPj5qxVK+1Q+z4riYreM9x3AEUin2ZEprhM71FjeG
+         pCqz55Mfv0nShkoBg+cxYpbMhAYYklB7ZBJ7P6WKGNfVoT5Jk502UnWNafa305nNp8rO
+         VJlA==;
+        darn=happyrobot.ai
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=happyrobot.ai; s=google; t=1770811013; x=1771415813; darn=happyrobot.ai;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=GnnugrhvssPHatEmeOIufL5O97V7p5gujUsF0aB+uTw=;
+        b=W5EY2gNk0iS3l3cXzUAgeNlimLnacuSx26j6c9w0/3HpeR52TFY9OKPFj611Jir/B4
+         8+Xy2r9xJp1EVVi3fJS5SGgRhUcKB7BscKbCnGI+XaSTniG+FK+jAj1gdZUuhhCP8rbY
+         StyLKvIMyO/mtIx9kDFrdo1mCYdMrjUz24RFA=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1770811013; x=1771415813;
+        h=to:subject:message-id:date:from:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=GnnugrhvssPHatEmeOIufL5O97V7p5gujUsF0aB+uTw=;
+        b=edSNB0RQYW7CpExxKFzjAlQ3EC/z8Nur5Nc1aZpM98vvgD6yrGMpFp/x6fg4bpY5eX
+         65W+ZQmwN/khccI+ssc9MCdkVEL7pguWEVgxkNiatpiAUEPwV/Yer0+yNCuhvCxJwvrf
+         O0Y/F161peguhZpx3GTaXxGUs9g/La5eKooe39ZcklMxNJZ6R/gAMVu3U3kcCx13jtWB
+         sLJSbRcMsQnaFeWGVjlUE+RqDZTdzD+PAtvgnMM7bYbjzsfN4if7ZKj7Y3g5W5R0zHPU
+         zVr8M2BFesthF+9cUBe0pRPftSLdyppMTT80DKtdPJbAW9GMLzW229Pgsu+0Wt7FUBVe
+         rh7A==
+X-Gm-Message-State: AOJu0YwfKSLA+WlIZ3KPlZe1ngjIh7w10m+YzDc0sCJCOenjMYuVNOpA
+	yzTM2GjQlMkstG8KodlPUf0Gfc22kb+/dAxSuoOv2Ld+PxM5ZtK8l5X7a12hm/ibIfNIkoD+DVc
+	mU7e32ws+sGZ3Tm0Mj7u1C1RgcqyndnNqzpb2BREnsW/PqZxi5d5xJoE=
+X-Gm-Gg: AZuq6aI9PKnnft8vDxFm4ooZzQsUpMfqS3xjBjdwTZpQaX5E4GoulvafRTreURccIdT
+	r6n48W+9UkaedfYADe5ntRZ3QCvKYxzjVPcPMNYrple9+ESDVwe9IoH+tisbhY3nOWY5bQa4I7O
+	wAAhydcD88LbIN9uQLof5T0StQtawBSY7+jpG04B0k95DQqdKs6Gii2OyUr+LRTG75iQRjReFu8
+	6uzDc7f5gPYtRZ/clnp3QAG1y8NV0BWGHdWovWEDIMhmumgVPLZ1IABp23LsCTmyqRAQEoCWuAj
+	5yEo
+X-Received: by 2002:a17:90b:35ce:b0:356:2eff:df05 with SMTP id
+ 98e67ed59e1d1-3567f7aeee6mr1763412a91.16.1770811013116; Wed, 11 Feb 2026
+ 03:56:53 -0800 (PST)
+Received: from 923987648738 named unknown by gmailapi.google.com with
+ HTTPREST; Wed, 11 Feb 2026 06:56:52 -0500
+Received: from 923987648738 named unknown by gmailapi.google.com with
+ HTTPREST; Wed, 11 Feb 2026 06:56:52 -0500
+MIME-Version: 1.0
+From: guillermo@happyrobot.ai
+Date: Wed, 11 Feb 2026 06:56:52 -0500
+X-Gm-Features: AZwV_Qi6-EPTarz9HbxQugJFlxEupWH5twl6pSYzG0VZWaRduMgWSgqHm50-31M
+Message-ID: <CAAKdY+O0h3ocQxqRyuTC5TA=H+Dsb8+g+D-kitQJykd2zKcGWg@mail.gmail.com>
+Subject: Booking confirmation
+To: forwarding@happyrobot.ai
+Content-Type: multipart/alternative; boundary="00000000000066c19f064a8b1141"
+X-Area1Security-Processed: 999e373317a573039fc1f991294fcc6b;1;NONE;2026-02-11T11:56:54;acc72528-fc3c-43be-b35e-541a06a7abc6
+X-CFEmailSecurity-Processed: 999e373317a573039fc1f991294fcc6b;1;NONE;2026-02-11T11:56:54;acc72528-fc3c-43be-b35e-541a06a7abc6
+
+--00000000000066c19f064a8b1141
+Content-Type: text/plain; charset="UTF-8"
+
+ Booking Confirmation
+[image: CEVA Logistics] Booking Confirmation
+
+Dear *Enzo*,
+
+Thank you for confirming the details of your booking for *Ferrari*.
+
+One of our representatives will be in touch shortly to confirm quotation.
+
+Booking ID: *CEVA-24680*
+
+Use this ID to track the status and review the details of your booking.
+Booking Details
+Customer Ferrari
+Contact Enzo
+Pickup Date February 20th, 2026
+Delivery Date March 1st, 2026
+Pickup Address 35 Terrace Street, Miami, Florida
+Delivery Address 50 Main Street, Houston, Texas
+Pieces & Packaging 3 pallets
+Commodity Tires
+
+Kind regards,
+*Josh - CEVA's AI assistant*
+[image: CEVA Logistics]
+
+This email and any attachments may contain confidential information
+intended only for the recipient. If you received this message in error,
+please notify the sender and delete it.
+
+www.cevalogistics.com
+
+--00000000000066c19f064a8b1141
+Content-Type: text/html; charset="UTF-8"
+
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Booking Confirmation</title>
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f3f5f7;
+      margin: 0;
+      padding: 20px;
+      color: #1f2937;
+    }
+    .wrap {
+      max-width: 680px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+      border: 1px solid #e5e7eb;
+    }
+    .topbar {
+      background: linear-gradient(90deg, #0B5AA6, #0E76BD);
+      padding: 16px 20px;
+    }
+    .content {
+      padding: 24px;
+    }
+    p {
+      font-size: 14px;
+      line-height: 1.65;
+      margin: 10px 0;
+    }
+    .section-title {
+      margin: 20px 0 10px;
+      font-size: 13px;
+      font-weight: bold;
+      color: #111827;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+    table.grid {
+      width:  100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 18px;
+    }
+    table.grid td {
+      padding: 10px 12px;
+      font-size: 14px;
+      border-bottom: 1px solid #e5e7eb;
+      vertical-align: top;
+    }
+    table.grid tr:last-child td {
+      border-bottom: none;
+    }
+    .label {
+      width: 40%;
+      background: #f9fafb;
+      font-weight: bold;
+      color: #374151;
+      white-space: nowrap;
+    }
+    .booking-id {
+      background: #eff6ff;
+      border: 1px solid #dbeafe;
+      padding: 14px;
+      border-radius: 10px;
+      margin: 16px 0 22px;
+    }
+    .booking-id strong {
+      color: #0B5AA6;
+      font-size: 15px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+
+    
+    <div class="topbar">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td>
+            <img src="https://www.cevalogistics.com/public-cdn/images-spx/x_large_picture/CEVA_BlueRed.png" alt="CEVA Logistics" width="130" style="display:block;border:0;outline:none;text-decoration:none;">
+          </td>
+          <td style="text-align:right">
+            <span style="color:#ffffff;font-size:16px;font-weight:bold">
+              Booking Confirmation
+            </span>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    
+    <div class="content">
+
+      <p>Dear <strong>Enzo</strong>,</p>
+
+      <p>Thank you for confirming the details of your booking for <strong>Ferrari</strong>.</p>
+
+      <p>One of our representatives will be in touch shortly to confirm quotation.</p>
+
+      
+      <div class="booking-id">
+        <p style="margin:0">
+          Booking ID: <strong>CEVA-24680</strong>
+        </p>
+        <p style="margin:6px 0 0;font-size:13px">
+          Use this ID to track the status and review the details of your booking.
+        </p>
+      </div>
+
+      
+      <div class="section-title">Booking Details</div>
+
+      <div style="border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;margin-bottom:18px">
+        <table class="grid" role="presentation" cellpadding="0" cellspacing="0" border="0" style="border:0;margin:0">
+          <tr><td class="label">Customer</td><td>Ferrari</td></tr>
+          <tr><td class="label">Contact</td><td>Enzo</td></tr>
+          <tr><td class="label">Pickup Date</td><td>February 20th, 2026</td></tr>
+          <tr><td class="label">Delivery Date</td><td>March 1st, 2026</td></tr>
+          <tr><td class="label">Pickup Address</td><td>35 Terrace Street, Miami, Florida</td></tr>
+
+          
+          <tr><td class="label">Delivery Address</td><td>50 Main Street, Houston, Texas </td></tr>
+
+          <tr><td class="label">Pieces &amp; Packaging</td><td>3 pallets</td></tr>
+          <tr><td class="label">Commodity</td><td>Tires</td></tr>
+        </table>
+      </div>
+
+      
+      <div style="border-top:1px solid #e5e7eb;padding-top:16px;margin-top:18px;font-size:13px;color:#374151">
+        <p style="margin:0;line-height:1.6">
+          Kind regards,<br>
+          <strong>Josh - CEVA&#39;s AI assistant</strong><br>
+        </p>
+      </div>
+
+      
+      <div style="background:#fafafa;border-top:1px solid #e5e7eb;padding:20px;font-size:11px;color:#6b7280;line-height:1.5;text-align:center;margin-top:20px">
+        <div style="margin-bottom:12px">
+          <img src="https://www.cevalogistics.com/public-cdn/images-spx/x_large_picture/CEVA_BlueRed.png" alt="CEVA Logistics" width="110" style="display:block;margin:0 auto;border:0;outline:none;text-decoration:none;">
+        </div>
+
+        <p style="margin:0">
+          This email and any attachments may contain confidential information intended only for the recipient.
+          If you received this message in error, please notify the sender and delete it.
+        </p>
+
+        <p style="margin:10px 0 0">
+          <a href="https://www.cevalogistics.com" style="color:#0b5aa6;text-decoration:none">
+            www.cevalogistics.com
+          </a>
+        </p>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>
+
+--00000000000066c19f064a8b1141--

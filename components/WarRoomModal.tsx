@@ -88,13 +88,13 @@ interface ResolutionState {
   summary: string | null;
 }
 
-// HappyRobot Platform configuration (from env)
-const HAPPYROBOT_ORG = process.env.NEXT_PUBLIC_HAPPYROBOT_ORG || "globallogisticspod";
-const HAPPYROBOT_WORKFLOW_ID = process.env.NEXT_PUBLIC_HAPPYROBOT_WORKFLOW_ID || "oazff9guhfgb";
+// HappyRobot Platform configuration for CEVA Logistics
+const HAPPYROBOT_ORG = "ceva-logistics";
+const HAPPYROBOT_WORKFLOW_ID = "sx7pzejlsqrw";
 
 // HappyRobot run URL helper - links to individual run in platform
 const getRunUrl = (runId: string) =>
-  `https://v2.platform.happyrobot.ai/${HAPPYROBOT_ORG}/workflow/${HAPPYROBOT_WORKFLOW_ID}/runs?run_id=${runId}`;
+  `https://platform.happyrobot.ai/${HAPPYROBOT_ORG}/workflow/${HAPPYROBOT_WORKFLOW_ID}/runs?run_id=${runId}`;
 
 export function WarRoomModal({
   incident,

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useSSE } from "@/hooks/useSSE";
 import { CHANNELS } from "@/lib/channels";
 import { cn } from "@/lib/utils";
-import { Mail, User, Clock, Tag, AlertCircle, CheckCircle2, Circle, Phone, MessageSquare } from "lucide-react";
+import { Mail, User, Clock, Tag, AlertCircle, CheckCircle2, Circle, Phone, MessageSquare, X } from "lucide-react";
 
 interface Email {
   id: string;
@@ -24,6 +24,7 @@ interface Email {
   missingInfo: string[];
   tags: string[];
   highlight: boolean;
+  bodyHtml?: string;
 }
 
 export default function InboxPage() {
@@ -67,6 +68,8 @@ export default function InboxPage() {
         return 'bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/20 dark:text-orange-400 dark:border-orange-800';
       case 'MEDIUM':
         return 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800';
+      case 'RESOLVED':
+        return 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800';
       default:
         return 'bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800/20 dark:text-gray-400 dark:border-gray-700';
     }
@@ -88,10 +91,11 @@ export default function InboxPage() {
   const getClassificationLabel = (classification: string) => {
     const labels: Record<string, string> = {
       'QUOTE_REQUEST': 'Quote Request',
-      'BOOKING_CONFIRMATION': 'Booking Confirmation',
+      'BOOKING_CONFIRMATION': 'Booking',
       'STATUS_INQUIRY': 'Status Inquiry',
       'DOCUMENTATION': 'Documentation',
       'ALERT_RESPONSE': 'Alert Response',
+      'COMPLAINT': 'Complaint',
       'GENERAL': 'General',
     };
     return labels[classification] || classification;
@@ -122,7 +126,7 @@ export default function InboxPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#1A1D29]">
+    <div className="min-h-screen bg-white dark:bg-[#1A1D29] flex flex-col">
       {/* Header */}
       <div className="border-b border-[#E8EAED] dark:border-[#3A3F52] bg-[#FAFBFC] dark:bg-[#24273A]">
         <div className="px-8 py-6">
@@ -152,9 +156,14 @@ export default function InboxPage() {
         </div>
       </div>
 
-      {/* Email List */}
-      <div className="p-8">
-        <div className="space-y-3">
+      {/* Main Content - Email List + Detail Panel */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Email List */}
+        <div className={cn(
+          "p-8 overflow-y-auto transition-all duration-300",
+          selectedEmail?.bodyHtml ? "w-1/2" : "w-full"
+        )}>
+          <div className="space-y-3">
           {emails.length === 0 ? (
             <div className="text-center py-12">
               <Mail className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
@@ -291,6 +300,40 @@ export default function InboxPage() {
             ))
           )}
         </div>
+      </div>
+
+        {/* Email Detail Panel */}
+        {selectedEmail?.bodyHtml && (
+          <div className="w-1/2 border-l border-[#E8EAED] dark:border-[#3A3F52] bg-white dark:bg-[#1A1D29] flex flex-col">
+            {/* Detail Panel Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#E8EAED] dark:border-[#3A3F52] bg-[#FAFBFC] dark:bg-[#24273A]">
+              <div className="flex-1 min-w-0">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white truncate">
+                  {selectedEmail.subject}
+                </h2>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  From: {selectedEmail.fromName} ({selectedEmail.fromCompany})
+                </p>
+              </div>
+              <button
+                onClick={() => setSelectedEmail(null)}
+                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ml-4"
+              >
+                <X className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+              </button>
+            </div>
+
+            {/* Email Body */}
+            <div className="flex-1 overflow-y-auto p-6">
+              <iframe
+                srcDoc={selectedEmail.bodyHtml}
+                className="w-full h-full min-h-[600px] border-0 rounded-lg bg-white"
+                title="Email Content"
+                sandbox="allow-same-origin"
+              />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

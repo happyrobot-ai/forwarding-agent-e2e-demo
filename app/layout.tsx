@@ -19,8 +19,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "HappyRobot Forwarding - AI Platform",
-  description: "Intelligent freight forwarding powered by AI",
+  title: "CEVA Logistics - AI Platform",
+  description: "Intelligent ground freight powered by AI",
 };
 
 // Force dynamic rendering to prevent build-time static generation

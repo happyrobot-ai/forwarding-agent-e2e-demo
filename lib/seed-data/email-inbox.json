@@ -1,135 +1,134 @@
 {
   "emailInbox": {
-    "totalEmails": 132,
-    "unread": 28,
-    "pendingAction": 52,
+    "totalEmails": 85,
+    "unread": 18,
+    "pendingAction": 32,
     "byClassification": {
-      "QUOTE_REQUEST": 27,
-      "BOOKING_CONFIRMATION": 22,
-      "STATUS_INQUIRY": 14,
-      "DOCUMENTATION": 16,
-      "ALERT_RESPONSE": 16,
-      "COMPLAINT": 15,
-      "GENERAL": 22
+      "QUOTE_REQUEST": 22,
+      "BOOKING_CONFIRMATION": 18,
+      "STATUS_INQUIRY": 15,
+      "DOCUMENTATION": 12,
+      "ALERT_RESPONSE": 10,
+      "COMPLAINT": 8
     },
     "byPriority": {
-      "URGENT": 31,
-      "HIGH": 38,
-      "MEDIUM": 31,
-      "LOW": 32
+      "URGENT": 15,
+      "HIGH": 28,
+      "MEDIUM": 25,
+      "LOW": 17
     },
     "byStatus": {
-      "NEW": 30,
-      "PENDING": 22,
+      "NEW": 20,
+      "PENDING": 18,
       "IN_PROGRESS": 22,
-      "COMPLETED": 37,
-      "ESCALATED": 21
+      "COMPLETED": 18,
+      "ESCALATED": 7
     },
     "byRep": {
-      "Marco Jansen": 7,
-      "Anna van der Berg": 6,
-      "Thomas Müller": 3,
-      "Erik Nielsen": 3,
-      "James Wilson": 2,
-      "Pierre Laurent": 10,
-      "Giovanni Bianchi": 8,
-      "Fatima Hassan": 7,
-      "Sophie Dubois": 6,
-      "Yuki Tanaka": 6,
-      "David Lim": 8,
-      "Chen Ming": 4,
-      "Elena Garcia": 8,
-      "Hans Gruber": 5,
-      "Carlos Santos": 6,
-      "Priya Patel": 8,
-      "Kim Soo-jin": 8,
-      "Michael Chen": 6
+      "Mike Johnson": 12,
+      "Sarah Williams": 10,
+      "David Martinez": 8,
+      "Jennifer Lee": 9,
+      "Robert Chen": 11,
+      "Amanda Foster": 8,
+      "Carlos Rodriguez": 7,
+      "Emily Thompson": 10,
+      "James Wilson": 10
     }
   },
   "emails": [
     {
-      "emailId": "EMAIL-KEY-001",
-      "threadId": "THREAD-NVS-2026-1247",
+      "emailId": "EMAIL-GROUND-001",
+      "threadId": "THREAD-FER-2026-001",
       "from": {
-        "name": "Dr. Helena Müller",
-        "email": "helena.mueller@novartis.com",
-        "company": "Novartis Pharma AG"
+        "name": "Enzo Bianchi",
+        "email": "enzo.bianchi@ferrari.com",
+        "company": "Ferrari"
       },
-      "subject": "Quote Request – Temperature Controlled Air Freight BSL-SIN | NVS-QR-2026-1247",
-      "receivedAt": "2026-02-10T09:15:00+01:00",
+      "subject": "RE: Booking Confirmed - 35 Terrace Street Miami to Houston",
+      "receivedAt": "2026-02-11T10:45:00-05:00",
+      "classification": "BOOKING_CONFIRMATION",
+      "intent": "CONFIRM_BOOKING",
+      "priority": "RESOLVED",
+      "status": "COMPLETED",
+      "assignedRep": "Mike Johnson",
+      "linkedShipment": "CEVA-24680",
+      "tags": [
+        "AUTO",
+        "ENCLOSED",
+        "WHITE_GLOVE",
+        "BOOKING"
+      ],
+      "read": true,
+      "highlight": true,
+      "isKeyDemo": true,
+      "bodyHtml": "<html lang=\"en\"><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Booking Confirmation</title><style>body{font-family:Arial,Helvetica,sans-serif;background:#f3f5f7;margin:0;padding:20px;color:#1f2937}.wrap{max-width:680px;margin:0 auto;background:#ffffff;border-radius:10px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.06);border:1px solid #e5e7eb}.topbar{background:linear-gradient(90deg,#0B5AA6,#0E76BD);padding:16px 20px}.content{padding:24px}p{font-size:14px;line-height:1.65;margin:10px 0}.section-title{margin:20px 0 10px;font-size:13px;font-weight:bold;color:#111827;text-transform:uppercase;letter-spacing:0.6px}table.grid{width:100%;border-collapse:separate;border-spacing:0;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;margin-bottom:18px}table.grid td{padding:10px 12px;font-size:14px;border-bottom:1px solid #e5e7eb;vertical-align:top}table.grid tr:last-child td{border-bottom:none}.label{width:40%;background:#f9fafb;font-weight:bold;color:#374151;white-space:nowrap}.booking-id{background:#eff6ff;border:1px solid #dbeafe;padding:14px;border-radius:10px;margin:16px 0 22px}.booking-id strong{color:#0B5AA6;font-size:15px}</style></head><body><div class=\"wrap\"><div class=\"topbar\"><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr><td><img src=\"https://www.cevalogistics.com/public-cdn/images-spx/x_large_picture/CEVA_BlueRed.png\" alt=\"CEVA Logistics\" width=\"130\" style=\"display:block;border:0;outline:none;text-decoration:none;\"></td><td style=\"text-align:right\"><span style=\"color:#ffffff;font-size:16px;font-weight:bold\">Booking Confirmation</span></td></tr></table></div><div class=\"content\"><p>Dear <strong>Enzo</strong>,</p><p>Thank you for confirming the details of your booking for <strong>Ferrari</strong>.</p><p>One of our representatives will be in touch shortly to confirm quotation.</p><div class=\"booking-id\"><p style=\"margin:0\">Booking ID: <strong>CEVA-24680</strong></p><p style=\"margin:6px 0 0;font-size:13px\">Use this ID to track the status and review the details of your booking.</p></div><div class=\"section-title\">Booking Details</div><div style=\"border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;margin-bottom:18px\"><table class=\"grid\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border:0;margin:0\"><tr><td class=\"label\">Customer</td><td>Ferrari</td></tr><tr><td class=\"label\">Contact</td><td>Enzo</td></tr><tr><td class=\"label\">Pickup Date</td><td>February 20th, 2026</td></tr><tr><td class=\"label\">Delivery Date</td><td>March 1st, 2026</td></tr><tr><td class=\"label\">Pickup Address</td><td>35 Terrace Street, Miami, Florida</td></tr><tr><td class=\"label\">Delivery Address</td><td>50 Main Street, Houston, Texas</td></tr><tr><td class=\"label\">Pieces &amp; Packaging</td><td>3 pallets</td></tr><tr><td class=\"label\">Commodity</td><td>Tires</td></tr></table></div><div style=\"border-top:1px solid #e5e7eb;padding-top:16px;margin-top:18px;font-size:13px;color:#374151\"><p style=\"margin:0;line-height:1.6\">Kind regards,<br><strong>Josh - CEVA's AI assistant</strong><br></p></div><div style=\"background:#fafafa;border-top:1px solid #e5e7eb;padding:20px;font-size:11px;color:#6b7280;line-height:1.5;text-align:center;margin-top:20px\"><div style=\"margin-bottom:12px\"><img src=\"https://www.cevalogistics.com/public-cdn/images-spx/x_large_picture/CEVA_BlueRed.png\" alt=\"CEVA Logistics\" width=\"110\" style=\"display:block;margin:0 auto;border:0;outline:none;text-decoration:none;\"></div><p style=\"margin:0\">This email and any attachments may contain confidential information intended only for the recipient. If you received this message in error, please notify the sender and delete it.</p><p style=\"margin:10px 0 0\"><a href=\"https://www.cevalogistics.com\" style=\"color:#0b5aa6;text-decoration:none\">www.cevalogistics.com</a></p></div></div></div></body></html>"
+    },
+    {
+      "emailId": "EMAIL-GROUND-002",
+      "threadId": "THREAD-MICH-2026-001",
+      "from": {
+        "name": "William Dupont",
+        "email": "william.dupont@michelin.com",
+        "company": "Michelin"
+      },
+      "subject": "RE: Booking CEVA-13579",
+      "receivedAt": "2026-02-11T09:30:00-05:00",
+      "classification": "STATUS_INQUIRY",
+      "intent": "ETA_REQUEST",
+      "priority": "RESOLVED",
+      "status": "COMPLETED",
+      "assignedRep": "Sarah Williams",
+      "linkedShipment": "CEVA-13579",
+      "tags": [
+        "MANUFACTURING",
+        "TIRES",
+        "ETA",
+        "TRACKING"
+      ],
+      "read": false,
+      "highlight": true,
+      "isKeyDemo": true,
+      "bodyHtml": "<!DOCTYPE html><html lang=\"en\"><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=us-ascii\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Shipment Status</title><style>body{font-family:Arial,Helvetica,sans-serif;background:#f3f5f7;margin:0;padding:20px;color:#1f2937}.wrap{max-width:680px;margin:0 auto;background:#ffffff;border-radius:10px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.06);border:1px solid #e5e7eb}.topbar{background:linear-gradient(90deg,#0B5AA6,#0E76BD);padding:16px 20px}.content{padding:24px}p{font-size:14px;line-height:1.65;margin:10px 0}.section-title{margin:20px 0 10px;font-size:13px;font-weight:bold;color:#111827;text-transform:uppercase;letter-spacing:0.6px}table.grid{width:100%;border-collapse:separate;border-spacing:0;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;margin-bottom:18px}table.grid td{padding:10px 12px;font-size:14px;border-bottom:1px solid #e5e7eb}table.grid tr:last-child td{border-bottom:none}.label{width:40%;background:#f9fafb;font-weight:bold;color:#374151}.booking-id{background:#eff6ff;border:1px solid #dbeafe;padding:14px;border-radius:10px;margin:16px 0 22px}.booking-id strong{color:#0B5AA6;font-size:15px}</style></head><body><div class=\"wrap\"><div class=\"topbar\"><table role=\"presentation\" width=\"100%\"><tbody><tr><td><img alt=\"CEVA Logistics\" width=\"130\" style=\"display:block;border:0;\" src=\"https://www.cevalogistics.com/public-cdn/images-spx/x_large_picture/CEVA_BlueRed.png\"></td><td style=\"text-align:right;\"><span style=\"color:#ffffff;font-size:16px;font-weight:bold;\">Support</span></td></tr></tbody></table></div><div class=\"content\"><p>Dear <strong>William</strong>,</p><p>Thank you for your shipment status inquiry.</p><p>The current status and estimated delivery information for your shipment is as follows:</p><div class=\"booking-id\"><p style=\"margin:0;\">Booking ID: <strong>CEVA-13579</strong></p><p style=\"margin:6px 0 0;font-size:13px;\">Use this ID to track the status and review the details of your booking.</p></div><div class=\"section-title\">Shipment Status</div><table class=\"grid\" role=\"presentation\"><tbody><tr><td class=\"label\">Current Location</td><td>I-10 Corridor, Louisiana</td></tr><tr><td class=\"label\">Status</td><td>In Transit</td></tr><tr><td class=\"label\">Final Delivery ETA</td><td>January 13th, 2026</td></tr><tr><td class=\"label\">Destination Hub</td><td>Miami, FL</td></tr><tr><td class=\"label\">Hub ETA</td><td>February 20th, 2026</td></tr></tbody></table><div style=\"border-top:1px solid #e5e7eb;padding-top:16px;margin-top:18px;font-size:13px;color:#374151;\"><p style=\"margin:0;line-height:1.6;\">Kind regards,<br><strong>Josh - CEVA's AI</strong><br></p></div><div style=\"background:#fafafa;border-top:1px solid #e5e7eb;padding:20px;font-size:11px;color:#6b7280;line-height:1.5;text-align:center;margin-top:20px;\"><div style=\"margin-bottom:12px;\"><img alt=\"CEVA Logistics\" width=\"110\" style=\"display:block;margin:0 auto;border:0;outline:none;\" src=\"https://www.cevalogistics.com/public-cdn/images-spx/x_large_picture/CEVA_BlueRed.png\"></div><p style=\"margin:0;\">This email and any attachments may contain confidential information intended only for the recipient. If you received this message in error, please notify the sender and delete it.</p><p style=\"margin:10px 0 0;\"><a href=\"https://www.cevalogistics.com\" style=\"color:#0B5AA6;text-decoration:none;\">www.cevalogistics.com</a></p></div></div></div></body></html>"
+    },
+    {
+      "emailId": "EMAIL-GROUND-003",
+      "threadId": "THREAD-TGT-2026-001",
+      "from": {
+        "name": "Jennifer Walsh",
+        "email": "jennifer.walsh@target.com",
+        "company": "Target Corporation"
+      },
+      "subject": "Quote Request: 10 FTL Dry Van Loads LA to Minneapolis Weekly",
+      "receivedAt": "2026-02-11T08:30:00-06:00",
       "classification": "QUOTE_REQUEST",
       "intent": "REQUEST_QUOTE",
       "priority": "HIGH",
-      "status": "COMPLETED",
-      "assignedRep": "Marco Jansen",
-      "linkedShipment": "SHP-ZRH-2026-004892",
+      "status": "PENDING",
+      "assignedRep": "Sarah Williams",
+      "linkedShipment": null,
       "missingInfo": [
-        "pickupDate"
+        "startDate"
       ],
       "tags": [
-        "PHARMA",
-        "TEMPERATURE_CONTROLLED",
-        "HIGH_VALUE"
+        "RETAIL",
+        "DRY_VAN",
+        "FTL"
       ],
       "read": true,
+      "highlight": true,
       "isKeyDemo": true
     },
     {
-      "emailId": "EMAIL-KEY-002",
-      "threadId": "THREAD-NVS-2026-1247",
+      "emailId": "EMAIL-GROUND-004",
+      "threadId": "THREAD-CAT-2026-001",
       "from": {
-        "name": "Dr. Helena Müller",
-        "email": "helena.mueller@novartis.com",
-        "company": "Novartis Pharma AG"
+        "name": "Robert Miller",
+        "email": "robert.miller@cat.com",
+        "company": "Caterpillar Inc."
       },
-      "subject": "RE: Quote Request – Pickup Date Confirmed",
-      "receivedAt": "2026-02-10T14:28:00+01:00",
-      "classification": "QUOTE_REQUEST",
-      "intent": "QUOTE_FOLLOWUP",
-      "priority": "HIGH",
-      "status": "COMPLETED",
-      "assignedRep": "Marco Jansen",
-      "linkedShipment": "SHP-ZRH-2026-004892",
-      "tags": [
-        "PHARMA",
-        "TEMPERATURE_CONTROLLED"
-      ],
-      "read": true,
-      "isKeyDemo": true
-    },
-    {
-      "emailId": "EMAIL-KEY-003",
-      "threadId": "THREAD-NVS-2026-1247",
-      "from": {
-        "name": "Dr. Helena Müller",
-        "email": "helena.mueller@novartis.com",
-        "company": "Novartis Pharma AG"
-      },
-      "subject": "RE: Quote Accepted – Please Proceed with Option 1",
-      "receivedAt": "2026-02-12T08:45:00+01:00",
-      "classification": "BOOKING_CONFIRMATION",
-      "intent": "CONFIRM_BOOKING",
-      "priority": "HIGH",
-      "status": "COMPLETED",
-      "assignedRep": "Marco Jansen",
-      "linkedShipment": "SHP-ZRH-2026-004892",
-      "tags": [
-        "PHARMA",
-        "TEMPERATURE_CONTROLLED"
-      ],
-      "read": true,
-      "isKeyDemo": true
-    },
-    {
-      "emailId": "EMAIL-KEY-004",
-      "threadId": "THREAD-ROCHE-2026-CT",
-      "from": {
-        "name": "Dr. Sophie Martin",
-        "email": "sophie.martin@roche.com",
-        "company": "Roche Holding AG"
-      },
-      "subject": "URGENT: Quote Request - Clinical Trial Shipment GVA to BOS - Frozen -20C",
-      "receivedAt": "2026-02-18T10:45:00+01:00",
+      "subject": "URGENT: Oversized Load Quote - D10 Bulldozer Peoria to Houston",
+      "receivedAt": "2026-02-11T07:45:00-06:00",
       "classification": "QUOTE_REQUEST",
       "intent": "REQUEST_QUOTE",
       "priority": "URGENT",
@@ -137,3018 +136,1145 @@
       "assignedRep": null,
       "linkedShipment": null,
       "missingInfo": [
-        "pickupDate",
-        "exactWeight",
-        "insurance",
-        "consigneeAddress"
+        "exactDimensions",
+        "permitStatus"
       ],
       "tags": [
-        "PHARMA",
-        "FROZEN",
-        "CLINICAL_TRIAL",
+        "HEAVY_HAUL",
+        "OVERSIZED",
+        "FLATBED"
+      ],
+      "read": false,
+      "highlight": true,
+      "isKeyDemo": true
+    },
+    {
+      "emailId": "EMAIL-GROUND-005",
+      "threadId": "THREAD-SYS-2026-001",
+      "from": {
+        "name": "Maria Rodriguez",
+        "email": "maria.rodriguez@sysco.com",
+        "company": "Sysco Corporation"
+      },
+      "subject": "RE: Temperature Excursion Alert - Load #SYS-88421",
+      "receivedAt": "2026-02-11T06:20:00-06:00",
+      "classification": "ALERT_RESPONSE",
+      "intent": "RESOLVE_ISSUE",
+      "priority": "URGENT",
+      "status": "IN_PROGRESS",
+      "assignedRep": "David Martinez",
+      "linkedShipment": "BOL-SYS-2026-88421",
+      "tags": [
+        "REEFER",
+        "FOOD",
+        "TEMP_ALERT"
+      ],
+      "read": true,
+      "highlight": true,
+      "isKeyDemo": true
+    },
+    {
+      "emailId": "EMAIL-GROUND-006",
+      "threadId": "THREAD-HD-2026-001",
+      "from": {
+        "name": "Kevin O'Brien",
+        "email": "kevin.obrien@homedepot.com",
+        "company": "Home Depot"
+      },
+      "subject": "Detention Issue Report - Chicago RDC - 3 Hour Wait",
+      "receivedAt": "2026-02-11T11:30:00-05:00",
+      "classification": "COMPLAINT",
+      "intent": "SERVICE_COMPLAINT",
+      "priority": "HIGH",
+      "status": "PENDING",
+      "assignedRep": "Jennifer Lee",
+      "linkedShipment": "BOL-HD-2026-44521",
+      "tags": [
+        "RETAIL",
+        "DETENTION",
+        "DRY_VAN"
+      ],
+      "read": true,
+      "highlight": true,
+      "isKeyDemo": true
+    },
+    {
+      "emailId": "EMAIL-GROUND-007",
+      "threadId": "THREAD-GM-2026-001",
+      "from": {
+        "name": "Marcus Johnson",
+        "email": "marcus.johnson@gm.com",
+        "company": "General Motors"
+      },
+      "subject": "CRITICAL: JIT Delay Risk - Arlington Plant Delivery",
+      "receivedAt": "2026-02-11T05:45:00-05:00",
+      "classification": "ALERT_RESPONSE",
+      "intent": "ESCALATION",
+      "priority": "URGENT",
+      "status": "IN_PROGRESS",
+      "assignedRep": "Robert Chen",
+      "linkedShipment": "BOL-GM-2026-JIT-8847",
+      "tags": [
+        "AUTOMOTIVE",
+        "JIT",
+        "EXPEDITED"
+      ],
+      "read": true,
+      "highlight": true,
+      "isKeyDemo": true
+    },
+    {
+      "emailId": "EMAIL-GROUND-008",
+      "threadId": "THREAD-AMZ-2026-001",
+      "from": {
+        "name": "Derek Thompson",
+        "email": "derek.thompson@amazon.com",
+        "company": "Amazon"
+      },
+      "subject": "Prime Day Capacity Request - July Surge Planning",
+      "receivedAt": "2026-02-10T14:00:00-08:00",
+      "classification": "QUOTE_REQUEST",
+      "intent": "REQUEST_QUOTE",
+      "priority": "HIGH",
+      "status": "PENDING",
+      "assignedRep": "Amanda Foster",
+      "linkedShipment": null,
+      "missingInfo": [
+        "exactDates",
+        "volumeEstimate"
+      ],
+      "tags": [
+        "ECOMMERCE",
+        "CAPACITY",
+        "DRY_VAN"
+      ],
+      "read": true,
+      "highlight": true,
+      "isKeyDemo": true
+    },
+    {
+      "emailId": "EMAIL-GROUND-009",
+      "threadId": "THREAD-TYS-2026-001",
+      "from": {
+        "name": "Barbara Mitchell",
+        "email": "barbara.mitchell@tyson.com",
+        "company": "Tyson Foods"
+      },
+      "subject": "USDA Audit Preparation - Compliance Documentation Request",
+      "receivedAt": "2026-02-10T09:30:00-06:00",
+      "classification": "DOCUMENTATION",
+      "intent": "REQUEST_DOCUMENTS",
+      "priority": "HIGH",
+      "status": "PENDING",
+      "assignedRep": "Carlos Rodriguez",
+      "linkedShipment": null,
+      "tags": [
+        "FOOD",
+        "REEFER",
+        "COMPLIANCE"
+      ],
+      "read": true,
+      "highlight": false
+    },
+    {
+      "emailId": "EMAIL-GROUND-010",
+      "threadId": "THREAD-FER-2026-002",
+      "from": {
+        "name": "Marco Rossi",
+        "email": "marco.rossi@ferrari.com",
+        "company": "Ferrari"
+      },
+      "subject": "Booking Confirmation - 2 Vehicles Miami to Dallas",
+      "receivedAt": "2026-02-10T16:20:00-05:00",
+      "classification": "BOOKING_CONFIRMATION",
+      "intent": "CONFIRM_BOOKING",
+      "priority": "HIGH",
+      "status": "COMPLETED",
+      "assignedRep": "Mike Johnson",
+      "linkedShipment": "BOL-FER-2026-0892",
+      "tags": [
+        "AUTO",
+        "ENCLOSED",
+        "WHITE_GLOVE"
+      ],
+      "read": true,
+      "highlight": false
+    },
+    {
+      "emailId": "EMAIL-GROUND-011",
+      "threadId": "THREAD-TGT-2026-002",
+      "from": {
+        "name": "Michael Torres",
+        "email": "michael.torres@target.com",
+        "company": "Target Corporation"
+      },
+      "subject": "Tracking Request - BOL-TGT-44892 Savannah to Minneapolis",
+      "receivedAt": "2026-02-10T11:15:00-06:00",
+      "classification": "STATUS_INQUIRY",
+      "intent": "TRACK_SHIPMENT",
+      "priority": "MEDIUM",
+      "status": "COMPLETED",
+      "assignedRep": "Sarah Williams",
+      "linkedShipment": "BOL-TGT-2026-44892",
+      "tags": [
+        "RETAIL",
+        "DRY_VAN",
+        "TRACKING"
+      ],
+      "read": true,
+      "highlight": false
+    },
+    {
+      "emailId": "EMAIL-GROUND-012",
+      "threadId": "THREAD-CAT-2026-002",
+      "from": {
+        "name": "Amanda Foster",
+        "email": "amanda.foster@cat.com",
+        "company": "Caterpillar Inc."
+      },
+      "subject": "Permit Status Update - IL to TX Oversized Load",
+      "receivedAt": "2026-02-10T08:45:00-06:00",
+      "classification": "STATUS_INQUIRY",
+      "intent": "ETA_REQUEST",
+      "priority": "HIGH",
+      "status": "IN_PROGRESS",
+      "assignedRep": "Emily Thompson",
+      "linkedShipment": "BOL-CAT-2026-7721",
+      "tags": [
+        "HEAVY_HAUL",
+        "PERMITS",
+        "OVERSIZED"
+      ],
+      "read": true,
+      "highlight": false
+    },
+    {
+      "emailId": "EMAIL-GROUND-013",
+      "threadId": "THREAD-SYS-2026-002",
+      "from": {
+        "name": "James Wilson",
+        "email": "james.wilson@sysco.com",
+        "company": "Sysco Corporation"
+      },
+      "subject": "Temperature Logs Submitted - Last Week Deliveries",
+      "receivedAt": "2026-02-10T07:00:00-06:00",
+      "classification": "DOCUMENTATION",
+      "intent": "SUBMIT_DOCUMENTS",
+      "priority": "MEDIUM",
+      "status": "COMPLETED",
+      "assignedRep": "David Martinez",
+      "linkedShipment": null,
+      "tags": [
+        "REEFER",
+        "FOOD",
+        "COMPLIANCE"
+      ],
+      "attachments": [
+        "temp_logs_week6.pdf"
+      ],
+      "read": true,
+      "highlight": false
+    },
+    {
+      "emailId": "EMAIL-GROUND-014",
+      "threadId": "THREAD-HD-2026-002",
+      "from": {
+        "name": "Rachel Green",
+        "email": "rachel.green@homedepot.com",
+        "company": "Home Depot"
+      },
+      "subject": "Rate Negotiation - Q2 Contract Discussion",
+      "receivedAt": "2026-02-09T15:30:00-05:00",
+      "classification": "QUOTE_REQUEST",
+      "intent": "QUOTE_REVISION",
+      "priority": "MEDIUM",
+      "status": "IN_PROGRESS",
+      "assignedRep": "Jennifer Lee",
+      "linkedShipment": null,
+      "tags": [
+        "RETAIL",
+        "CONTRACT",
+        "RATES"
+      ],
+      "read": true,
+      "highlight": false
+    },
+    {
+      "emailId": "EMAIL-GROUND-015",
+      "threadId": "THREAD-GM-2026-002",
+      "from": {
+        "name": "Emily Zhang",
+        "email": "emily.zhang@gm.com",
+        "company": "General Motors"
+      },
+      "subject": "Customs Documentation - Mexico Cross-Border Shipment",
+      "receivedAt": "2026-02-09T14:00:00-05:00",
+      "classification": "DOCUMENTATION",
+      "intent": "SUBMIT_DOCUMENTS",
+      "priority": "HIGH",
+      "status": "COMPLETED",
+      "assignedRep": "Robert Chen",
+      "linkedShipment": "BOL-GM-2026-MX-442",
+      "tags": [
+        "AUTOMOTIVE",
+        "CROSS_BORDER",
+        "CUSTOMS"
+      ],
+      "attachments": [
+        "customs_docs_mx.pdf",
+        "commercial_invoice.pdf"
+      ],
+      "read": true,
+      "highlight": false
+    },
+    {
+      "emailId": "EMAIL-GROUND-016",
+      "threadId": "THREAD-AMZ-2026-002",
+      "from": {
+        "name": "Jason Lee",
+        "email": "jason.lee@amazon.com",
+        "company": "Amazon"
+      },
+      "subject": "FC Appointment Confirmation - Phoenix FC Tomorrow",
+      "receivedAt": "2026-02-09T10:20:00-08:00",
+      "classification": "BOOKING_CONFIRMATION",
+      "intent": "CONFIRM_BOOKING",
+      "priority": "MEDIUM",
+      "status": "COMPLETED",
+      "assignedRep": "Amanda Foster",
+      "linkedShipment": "BOL-AMZ-2026-PHX-881",
+      "tags": [
+        "ECOMMERCE",
+        "FC_DELIVERY",
+        "APPOINTMENT"
+      ],
+      "read": true,
+      "highlight": false
+    },
+    {
+      "emailId": "EMAIL-GROUND-017",
+      "threadId": "THREAD-TYS-2026-002",
+      "from": {
+        "name": "Carlos Reyes",
+        "email": "carlos.reyes@tyson.com",
+        "company": "Tyson Foods"
+      },
+      "subject": "Reefer Status Check - Springdale to Chicago Load",
+      "receivedAt": "2026-02-09T06:30:00-06:00",
+      "classification": "STATUS_INQUIRY",
+      "intent": "TRACK_SHIPMENT",
+      "priority": "MEDIUM",
+      "status": "COMPLETED",
+      "assignedRep": "Carlos Rodriguez",
+      "linkedShipment": "BOL-TYS-2026-8842",
+      "tags": [
+        "FOOD",
+        "REEFER",
+        "TRACKING"
+      ],
+      "read": true,
+      "highlight": false
+    },
+    {
+      "emailId": "EMAIL-GROUND-018",
+      "threadId": "THREAD-FER-2026-003",
+      "from": {
+        "name": "Giulia Conti",
+        "email": "giulia.conti@ferrari.com",
+        "company": "Ferrari"
+      },
+      "subject": "Delivery Photos - Palm Beach Dealership Arrival",
+      "receivedAt": "2026-02-09T17:45:00-05:00",
+      "classification": "DOCUMENTATION",
+      "intent": "SUBMIT_DOCUMENTS",
+      "priority": "MEDIUM",
+      "status": "COMPLETED",
+      "assignedRep": "Mike Johnson",
+      "linkedShipment": "BOL-FER-2026-0845",
+      "tags": [
+        "AUTO",
+        "POD",
+        "WHITE_GLOVE"
+      ],
+      "attachments": [
+        "delivery_photos_pb.zip"
+      ],
+      "read": true,
+      "highlight": false
+    },
+    {
+      "emailId": "EMAIL-GROUND-019",
+      "threadId": "THREAD-TGT-2026-003",
+      "from": {
+        "name": "Sarah Kim",
+        "email": "sarah.kim@target.com",
+        "company": "Target Corporation"
+      },
+      "subject": "Appointment Reschedule Request - Minneapolis DC",
+      "receivedAt": "2026-02-09T09:00:00-06:00",
+      "classification": "BOOKING_CONFIRMATION",
+      "intent": "BOOKING_AMENDMENT",
+      "priority": "MEDIUM",
+      "status": "COMPLETED",
+      "assignedRep": "Sarah Williams",
+      "linkedShipment": "BOL-TGT-2026-44521",
+      "tags": [
+        "RETAIL",
+        "APPOINTMENT",
+        "DC_DELIVERY"
+      ],
+      "read": true,
+      "highlight": false
+    },
+    {
+      "emailId": "EMAIL-GROUND-020",
+      "threadId": "THREAD-CAT-2026-003",
+      "from": {
+        "name": "David Chen",
+        "email": "david.chen@cat.com",
+        "company": "Caterpillar Inc."
+      },
+      "subject": "Quote Request - Engine Parts LTL to Atlanta",
+      "receivedAt": "2026-02-08T14:30:00-06:00",
+      "classification": "QUOTE_REQUEST",
+      "intent": "REQUEST_QUOTE",
+      "priority": "MEDIUM",
+      "status": "COMPLETED",
+      "assignedRep": "Emily Thompson",
+      "linkedShipment": null,
+      "tags": [
+        "MANUFACTURING",
+        "LTL",
+        "PARTS"
+      ],
+      "read": true,
+      "highlight": false
+    },
+    {
+      "emailId": "EMAIL-GROUND-021",
+      "threadId": "THREAD-SYS-2026-003",
+      "from": {
+        "name": "Linda Park",
+        "email": "linda.park@sysco.com",
+        "company": "Sysco Corporation"
+      },
+      "subject": "Multi-Stop Route Confirmation - Houston to Denver",
+      "receivedAt": "2026-02-08T08:15:00-06:00",
+      "classification": "BOOKING_CONFIRMATION",
+      "intent": "CONFIRM_BOOKING",
+      "priority": "MEDIUM",
+      "status": "COMPLETED",
+      "assignedRep": "David Martinez",
+      "linkedShipment": "BOL-SYS-2026-88501",
+      "tags": [
+        "REEFER",
+        "FOOD",
+        "MULTI_STOP"
+      ],
+      "read": true,
+      "highlight": false
+    },
+    {
+      "emailId": "EMAIL-GROUND-022",
+      "threadId": "THREAD-HD-2026-003",
+      "from": {
+        "name": "Tom Martinez",
+        "email": "tom.martinez@homedepot.com",
+        "company": "Home Depot"
+      },
+      "subject": "Flatbed Load - Lumber Shipment Atlanta to Dallas",
+      "receivedAt": "2026-02-08T11:45:00-05:00",
+      "classification": "QUOTE_REQUEST",
+      "intent": "REQUEST_QUOTE",
+      "priority": "MEDIUM",
+      "status": "COMPLETED",
+      "assignedRep": "Jennifer Lee",
+      "linkedShipment": null,
+      "tags": [
+        "RETAIL",
+        "FLATBED",
+        "LUMBER"
+      ],
+      "read": true,
+      "highlight": false
+    },
+    {
+      "emailId": "EMAIL-GROUND-023",
+      "threadId": "THREAD-GM-2026-003",
+      "from": {
+        "name": "Patricia Anderson",
+        "email": "patricia.anderson@gm.com",
+        "company": "General Motors"
+      },
+      "subject": "Kansas City Capacity Increase - Q2 Planning",
+      "receivedAt": "2026-02-08T10:00:00-05:00",
+      "classification": "QUOTE_REQUEST",
+      "intent": "REQUEST_QUOTE",
+      "priority": "HIGH",
+      "status": "IN_PROGRESS",
+      "assignedRep": "Robert Chen",
+      "linkedShipment": null,
+      "missingInfo": [
+        "volumeProjection"
+      ],
+      "tags": [
+        "AUTOMOTIVE",
+        "CAPACITY",
+        "JIT"
+      ],
+      "read": true,
+      "highlight": false
+    },
+    {
+      "emailId": "EMAIL-GROUND-024",
+      "threadId": "THREAD-AMZ-2026-003",
+      "from": {
+        "name": "Priya Patel",
+        "email": "priya.patel@amazon.com",
+        "company": "Amazon"
+      },
+      "subject": "Rate Reduction Request - Q2 Negotiations",
+      "receivedAt": "2026-02-08T09:30:00-08:00",
+      "classification": "QUOTE_REQUEST",
+      "intent": "QUOTE_REVISION",
+      "priority": "HIGH",
+      "status": "PENDING",
+      "assignedRep": "Amanda Foster",
+      "linkedShipment": null,
+      "tags": [
+        "ECOMMERCE",
+        "CONTRACT",
+        "RATES"
+      ],
+      "read": true,
+      "highlight": false
+    },
+    {
+      "emailId": "EMAIL-GROUND-025",
+      "threadId": "THREAD-TYS-2026-003",
+      "from": {
+        "name": "Nancy Chen",
+        "email": "nancy.chen@tyson.com",
+        "company": "Tyson Foods"
+      },
+      "subject": "FSMA Compliance Update - Carrier Certification",
+      "receivedAt": "2026-02-08T07:00:00-06:00",
+      "classification": "DOCUMENTATION",
+      "intent": "REQUEST_DOCUMENTS",
+      "priority": "HIGH",
+      "status": "PENDING",
+      "assignedRep": "Carlos Rodriguez",
+      "linkedShipment": null,
+      "tags": [
+        "FOOD",
+        "COMPLIANCE",
+        "FSMA"
+      ],
+      "read": true,
+      "highlight": false
+    },
+    {
+      "emailId": "EMAIL-GROUND-026",
+      "threadId": "THREAD-FER-2026-004",
+      "from": {
+        "name": "Enzo Bianchi",
+        "email": "enzo.bianchi@ferrari.com",
+        "company": "Ferrari"
+      },
+      "subject": "Delivery ETA - Scottsdale Dealership",
+      "receivedAt": "2026-02-07T16:00:00-05:00",
+      "classification": "STATUS_INQUIRY",
+      "intent": "ETA_REQUEST",
+      "priority": "HIGH",
+      "status": "COMPLETED",
+      "assignedRep": "Mike Johnson",
+      "linkedShipment": "BOL-FER-2026-0821",
+      "tags": [
+        "AUTO",
+        "ENCLOSED",
+        "TRACKING"
+      ],
+      "read": true,
+      "highlight": false
+    },
+    {
+      "emailId": "EMAIL-GROUND-027",
+      "threadId": "THREAD-TGT-2026-004",
+      "from": {
+        "name": "Jennifer Walsh",
+        "email": "jennifer.walsh@target.com",
+        "company": "Target Corporation"
+      },
+      "subject": "Peak Season Capacity Discussion - July-August",
+      "receivedAt": "2026-02-07T14:30:00-06:00",
+      "classification": "QUOTE_REQUEST",
+      "intent": "REQUEST_QUOTE",
+      "priority": "MEDIUM",
+      "status": "IN_PROGRESS",
+      "assignedRep": "Sarah Williams",
+      "linkedShipment": null,
+      "tags": [
+        "RETAIL",
+        "CAPACITY",
+        "PEAK_SEASON"
+      ],
+      "read": true,
+      "highlight": false
+    },
+    {
+      "emailId": "EMAIL-GROUND-028",
+      "threadId": "THREAD-CAT-2026-004",
+      "from": {
+        "name": "Robert Miller",
+        "email": "robert.miller@cat.com",
+        "company": "Caterpillar Inc."
+      },
+      "subject": "Insurance Verification - High Value Equipment",
+      "receivedAt": "2026-02-07T11:00:00-06:00",
+      "classification": "DOCUMENTATION",
+      "intent": "REQUEST_DOCUMENTS",
+      "priority": "HIGH",
+      "status": "COMPLETED",
+      "assignedRep": "Emily Thompson",
+      "linkedShipment": "BOL-CAT-2026-7698",
+      "tags": [
+        "HEAVY_HAUL",
+        "INSURANCE",
+        "HIGH_VALUE"
+      ],
+      "read": true,
+      "highlight": false
+    },
+    {
+      "emailId": "EMAIL-GROUND-029",
+      "threadId": "THREAD-SYS-2026-004",
+      "from": {
+        "name": "Maria Rodriguez",
+        "email": "maria.rodriguez@sysco.com",
+        "company": "Sysco Corporation"
+      },
+      "subject": "Booking Confirmed - 5 Reefer Loads Houston to Dallas",
+      "receivedAt": "2026-02-07T08:45:00-06:00",
+      "classification": "BOOKING_CONFIRMATION",
+      "intent": "CONFIRM_BOOKING",
+      "priority": "MEDIUM",
+      "status": "COMPLETED",
+      "assignedRep": "David Martinez",
+      "linkedShipment": "BOL-SYS-2026-88621",
+      "tags": [
+        "REEFER",
+        "FOOD",
+        "FTL"
+      ],
+      "read": true,
+      "highlight": false
+    },
+    {
+      "emailId": "EMAIL-GROUND-030",
+      "threadId": "THREAD-HD-2026-004",
+      "from": {
+        "name": "Kevin O'Brien",
+        "email": "kevin.obrien@homedepot.com",
+        "company": "Home Depot"
+      },
+      "subject": "POD Request - Atlanta Delivery Last Week",
+      "receivedAt": "2026-02-07T10:15:00-05:00",
+      "classification": "STATUS_INQUIRY",
+      "intent": "POD_REQUEST",
+      "priority": "LOW",
+      "status": "COMPLETED",
+      "assignedRep": "Jennifer Lee",
+      "linkedShipment": "BOL-HD-2026-43892",
+      "tags": [
+        "RETAIL",
+        "POD",
+        "DOCUMENTATION"
+      ],
+      "read": true,
+      "highlight": false
+    },
+    {
+      "emailId": "EMAIL-GROUND-031",
+      "threadId": "THREAD-GM-2026-004",
+      "from": {
+        "name": "Marcus Johnson",
+        "email": "marcus.johnson@gm.com",
+        "company": "General Motors"
+      },
+      "subject": "Expedited Booking - Kansas City Emergency",
+      "receivedAt": "2026-02-07T06:30:00-05:00",
+      "classification": "BOOKING_CONFIRMATION",
+      "intent": "CONFIRM_BOOKING",
+      "priority": "URGENT",
+      "status": "COMPLETED",
+      "assignedRep": "Robert Chen",
+      "linkedShipment": "BOL-GM-2026-EXP-221",
+      "tags": [
+        "AUTOMOTIVE",
+        "EXPEDITED",
+        "JIT"
+      ],
+      "read": true,
+      "highlight": false
+    },
+    {
+      "emailId": "EMAIL-GROUND-032",
+      "threadId": "THREAD-AMZ-2026-004",
+      "from": {
+        "name": "Derek Thompson",
+        "email": "derek.thompson@amazon.com",
+        "company": "Amazon"
+      },
+      "subject": "FC Congestion Report - Chicago Delays",
+      "receivedAt": "2026-02-06T16:00:00-08:00",
+      "classification": "ALERT_RESPONSE",
+      "intent": "ACKNOWLEDGE_ALERT",
+      "priority": "MEDIUM",
+      "status": "COMPLETED",
+      "assignedRep": "Amanda Foster",
+      "linkedShipment": "BOL-AMZ-2026-CHI-442",
+      "tags": [
+        "ECOMMERCE",
+        "FC_DELIVERY",
+        "DELAY"
+      ],
+      "read": true,
+      "highlight": false
+    },
+    {
+      "emailId": "EMAIL-GROUND-033",
+      "threadId": "THREAD-TYS-2026-004",
+      "from": {
+        "name": "Barbara Mitchell",
+        "email": "barbara.mitchell@tyson.com",
+        "company": "Tyson Foods"
+      },
+      "subject": "Q2 Chicago Lane Capacity Increase",
+      "receivedAt": "2026-02-06T09:00:00-06:00",
+      "classification": "QUOTE_REQUEST",
+      "intent": "REQUEST_QUOTE",
+      "priority": "MEDIUM",
+      "status": "IN_PROGRESS",
+      "assignedRep": "Carlos Rodriguez",
+      "linkedShipment": null,
+      "tags": [
+        "FOOD",
+        "REEFER",
+        "CAPACITY"
+      ],
+      "read": true,
+      "highlight": false
+    },
+    {
+      "emailId": "EMAIL-GROUND-034",
+      "threadId": "THREAD-FER-2026-005",
+      "from": {
+        "name": "Marco Rossi",
+        "email": "marco.rossi@ferrari.com",
+        "company": "Ferrari"
+      },
+      "subject": "Driver Late Arrival - Houston Dealership Issue",
+      "receivedAt": "2026-02-06T18:30:00-05:00",
+      "classification": "COMPLAINT",
+      "intent": "SERVICE_COMPLAINT",
+      "priority": "HIGH",
+      "status": "COMPLETED",
+      "assignedRep": "Mike Johnson",
+      "linkedShipment": "BOL-FER-2026-0798",
+      "tags": [
+        "AUTO",
+        "SERVICE_ISSUE",
+        "DELIVERY"
+      ],
+      "read": true,
+      "highlight": false
+    },
+    {
+      "emailId": "EMAIL-GROUND-035",
+      "threadId": "THREAD-TGT-2026-005",
+      "from": {
+        "name": "Michael Torres",
+        "email": "michael.torres@target.com",
+        "company": "Target Corporation"
+      },
+      "subject": "Vendor Compliance Documents Update",
+      "receivedAt": "2026-02-06T13:45:00-06:00",
+      "classification": "DOCUMENTATION",
+      "intent": "SUBMIT_DOCUMENTS",
+      "priority": "MEDIUM",
+      "status": "COMPLETED",
+      "assignedRep": "Sarah Williams",
+      "linkedShipment": null,
+      "tags": [
+        "RETAIL",
+        "COMPLIANCE",
+        "DOCUMENTATION"
+      ],
+      "attachments": [
+        "vendor_compliance_2026.pdf"
+      ],
+      "read": true,
+      "highlight": false
+    },
+    {
+      "emailId": "EMAIL-GROUND-036",
+      "threadId": "THREAD-CAT-2026-005",
+      "from": {
+        "name": "Amanda Foster",
+        "email": "amanda.foster@cat.com",
+        "company": "Caterpillar Inc."
+      },
+      "subject": "Delivery Confirmed - Houston Equipment Arrival",
+      "receivedAt": "2026-02-06T15:00:00-06:00",
+      "classification": "STATUS_INQUIRY",
+      "intent": "POD_REQUEST",
+      "priority": "LOW",
+      "status": "COMPLETED",
+      "assignedRep": "Emily Thompson",
+      "linkedShipment": "BOL-CAT-2026-7654",
+      "tags": [
+        "HEAVY_HAUL",
+        "POD",
+        "DELIVERY"
+      ],
+      "read": true,
+      "highlight": false
+    },
+    {
+      "emailId": "EMAIL-GROUND-037",
+      "threadId": "THREAD-SYS-2026-005",
+      "from": {
+        "name": "James Wilson",
+        "email": "james.wilson@sysco.com",
+        "company": "Sysco Corporation"
+      },
+      "subject": "Pre-Cool Verification Request - Tomorrow Pickup",
+      "receivedAt": "2026-02-06T07:30:00-06:00",
+      "classification": "STATUS_INQUIRY",
+      "intent": "ETA_REQUEST",
+      "priority": "MEDIUM",
+      "status": "COMPLETED",
+      "assignedRep": "David Martinez",
+      "linkedShipment": "BOL-SYS-2026-88701",
+      "tags": [
+        "REEFER",
+        "FOOD",
+        "PICKUP"
+      ],
+      "read": true,
+      "highlight": false
+    },
+    {
+      "emailId": "EMAIL-GROUND-038",
+      "threadId": "THREAD-HD-2026-005",
+      "from": {
+        "name": "Rachel Green",
+        "email": "rachel.green@homedepot.com",
+        "company": "Home Depot"
+      },
+      "subject": "Carrier Performance Review - Monthly Scorecard",
+      "receivedAt": "2026-02-05T14:00:00-05:00",
+      "classification": "ALERT_RESPONSE",
+      "intent": "FEEDBACK",
+      "priority": "MEDIUM",
+      "status": "PENDING",
+      "assignedRep": "Jennifer Lee",
+      "linkedShipment": null,
+      "tags": [
+        "RETAIL",
+        "PERFORMANCE",
+        "REVIEW"
+      ],
+      "read": true,
+      "highlight": false
+    },
+    {
+      "emailId": "EMAIL-GROUND-039",
+      "threadId": "THREAD-GM-2026-005",
+      "from": {
+        "name": "Emily Zhang",
+        "email": "emily.zhang@gm.com",
+        "company": "General Motors"
+      },
+      "subject": "New Supplier Lane - Toledo Parts Quote",
+      "receivedAt": "2026-02-05T11:30:00-05:00",
+      "classification": "QUOTE_REQUEST",
+      "intent": "REQUEST_QUOTE",
+      "priority": "MEDIUM",
+      "status": "COMPLETED",
+      "assignedRep": "Robert Chen",
+      "linkedShipment": null,
+      "tags": [
+        "AUTOMOTIVE",
+        "PARTS",
+        "NEW_LANE"
+      ],
+      "read": true,
+      "highlight": false
+    },
+    {
+      "emailId": "EMAIL-GROUND-040",
+      "threadId": "THREAD-AMZ-2026-005",
+      "from": {
+        "name": "Jason Lee",
+        "email": "jason.lee@amazon.com",
+        "company": "Amazon"
+      },
+      "subject": "Night Appointment Available - Lower Wait Times",
+      "receivedAt": "2026-02-05T17:00:00-08:00",
+      "classification": "BOOKING_CONFIRMATION",
+      "intent": "BOOKING_AMENDMENT",
+      "priority": "LOW",
+      "status": "COMPLETED",
+      "assignedRep": "Amanda Foster",
+      "linkedShipment": "BOL-AMZ-2026-PHX-912",
+      "tags": [
+        "ECOMMERCE",
+        "FC_DELIVERY",
+        "NIGHT_APPT"
+      ],
+      "read": true,
+      "highlight": false
+    },
+    {
+      "emailId": "EMAIL-GROUND-041",
+      "threadId": "THREAD-TYS-2026-005",
+      "from": {
+        "name": "Carlos Reyes",
+        "email": "carlos.reyes@tyson.com",
+        "company": "Tyson Foods"
+      },
+      "subject": "LA Lane Emergency Reefer Needed",
+      "receivedAt": "2026-02-05T06:00:00-06:00",
+      "classification": "QUOTE_REQUEST",
+      "intent": "REQUEST_QUOTE",
+      "priority": "URGENT",
+      "status": "COMPLETED",
+      "assignedRep": "Carlos Rodriguez",
+      "linkedShipment": null,
+      "tags": [
+        "FOOD",
+        "REEFER",
         "URGENT"
       ],
-      "read": false,
-      "highlight": true,
-      "isKeyDemo": true
+      "read": true,
+      "highlight": false
     },
     {
-      "emailId": "EMAIL-KEY-005",
-      "threadId": "THREAD-FERRARI-2026-442",
+      "emailId": "EMAIL-GROUND-042",
+      "threadId": "THREAD-FER-2026-006",
       "from": {
-        "name": "Marco Rossi",
-        "email": "marco.rossi@ferrari.com",
-        "company": "Ferrari S.p.A."
+        "name": "Enzo Bianchi",
+        "email": "enzo.bianchi@ferrari.com",
+        "company": "Ferrari"
       },
-      "subject": "RE: URGENT - Customs Hold LAX - Amended Form 7501 Attached",
-      "receivedAt": "2026-02-17T18:15:00-08:00",
-      "classification": "ALERT_RESPONSE",
-      "intent": "RESOLVE_ISSUE",
+      "subject": "Monthly Transport Contract - Q2 Discussion",
+      "receivedAt": "2026-02-05T15:00:00-05:00",
+      "classification": "QUOTE_REQUEST",
+      "intent": "QUOTE_FOLLOWUP",
       "priority": "HIGH",
-      "status": "PENDING",
-      "assignedRep": "Giovanni Bianchi",
-      "linkedShipment": "SHP-MXP-2026-003892",
+      "status": "IN_PROGRESS",
+      "assignedRep": "Mike Johnson",
+      "linkedShipment": null,
       "tags": [
         "AUTO",
-        "CUSTOMS",
-        "URGENT"
-      ],
-      "attachments": [
-        "Form_7501_Amended.pdf",
-        "Commercial_Invoice_Revised.pdf"
-      ],
-      "read": true,
-      "isKeyDemo": true
-    },
-    {
-      "emailId": "EMAIL-021",
-      "threadId": "THREAD-LG -2026-0021",
-      "from": {
-        "name": "Park Ji-sung",
-        "email": "jisung.park@lge.com",
-        "company": "LG Electronics"
-      },
-      "subject": "Regarding Shipment Exception – LG -2026-0021",
-      "receivedAt": "2026-02-18T23:55:18.588Z",
-      "classification": "ALERT_RESPONSE",
-      "intent": "RESOLVE_ISSUE",
-      "priority": "LOW",
-      "status": "COMPLETED",
-      "assignedRep": "Marco Jansen",
-      "linkedShipment": "SHP-ATL-2026-004438",
-      "tags": [
-        "PHARMA",
-        "FROZEN"
+        "CONTRACT",
+        "ENCLOSED"
       ],
       "read": true,
       "highlight": false
     },
     {
-      "emailId": "EMAIL-112",
-      "threadId": "THREAD-SAS-2026-0112",
+      "emailId": "EMAIL-GROUND-043",
+      "threadId": "THREAD-TGT-2026-006",
       "from": {
-        "name": "Thabo Molefe",
-        "email": "thabo.molefe@sasol.com",
-        "company": "Sasol Limited"
+        "name": "Sarah Kim",
+        "email": "sarah.kim@target.com",
+        "company": "Target Corporation"
       },
-      "subject": "Complaint: Delayed Delivery – SAS-2026-0112",
-      "receivedAt": "2026-02-18T19:58:40.296Z",
-      "classification": "COMPLAINT",
-      "intent": "BILLING_DISPUTE",
-      "priority": "LOW",
-      "status": "COMPLETED",
-      "assignedRep": "David Lim",
-      "linkedShipment": "SHP-AMS-2026-006097",
-      "tags": [
-        "AUTO",
-        "AOG"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-116",
-      "threadId": "THREAD-MED-2026-0116",
-      "from": {
-        "name": "Ciara Murphy",
-        "email": "ciara.murphy@medtronic.com",
-        "company": "Medtronic Ireland"
-      },
-      "subject": "RE: URGENT – Temperature Alert 817-9544 4277",
-      "receivedAt": "2026-02-18T19:28:14.457Z",
-      "classification": "ALERT_RESPONSE",
-      "intent": "ESCALATION",
-      "priority": "MEDIUM",
-      "status": "IN_PROGRESS",
-      "assignedRep": "Giovanni Bianchi",
-      "linkedShipment": "SHP-MXP-2026-007375",
-      "tags": [
-        "ELECTRONICS",
-        "HIGH_VALUE"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-102",
-      "threadId": "THREAD-PGN-2026-0102",
-      "from": {
-        "name": "Piotr Kowalski",
-        "email": "piotr.kowalski@pgnig.pl",
-        "company": "PGNiG"
-      },
-      "subject": "RE: Action Required – 973-5456 9262",
-      "receivedAt": "2026-02-18T17:40:39.706Z",
-      "classification": "ALERT_RESPONSE",
-      "intent": "ACKNOWLEDGE_ALERT",
-      "priority": "HIGH",
-      "status": "COMPLETED",
-      "assignedRep": "James Wilson",
-      "linkedShipment": "SHP-CPH-2026-001964",
-      "tags": [
-        "FASHION",
-        "LUXURY"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-127",
-      "threadId": "THREAD-CSL-2026-0127",
-      "from": {
-        "name": "Dr. Sarah Mitchell",
-        "email": "sarah.mitchell@csl.com.au",
-        "company": "CSL Behring"
-      },
-      "subject": "Feedback on Recent Shipment",
-      "receivedAt": "2026-02-18T14:37:16.472Z",
-      "classification": "GENERAL",
-      "intent": "INQUIRY",
-      "priority": "HIGH",
-      "status": "PENDING",
-      "assignedRep": "Hans Gruber",
-      "linkedShipment": null,
-      "tags": [
-        "INDUSTRIAL",
-        "HEAVY"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-097",
-      "threadId": "THREAD-PFI-2026-0097",
-      "from": {
-        "name": "Robert Johnson",
-        "email": "robert.johnson@pfizer.com",
-        "company": "Pfizer Inc."
-      },
-      "subject": "Confirmed: SIN-FRA Shipment",
-      "receivedAt": "2026-02-18T13:00:23.459Z",
-      "classification": "BOOKING_CONFIRMATION",
-      "intent": "BOOKING_AMENDMENT",
-      "priority": "MEDIUM",
-      "status": "IN_PROGRESS",
-      "assignedRep": null,
-      "linkedShipment": "SHP-SIN-2026-005454",
-      "tags": [
-        "PHARMA",
-        "CLINICAL_TRIAL"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-035",
-      "threadId": "THREAD-LVM-2026-0035",
-      "from": {
-        "name": "Marie Dubois",
-        "email": "marie.dubois@lvmh.com",
-        "company": "LVMH"
-      },
-      "subject": "Pricing Request – LVMH Weekly Shipment",
-      "receivedAt": "2026-02-18T12:13:04.408Z",
-      "classification": "QUOTE_REQUEST",
-      "intent": "QUOTE_REVISION",
-      "priority": "URGENT",
-      "status": "NEW",
-      "assignedRep": null,
-      "linkedShipment": null,
-      "tags": [
-        "MEDICAL",
-        "DEVICES"
-      ],
-      "read": true,
-      "highlight": true
-    },
-    {
-      "emailId": "EMAIL-057",
-      "threadId": "THREAD-PFI-2026-0057",
-      "from": {
-        "name": "Robert Johnson",
-        "email": "robert.johnson@pfizer.com",
-        "company": "Pfizer Inc."
-      },
-      "subject": "New Quote Request – Temperature Controlled AMS-PVG",
-      "receivedAt": "2026-02-18T11:17:16.643Z",
-      "classification": "QUOTE_REQUEST",
-      "intent": "QUOTE_FOLLOWUP",
-      "priority": "MEDIUM",
-      "status": "IN_PROGRESS",
-      "assignedRep": null,
-      "linkedShipment": "SHP-AMS-2026-002752",
-      "tags": [
-        "INDUSTRIAL",
-        "HEAVY"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-111",
-      "threadId": "THREAD-ALI-2026-0111",
-      "from": {
-        "name": "Chen Wei",
-        "email": "chen.wei@alibaba.com",
-        "company": "Alibaba Group"
-      },
-      "subject": "Question about Services",
-      "receivedAt": "2026-02-18T05:47:55.152Z",
-      "classification": "GENERAL",
-      "intent": "INQUIRY",
-      "priority": "HIGH",
-      "status": "IN_PROGRESS",
-      "assignedRep": "Fatima Hassan",
-      "linkedShipment": "SHP-HKG-2026-007281",
-      "tags": [
-        "ELECTRONICS",
-        "HIGH_VALUE"
-      ],
-      "read": false,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-126",
-      "threadId": "THREAD-QAT-2026-0126",
-      "from": {
-        "name": "Mohammed Al-Thani",
-        "email": "mohammed.althani@qatarenergy.qa",
-        "company": "QatarEnergy"
-      },
-      "subject": "Question about Services",
-      "receivedAt": "2026-02-18T04:38:22.373Z",
-      "classification": "GENERAL",
-      "intent": "FEEDBACK",
-      "priority": "HIGH",
-      "status": "IN_PROGRESS",
-      "assignedRep": "Sophie Dubois",
-      "linkedShipment": "SHP-SIN-2026-002111",
-      "tags": [
-        "AEROSPACE",
-        "AOG"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-032",
-      "threadId": "THREAD-BOM-2026-0032",
-      "from": {
-        "name": "Pierre Tremblay",
-        "email": "pierre.tremblay@bombardier.com",
-        "company": "Bombardier Inc."
-      },
-      "subject": "Tracking Request – DOH-NRT",
-      "receivedAt": "2026-02-18T03:16:15.494Z",
-      "classification": "STATUS_INQUIRY",
-      "intent": "ETA_REQUEST",
-      "priority": "URGENT",
-      "status": "NEW",
-      "assignedRep": "Michael Chen",
-      "linkedShipment": null,
-      "tags": [
-        "FASHION",
-        "LUXURY"
-      ],
-      "read": true,
-      "highlight": true
-    },
-    {
-      "emailId": "EMAIL-104",
-      "threadId": "THREAD-TOY-2026-0104",
-      "from": {
-        "name": "Takeshi Yamamoto",
-        "email": "takeshi.yamamoto@toyota.co.jp",
-        "company": "Toyota Motor Corporation"
-      },
-      "subject": "Approval to Book – TOY-2026-0104",
-      "receivedAt": "2026-02-18T01:58:44.423Z",
-      "classification": "BOOKING_CONFIRMATION",
-      "intent": "CONFIRM_BOOKING",
-      "priority": "HIGH",
-      "status": "PENDING",
-      "assignedRep": "Marco Jansen",
-      "linkedShipment": null,
-      "tags": [
-        "FASHION",
-        "LUXURY"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-125",
-      "threadId": "THREAD-SON-2026-0125",
-      "from": {
-        "name": "Hiroshi Tanaka",
-        "email": "hiroshi.tanaka@sony.com",
-        "company": "Sony Corporation"
-      },
-      "subject": "RE: Action Required – 256-7316 6602",
-      "receivedAt": "2026-02-18T00:16:07.705Z",
-      "classification": "ALERT_RESPONSE",
-      "intent": "ESCALATION",
-      "priority": "MEDIUM",
-      "status": "NEW",
-      "assignedRep": "Anna van der Berg",
-      "linkedShipment": "SHP-SFO-2026-008712",
-      "tags": [
-        "AEROSPACE",
-        "AOG"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-119",
-      "threadId": "THREAD-AUD-2026-0119",
-      "from": {
-        "name": "Werner Schmidt",
-        "email": "werner.schmidt@audi.de",
-        "company": "Audi AG"
-      },
-      "subject": "Pricing Request – Audi AG Weekly Shipment",
-      "receivedAt": "2026-02-17T23:31:57.847Z",
-      "classification": "QUOTE_REQUEST",
-      "intent": "QUOTE_FOLLOWUP",
-      "priority": "LOW",
-      "status": "IN_PROGRESS",
-      "assignedRep": "Fatima Hassan",
-      "linkedShipment": null,
-      "tags": [
-        "MEDICAL",
-        "DEVICES"
-      ],
-      "read": true,
-      "highlight": false,
-      "missingInfo": [
-        "insurance"
-      ]
-    },
-    {
-      "emailId": "EMAIL-008",
-      "threadId": "THREAD-PGN-2026-0008",
-      "from": {
-        "name": "Piotr Kowalski",
-        "email": "piotr.kowalski@pgnig.pl",
-        "company": "PGNiG"
-      },
-      "subject": "New Quote Request – Temperature Controlled SIN-FRA",
-      "receivedAt": "2026-02-17T18:36:51.329Z",
-      "classification": "QUOTE_REQUEST",
-      "intent": "QUOTE_FOLLOWUP",
-      "priority": "HIGH",
-      "status": "COMPLETED",
-      "assignedRep": "Pierre Laurent",
-      "linkedShipment": "SHP-SIN-2026-007475",
-      "tags": [
-        "ELECTRONICS",
-        "HIGH_VALUE"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-029",
-      "threadId": "THREAD-MED-2026-0029",
-      "from": {
-        "name": "Ciara Murphy",
-        "email": "ciara.murphy@medtronic.com",
-        "company": "Medtronic Ireland"
-      },
-      "subject": "RE: Please proceed with booking – MED-2026-0029",
-      "receivedAt": "2026-02-17T16:41:33.333Z",
-      "classification": "BOOKING_CONFIRMATION",
-      "intent": "BOOKING_AMENDMENT",
-      "priority": "MEDIUM",
-      "status": "COMPLETED",
-      "assignedRep": "David Lim",
-      "linkedShipment": "SHP-DOH-2026-004983",
-      "tags": [
-        "PERISHABLE",
-        "FOOD"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-123",
-      "threadId": "THREAD-RED-2026-0123",
-      "from": {
-        "name": "Franz Huber",
-        "email": "franz.huber@redbull.com",
-        "company": "Red Bull GmbH"
-      },
-      "subject": "Quote Request – ATL-JNB | RED-2026-0123",
-      "receivedAt": "2026-02-17T14:54:27.261Z",
-      "classification": "QUOTE_REQUEST",
-      "intent": "QUOTE_FOLLOWUP",
-      "priority": "LOW",
-      "status": "ESCALATED",
-      "assignedRep": "David Lim",
-      "linkedShipment": "SHP-ATL-2026-009780",
-      "tags": [
-        "AUTO",
-        "PARTS"
-      ],
-      "read": true,
-      "highlight": false,
-      "missingInfo": []
-    },
-    {
-      "emailId": "EMAIL-049",
-      "threadId": "THREAD-LG -2026-0049",
-      "from": {
-        "name": "Park Ji-sung",
-        "email": "jisung.park@lge.com",
-        "company": "LG Electronics"
-      },
-      "subject": "Feedback on Recent Shipment",
-      "receivedAt": "2026-02-17T04:14:26.652Z",
-      "classification": "GENERAL",
-      "intent": "FEEDBACK",
-      "priority": "MEDIUM",
-      "status": "COMPLETED",
-      "assignedRep": "Giovanni Bianchi",
-      "linkedShipment": "SHP-FRA-2026-009121",
-      "tags": [
-        "DG",
-        "BATTERY"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-083",
-      "threadId": "THREAD-NOV-2026-0083",
-      "from": {
-        "name": "Dr. Helena Müller",
-        "email": "helena.mueller@novartis.com",
-        "company": "Novartis Pharma AG"
-      },
-      "subject": "Damage Report – 619-9959 7766",
-      "receivedAt": "2026-02-17T04:10:42.689Z",
+      "subject": "Load Rejection Issue - Dallas DC",
+      "receivedAt": "2026-02-04T11:00:00-06:00",
       "classification": "COMPLAINT",
       "intent": "SERVICE_COMPLAINT",
-      "priority": "MEDIUM",
-      "status": "ESCALATED",
-      "assignedRep": null,
-      "linkedShipment": "SHP-BRU-2026-006601",
+      "priority": "HIGH",
+      "status": "COMPLETED",
+      "assignedRep": "Sarah Williams",
+      "linkedShipment": "BOL-TGT-2026-43721",
       "tags": [
-        "MEDICAL",
-        "DEVICES"
-      ],
-      "read": false,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-059",
-      "threadId": "THREAD-GLA-2026-0059",
-      "from": {
-        "name": "Emma Watson",
-        "email": "emma.watson@gsk.com",
-        "company": "GlaxoSmithKline"
-      },
-      "subject": "Regarding Shipment Exception – GLA-2026-0059",
-      "receivedAt": "2026-02-17T03:17:56.251Z",
-      "classification": "ALERT_RESPONSE",
-      "intent": "ACKNOWLEDGE_ALERT",
-      "priority": "MEDIUM",
-      "status": "NEW",
-      "assignedRep": null,
-      "linkedShipment": "SHP-HKG-2026-007524",
-      "tags": [
-        "FASHION",
-        "LUXURY"
+        "RETAIL",
+        "REJECTION",
+        "DC_ISSUE"
       ],
       "read": true,
       "highlight": false
     },
     {
-      "emailId": "EMAIL-109",
-      "threadId": "THREAD-EXX-2026-0109",
+      "emailId": "EMAIL-GROUND-044",
+      "threadId": "THREAD-CAT-2026-006",
       "from": {
-        "name": "John Anderson",
-        "email": "john.anderson@exxonmobil.com",
-        "company": "ExxonMobil"
+        "name": "David Chen",
+        "email": "david.chen@cat.com",
+        "company": "Caterpillar Inc."
       },
-      "subject": "Confirmed: ATL-JNB Shipment",
-      "receivedAt": "2026-02-17T03:10:08.043Z",
-      "classification": "BOOKING_CONFIRMATION",
-      "intent": "BOOKING_AMENDMENT",
-      "priority": "MEDIUM",
-      "status": "COMPLETED",
-      "assignedRep": "Hans Gruber",
-      "linkedShipment": "SHP-ATL-2026-006127",
-      "tags": [
-        "PHARMA",
-        "CLINICAL_TRIAL"
-      ],
-      "read": false,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-090",
-      "threadId": "THREAD-SAU-2026-0090",
-      "from": {
-        "name": "Ahmed Al-Rashid",
-        "email": "ahmed.alrashid@aramco.com",
-        "company": "Saudi Aramco"
-      },
-      "subject": "RE: Flight Delay Notification – 999-6117 9938",
-      "receivedAt": "2026-02-17T01:48:08.504Z",
-      "classification": "ALERT_RESPONSE",
-      "intent": "ACKNOWLEDGE_ALERT",
-      "priority": "URGENT",
+      "subject": "Q2 Construction Season Capacity",
+      "receivedAt": "2026-02-04T10:00:00-06:00",
+      "classification": "QUOTE_REQUEST",
+      "intent": "REQUEST_QUOTE",
+      "priority": "HIGH",
       "status": "PENDING",
-      "assignedRep": "Carlos Santos",
+      "assignedRep": "Emily Thompson",
       "linkedShipment": null,
       "tags": [
-        "AEROSPACE",
-        "AOG"
+        "HEAVY_HAUL",
+        "CAPACITY",
+        "SEASONAL"
       ],
-      "read": false,
+      "read": true,
       "highlight": false
     },
     {
-      "emailId": "EMAIL-060",
-      "threadId": "THREAD-SAU-2026-0060",
+      "emailId": "EMAIL-GROUND-045",
+      "threadId": "THREAD-SYS-2026-006",
       "from": {
-        "name": "Ahmed Al-Rashid",
-        "email": "ahmed.alrashid@aramco.com",
-        "company": "Saudi Aramco"
+        "name": "Maria Rodriguez",
+        "email": "maria.rodriguez@sysco.com",
+        "company": "Sysco Corporation"
       },
-      "subject": "Certificate of Origin Required – 270-7221 3647",
-      "receivedAt": "2026-02-16T23:02:54.534Z",
-      "classification": "DOCUMENTATION",
-      "intent": "DOCUMENT_CORRECTION",
-      "priority": "MEDIUM",
-      "status": "COMPLETED",
-      "assignedRep": "Carlos Santos",
-      "linkedShipment": "SHP-CPH-2026-007793",
-      "tags": [
-        "DG",
-        "BATTERY"
-      ],
-      "read": false,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-085",
-      "threadId": "THREAD-QAT-2026-0085",
-      "from": {
-        "name": "Mohammed Al-Thani",
-        "email": "mohammed.althani@qatarenergy.qa",
-        "company": "QatarEnergy"
-      },
-      "subject": "New Quote Request – Temperature Controlled CPH-NRT",
-      "receivedAt": "2026-02-16T22:54:26.717Z",
+      "subject": "Fuel Surcharge Adjustment Discussion",
+      "receivedAt": "2026-02-04T09:00:00-06:00",
       "classification": "QUOTE_REQUEST",
       "intent": "QUOTE_REVISION",
       "priority": "MEDIUM",
-      "status": "COMPLETED",
-      "assignedRep": null,
-      "linkedShipment": "SHP-CPH-2026-005526",
+      "status": "IN_PROGRESS",
+      "assignedRep": "David Martinez",
+      "linkedShipment": null,
       "tags": [
-        "AUTO",
-        "AOG"
+        "REEFER",
+        "RATES",
+        "FUEL"
       ],
       "read": true,
       "highlight": false
     },
     {
-      "emailId": "EMAIL-070",
-      "threadId": "THREAD-TEV-2026-0070",
+      "emailId": "EMAIL-GROUND-046",
+      "threadId": "THREAD-HD-2026-006",
       "from": {
-        "name": "David Cohen",
-        "email": "david.cohen@tevapharm.com",
-        "company": "Teva Pharmaceutical"
+        "name": "Tom Martinez",
+        "email": "tom.martinez@homedepot.com",
+        "company": "Home Depot"
       },
-      "subject": "Account Update Request",
-      "receivedAt": "2026-02-16T22:11:38.342Z",
-      "classification": "GENERAL",
-      "intent": "INQUIRY",
-      "priority": "URGENT",
-      "status": "COMPLETED",
-      "assignedRep": "Elena Garcia",
-      "linkedShipment": "SHP-CDG-2026-003014",
-      "tags": [
-        "PHARMA",
-        "TEMPERATURE_CONTROLLED"
-      ],
-      "read": false,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-007",
-      "threadId": "THREAD-SIE-2026-0007",
-      "from": {
-        "name": "Martina Schmidt",
-        "email": "martina.schmidt@siemens.com",
-        "company": "Siemens AG"
-      },
-      "subject": "Question about Services",
-      "receivedAt": "2026-02-16T19:09:55.867Z",
-      "classification": "GENERAL",
-      "intent": "INQUIRY",
-      "priority": "MEDIUM",
-      "status": "ESCALATED",
-      "assignedRep": "Giovanni Bianchi",
-      "linkedShipment": null,
-      "tags": [
-        "AUTO",
-        "AOG"
-      ],
-      "read": false,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-078",
-      "threadId": "THREAD-VAL-2026-0078",
-      "from": {
-        "name": "Ricardo Silva",
-        "email": "ricardo.silva@vale.com",
-        "company": "Vale S.A."
-      },
-      "subject": "Issue with Invoice – VAL-2026-0078",
-      "receivedAt": "2026-02-16T09:55:35.843Z",
+      "subject": "Damage Claim - Dallas Delivery",
+      "receivedAt": "2026-02-04T13:30:00-05:00",
       "classification": "COMPLAINT",
-      "intent": "BILLING_DISPUTE",
+      "intent": "DAMAGE_CLAIM",
       "priority": "HIGH",
       "status": "ESCALATED",
-      "assignedRep": "Sophie Dubois",
-      "linkedShipment": "SHP-LHR-2026-001608",
+      "assignedRep": "Jennifer Lee",
+      "linkedShipment": "BOL-HD-2026-43501",
       "tags": [
-        "ELECTRONICS",
-        "HIGH_VALUE"
+        "RETAIL",
+        "DAMAGE",
+        "CLAIM"
       ],
       "read": true,
       "highlight": false
     },
     {
-      "emailId": "EMAIL-020",
-      "threadId": "THREAD-VAL-2026-0020",
+      "emailId": "EMAIL-GROUND-047",
+      "threadId": "THREAD-GM-2026-006",
       "from": {
-        "name": "Ricardo Silva",
-        "email": "ricardo.silva@vale.com",
-        "company": "Vale S.A."
+        "name": "Patricia Anderson",
+        "email": "patricia.anderson@gm.com",
+        "company": "General Motors"
       },
-      "subject": "Tracking Request – MUC-PVG",
-      "receivedAt": "2026-02-16T06:14:17.320Z",
-      "classification": "STATUS_INQUIRY",
-      "intent": "TRACK_SHIPMENT",
-      "priority": "LOW",
-      "status": "NEW",
-      "assignedRep": "Thomas Müller",
-      "linkedShipment": "SHP-MUC-2026-003074",
-      "tags": [
-        "INDUSTRIAL",
-        "HEAVY"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-095",
-      "threadId": "THREAD-INT-2026-0095",
-      "from": {
-        "name": "Ahmad Razak",
-        "email": "ahmad.razak@intel.com",
-        "company": "Intel Malaysia"
-      },
-      "subject": "Confirmed: CDG-HKG Shipment",
-      "receivedAt": "2026-02-16T00:15:02.089Z",
-      "classification": "BOOKING_CONFIRMATION",
-      "intent": "BOOKING_AMENDMENT",
-      "priority": "URGENT",
-      "status": "ESCALATED",
-      "assignedRep": null,
-      "linkedShipment": "SHP-CDG-2026-001633",
-      "tags": [
-        "AUTO",
-        "PARTS"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-003",
-      "threadId": "THREAD-MED-2026-0003",
-      "from": {
-        "name": "Ciara Murphy",
-        "email": "ciara.murphy@medtronic.com",
-        "company": "Medtronic Ireland"
-      },
-      "subject": "Confirmed: ATL-JNB Shipment",
-      "receivedAt": "2026-02-15T17:48:33.530Z",
-      "classification": "BOOKING_CONFIRMATION",
-      "intent": "CONFIRM_BOOKING",
-      "priority": "MEDIUM",
-      "status": "PENDING",
-      "assignedRep": "Michael Chen",
-      "linkedShipment": null,
-      "tags": [
-        "AEROSPACE",
-        "AOG"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-106",
-      "threadId": "THREAD-TOY-2026-0106",
-      "from": {
-        "name": "Takeshi Yamamoto",
-        "email": "takeshi.yamamoto@toyota.co.jp",
-        "company": "Toyota Motor Corporation"
-      },
-      "subject": "RE: Shipment Status – TOY-2026-0106",
-      "receivedAt": "2026-02-15T14:03:13.259Z",
-      "classification": "STATUS_INQUIRY",
-      "intent": "POD_REQUEST",
-      "priority": "LOW",
-      "status": "COMPLETED",
-      "assignedRep": "Giovanni Bianchi",
-      "linkedShipment": "SHP-AMS-2026-002010",
-      "tags": [
-        "PERISHABLE",
-        "FOOD"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-025",
-      "threadId": "THREAD-INT-2026-0025",
-      "from": {
-        "name": "Ahmad Razak",
-        "email": "ahmad.razak@intel.com",
-        "company": "Intel Malaysia"
-      },
-      "subject": "Booking Confirmation – INT-2026-0025",
-      "receivedAt": "2026-02-15T14:03:04.941Z",
-      "classification": "BOOKING_CONFIRMATION",
-      "intent": "BOOKING_CANCELLATION",
-      "priority": "URGENT",
-      "status": "NEW",
-      "assignedRep": "Elena Garcia",
-      "linkedShipment": null,
-      "tags": [
-        "AUTO",
-        "PARTS"
-      ],
-      "read": true,
-      "highlight": true
-    },
-    {
-      "emailId": "EMAIL-038",
-      "threadId": "THREAD-THE-2026-0038",
-      "from": {
-        "name": "Mark Williams",
-        "email": "mark.williams@coca-cola.com",
-        "company": "The Coca-Cola Company"
-      },
-      "subject": "Confirmed: MIA-GRU Shipment",
-      "receivedAt": "2026-02-15T04:01:41.000Z",
-      "classification": "BOOKING_CONFIRMATION",
-      "intent": "BOOKING_CANCELLATION",
-      "priority": "URGENT",
-      "status": "COMPLETED",
-      "assignedRep": "Erik Nielsen",
-      "linkedShipment": "SHP-MIA-2026-005939",
-      "tags": [
-        "AUTO",
-        "PARTS"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-062",
-      "threadId": "THREAD-INT-2026-0062",
-      "from": {
-        "name": "Ahmad Razak",
-        "email": "ahmad.razak@intel.com",
-        "company": "Intel Malaysia"
-      },
-      "subject": "RE: Partnership Discussion",
-      "receivedAt": "2026-02-15T02:44:20.187Z",
-      "classification": "GENERAL",
-      "intent": "INQUIRY",
-      "priority": "LOW",
-      "status": "ESCALATED",
-      "assignedRep": "Michael Chen",
-      "linkedShipment": null,
-      "tags": [
-        "FASHION",
-        "LUXURY"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-048",
-      "threadId": "THREAD-ABB-2026-0048",
-      "from": {
-        "name": "Jennifer Davis",
-        "email": "jennifer.davis@abbott.com",
-        "company": "Abbott Laboratories"
-      },
-      "subject": "Meeting Request – Abbott Laboratories",
-      "receivedAt": "2026-02-14T19:55:48.343Z",
-      "classification": "GENERAL",
-      "intent": "FEEDBACK",
-      "priority": "HIGH",
-      "status": "COMPLETED",
-      "assignedRep": null,
-      "linkedShipment": null,
-      "tags": [
-        "PHARMA",
-        "FROZEN"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-051",
-      "threadId": "THREAD-RED-2026-0051",
-      "from": {
-        "name": "Franz Huber",
-        "email": "franz.huber@redbull.com",
-        "company": "Red Bull GmbH"
-      },
-      "subject": "Issue with Invoice – RED-2026-0051",
-      "receivedAt": "2026-02-14T19:03:29.178Z",
-      "classification": "COMPLAINT",
-      "intent": "BILLING_DISPUTE",
-      "priority": "LOW",
-      "status": "PENDING",
-      "assignedRep": "Elena Garcia",
-      "linkedShipment": "SHP-SEA-2026-001342",
-      "tags": [
-        "AUTO",
-        "PARTS"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-074",
-      "threadId": "THREAD-BMW-2026-0074",
-      "from": {
-        "name": "Klaus Weber",
-        "email": "klaus.weber@bmw.com",
-        "company": "BMW AG"
-      },
-      "subject": "New Quote Request – Temperature Controlled SIN-FRA",
-      "receivedAt": "2026-02-14T18:02:00.445Z",
+      "subject": "Annual Contract Renewal Discussion",
+      "receivedAt": "2026-02-04T14:00:00-05:00",
       "classification": "QUOTE_REQUEST",
-      "intent": "QUOTE_FOLLOWUP",
-      "priority": "URGENT",
-      "status": "NEW",
-      "assignedRep": "Carlos Santos",
+      "intent": "QUOTE_REVISION",
+      "priority": "HIGH",
+      "status": "IN_PROGRESS",
+      "assignedRep": "Robert Chen",
       "linkedShipment": null,
       "tags": [
-        "PHARMA",
-        "FROZEN"
+        "AUTOMOTIVE",
+        "CONTRACT",
+        "ANNUAL"
       ],
       "read": true,
-      "highlight": true
+      "highlight": false
     },
     {
-      "emailId": "EMAIL-053",
-      "threadId": "THREAD-JAN-2026-0053",
+      "emailId": "EMAIL-GROUND-048",
+      "threadId": "THREAD-AMZ-2026-006",
       "from": {
-        "name": "Dr. Luc Verhoeven",
-        "email": "luc.verhoeven@janssen.com",
-        "company": "Janssen Pharmaceutica"
+        "name": "Priya Patel",
+        "email": "priya.patel@amazon.com",
+        "company": "Amazon"
       },
-      "subject": "Certificate of Origin Required – 567-6917 6356",
-      "receivedAt": "2026-02-14T17:52:15.289Z",
+      "subject": "Carrier Compliance Documentation",
+      "receivedAt": "2026-02-04T10:30:00-08:00",
       "classification": "DOCUMENTATION",
       "intent": "SUBMIT_DOCUMENTS",
-      "priority": "URGENT",
-      "status": "NEW",
-      "assignedRep": "Hans Gruber",
-      "linkedShipment": "SHP-CDG-2026-001052",
-      "tags": [
-        "PHARMA",
-        "FROZEN"
-      ],
-      "read": true,
-      "highlight": true,
-      "attachments": [
-        "Document_53.pdf"
-      ]
-    },
-    {
-      "emailId": "EMAIL-121",
-      "threadId": "THREAD-PET-2026-0121",
-      "from": {
-        "name": "Miguel Santos",
-        "email": "miguel.santos@petrobras.com.br",
-        "company": "Petrobras"
-      },
-      "subject": "Feedback on Recent Shipment",
-      "receivedAt": "2026-02-14T16:48:40.475Z",
-      "classification": "GENERAL",
-      "intent": "INQUIRY",
-      "priority": "URGENT",
-      "status": "PENDING",
-      "assignedRep": "Kim Soo-jin",
-      "linkedShipment": "SHP-CDG-2026-009556",
-      "tags": [
-        "AEROSPACE",
-        "AOG"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-087",
-      "threadId": "THREAD-DR.-2026-0087",
-      "from": {
-        "name": "Anil Kumar",
-        "email": "anil.kumar@drreddys.com",
-        "company": "Dr. Reddy's Laboratories"
-      },
-      "subject": "Tracking Request – SEA-LHR",
-      "receivedAt": "2026-02-14T16:07:32.333Z",
-      "classification": "STATUS_INQUIRY",
-      "intent": "ETA_REQUEST",
       "priority": "MEDIUM",
       "status": "COMPLETED",
-      "assignedRep": null,
-      "linkedShipment": "SHP-SEA-2026-001729",
-      "tags": [
-        "FASHION",
-        "LUXURY"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-017",
-      "threadId": "THREAD-ABB-2026-0017",
-      "from": {
-        "name": "Jennifer Davis",
-        "email": "jennifer.davis@abbott.com",
-        "company": "Abbott Laboratories"
-      },
-      "subject": "RFQ: Air Freight MIA to GRU",
-      "receivedAt": "2026-02-14T13:12:38.762Z",
-      "classification": "QUOTE_REQUEST",
-      "intent": "REQUEST_QUOTE",
-      "priority": "LOW",
-      "status": "ESCALATED",
-      "assignedRep": "Kim Soo-jin",
-      "linkedShipment": "SHP-MIA-2026-001108",
-      "tags": [
-        "AUTO",
-        "PARTS"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-120",
-      "threadId": "THREAD-ŠKO-2026-0120",
-      "from": {
-        "name": "Jan Novak",
-        "email": "jan.novak@skoda-auto.cz",
-        "company": "Škoda Auto"
-      },
-      "subject": "ETA Update Request – ŠKO-2026-0120",
-      "receivedAt": "2026-02-14T01:14:51.421Z",
-      "classification": "STATUS_INQUIRY",
-      "intent": "POD_REQUEST",
-      "priority": "HIGH",
-      "status": "IN_PROGRESS",
-      "assignedRep": "Elena Garcia",
-      "linkedShipment": "SHP-DXB-2026-004644",
-      "tags": [
-        "AUTO",
-        "PARTS"
-      ],
-      "read": false,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-019",
-      "threadId": "THREAD-AUD-2026-0019",
-      "from": {
-        "name": "Werner Schmidt",
-        "email": "werner.schmidt@audi.de",
-        "company": "Audi AG"
-      },
-      "subject": "Booking Confirmation – AUD-2026-0019",
-      "receivedAt": "2026-02-13T22:01:02.321Z",
-      "classification": "BOOKING_CONFIRMATION",
-      "intent": "BOOKING_CANCELLATION",
-      "priority": "URGENT",
-      "status": "PENDING",
-      "assignedRep": "Giovanni Bianchi",
+      "assignedRep": "Amanda Foster",
       "linkedShipment": null,
       "tags": [
-        "PHARMA",
-        "FROZEN"
+        "ECOMMERCE",
+        "COMPLIANCE",
+        "CARRIER"
       ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-091",
-      "threadId": "THREAD-JOH-2026-0091",
-      "from": {
-        "name": "Patricia Brown",
-        "email": "patricia.brown@jnj.com",
-        "company": "Johnson & Johnson"
-      },
-      "subject": "RE: Please proceed with booking – JOH-2026-0091",
-      "receivedAt": "2026-02-13T17:23:17.966Z",
-      "classification": "BOOKING_CONFIRMATION",
-      "intent": "BOOKING_CANCELLATION",
-      "priority": "LOW",
-      "status": "PENDING",
-      "assignedRep": "Marco Jansen",
-      "linkedShipment": "SHP-MIA-2026-002410",
-      "tags": [
-        "PERISHABLE",
-        "FOOD"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-096",
-      "threadId": "THREAD-HUA-2026-0096",
-      "from": {
-        "name": "Li Wei",
-        "email": "li.wei@huawei.com",
-        "company": "Huawei Technologies"
-      },
-      "subject": "RE: Shipment Status – HUA-2026-0096",
-      "receivedAt": "2026-02-13T15:41:10.566Z",
-      "classification": "STATUS_INQUIRY",
-      "intent": "TRACK_SHIPMENT",
-      "priority": "LOW",
-      "status": "COMPLETED",
-      "assignedRep": "Yuki Tanaka",
-      "linkedShipment": "SHP-ZRH-2026-002221",
-      "tags": [
-        "AUTO",
-        "PARTS"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-013",
-      "threadId": "THREAD-BIA-2026-0013",
-      "from": {
-        "name": "Maria Santos",
-        "email": "maria.santos@bial.com",
-        "company": "BIAL Pharmaceuticals"
-      },
-      "subject": "Certificate of Origin Required – 366-7715 6648",
-      "receivedAt": "2026-02-13T13:14:22.087Z",
-      "classification": "DOCUMENTATION",
-      "intent": "DOCUMENT_CORRECTION",
-      "priority": "MEDIUM",
-      "status": "COMPLETED",
-      "assignedRep": "Chen Ming",
-      "linkedShipment": "SHP-ATL-2026-007469",
-      "tags": [
-        "INDUSTRIAL",
-        "HEAVY"
-      ],
-      "read": true,
-      "highlight": false,
       "attachments": [
-        "Document_13.pdf"
-      ]
-    },
-    {
-      "emailId": "EMAIL-066",
-      "threadId": "THREAD-IND-2026-0066",
-      "from": {
-        "name": "Carlos Rodriguez",
-        "email": "carlos.rodriguez@inditex.com",
-        "company": "Inditex (Zara)"
-      },
-      "subject": "Issue with Invoice – IND-2026-0066",
-      "receivedAt": "2026-02-13T07:56:30.660Z",
-      "classification": "COMPLAINT",
-      "intent": "SERVICE_COMPLAINT",
-      "priority": "URGENT",
-      "status": "NEW",
-      "assignedRep": "Kim Soo-jin",
-      "linkedShipment": "SHP-NRT-2026-004468",
-      "tags": [
-        "PHARMA",
-        "TEMPERATURE_CONTROLLED"
-      ],
-      "read": true,
-      "highlight": true
-    },
-    {
-      "emailId": "EMAIL-063",
-      "threadId": "THREAD-EXX-2026-0063",
-      "from": {
-        "name": "John Anderson",
-        "email": "john.anderson@exxonmobil.com",
-        "company": "ExxonMobil"
-      },
-      "subject": "Confirmed: ORD-DUB Shipment",
-      "receivedAt": "2026-02-13T02:36:08.380Z",
-      "classification": "BOOKING_CONFIRMATION",
-      "intent": "BOOKING_AMENDMENT",
-      "priority": "URGENT",
-      "status": "IN_PROGRESS",
-      "assignedRep": "Kim Soo-jin",
-      "linkedShipment": "SHP-ORD-2026-006673",
-      "tags": [
-        "FASHION",
-        "LUXURY"
+        "carrier_compliance.pdf"
       ],
       "read": true,
       "highlight": false
     },
     {
-      "emailId": "EMAIL-010",
-      "threadId": "THREAD-UNI-2026-0010",
+      "emailId": "EMAIL-GROUND-049",
+      "threadId": "THREAD-TYS-2026-006",
       "from": {
-        "name": "Budi Santoso",
-        "email": "budi.santoso@unilever.com",
-        "company": "Unilever Indonesia"
+        "name": "Nancy Chen",
+        "email": "nancy.chen@tyson.com",
+        "company": "Tyson Foods"
       },
-      "subject": "Documentation Request – UNI-2026-0010",
-      "receivedAt": "2026-02-13T01:13:48.582Z",
-      "classification": "DOCUMENTATION",
-      "intent": "SUBMIT_DOCUMENTS",
-      "priority": "URGENT",
-      "status": "NEW",
-      "assignedRep": "Fatima Hassan",
-      "linkedShipment": null,
-      "tags": [
-        "ELECTRONICS",
-        "HIGH_VALUE"
-      ],
-      "read": true,
-      "highlight": true,
-      "attachments": [
-        "Document_10.pdf"
-      ]
-    },
-    {
-      "emailId": "EMAIL-068",
-      "threadId": "THREAD-HUA-2026-0068",
-      "from": {
-        "name": "Li Wei",
-        "email": "li.wei@huawei.com",
-        "company": "Huawei Technologies"
-      },
-      "subject": "RE: Partnership Discussion",
-      "receivedAt": "2026-02-13T00:16:16.160Z",
-      "classification": "GENERAL",
-      "intent": "ACCOUNT_UPDATE",
-      "priority": "HIGH",
-      "status": "NEW",
-      "assignedRep": "Fatima Hassan",
-      "linkedShipment": "SHP-FRA-2026-006639",
-      "tags": [
-        "MEDICAL",
-        "DEVICES"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-024",
-      "threadId": "THREAD-TAT-2026-0024",
-      "from": {
-        "name": "Rajesh Sharma",
-        "email": "rajesh.sharma@tatamotors.com",
-        "company": "Tata Motors"
-      },
-      "subject": "Feedback on Recent Shipment",
-      "receivedAt": "2026-02-12T14:00:10.002Z",
-      "classification": "GENERAL",
-      "intent": "ACCOUNT_UPDATE",
-      "priority": "MEDIUM",
-      "status": "COMPLETED",
-      "assignedRep": "Kim Soo-jin",
-      "linkedShipment": null,
-      "tags": [
-        "AUTO",
-        "AOG"
-      ],
-      "read": false,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-054",
-      "threadId": "THREAD-APP-2026-0054",
-      "from": {
-        "name": "David Chen",
-        "email": "david.chen@apple.com",
-        "company": "Apple Inc."
-      },
-      "subject": "RE: Shipment Status – APP-2026-0054",
-      "receivedAt": "2026-02-12T06:33:44.643Z",
-      "classification": "STATUS_INQUIRY",
-      "intent": "TRACK_SHIPMENT",
-      "priority": "LOW",
-      "status": "NEW",
-      "assignedRep": "Sophie Dubois",
-      "linkedShipment": "SHP-MUC-2026-001703",
-      "tags": [
-        "PHARMA",
-        "CLINICAL_TRIAL"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-118",
-      "threadId": "THREAD-LG -2026-0118",
-      "from": {
-        "name": "Park Ji-sung",
-        "email": "jisung.park@lge.com",
-        "company": "LG Electronics"
-      },
-      "subject": "Meeting Request – LG Electronics",
-      "receivedAt": "2026-02-12T01:54:30.163Z",
-      "classification": "GENERAL",
-      "intent": "ACCOUNT_UPDATE",
-      "priority": "MEDIUM",
-      "status": "PENDING",
-      "assignedRep": "Anna van der Berg",
-      "linkedShipment": "SHP-BRU-2026-003989",
-      "tags": [
-        "FASHION",
-        "LUXURY"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-026",
-      "threadId": "THREAD-SAM-2026-0026",
-      "from": {
-        "name": "Kevin Park",
-        "email": "kevin.park@samsung.com",
-        "company": "Samsung Electronics"
-      },
-      "subject": "Approval to Book – SAM-2026-0026",
-      "receivedAt": "2026-02-11T23:45:57.939Z",
-      "classification": "BOOKING_CONFIRMATION",
-      "intent": "BOOKING_AMENDMENT",
-      "priority": "URGENT",
-      "status": "IN_PROGRESS",
-      "assignedRep": "Chen Ming",
-      "linkedShipment": "SHP-MIA-2026-004147",
-      "tags": [
-        "PERISHABLE",
-        "FOOD"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-044",
-      "threadId": "THREAD-EXX-2026-0044",
-      "from": {
-        "name": "John Anderson",
-        "email": "john.anderson@exxonmobil.com",
-        "company": "ExxonMobil"
-      },
-      "subject": "RE: Action Required – 723-5842 7960",
-      "receivedAt": "2026-02-11T10:42:39.239Z",
+      "subject": "Temperature Variance Report - Dallas Load",
+      "receivedAt": "2026-02-04T07:45:00-06:00",
       "classification": "ALERT_RESPONSE",
       "intent": "RESOLVE_ISSUE",
-      "priority": "LOW",
-      "status": "IN_PROGRESS",
-      "assignedRep": "Fatima Hassan",
-      "linkedShipment": null,
-      "tags": [
-        "PHARMA",
-        "TEMPERATURE_CONTROLLED"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-067",
-      "threadId": "THREAD-MED-2026-0067",
-      "from": {
-        "name": "Ciara Murphy",
-        "email": "ciara.murphy@medtronic.com",
-        "company": "Medtronic Ireland"
-      },
-      "subject": "RE: Missing Documents – 856-5168 6006",
-      "receivedAt": "2026-02-10T22:53:27.318Z",
-      "classification": "DOCUMENTATION",
-      "intent": "SUBMIT_DOCUMENTS",
       "priority": "HIGH",
-      "status": "ESCALATED",
-      "assignedRep": "Michael Chen",
-      "linkedShipment": "SHP-CDG-2026-006160",
+      "status": "COMPLETED",
+      "assignedRep": "Carlos Rodriguez",
+      "linkedShipment": "BOL-TYS-2026-8721",
       "tags": [
-        "ELECTRONICS",
-        "HIGH_VALUE"
-      ],
-      "read": true,
-      "highlight": false,
-      "attachments": [
-        "Document_67.pdf"
-      ]
-    },
-    {
-      "emailId": "EMAIL-084",
-      "threadId": "THREAD-QAT-2026-0084",
-      "from": {
-        "name": "Mohammed Al-Thani",
-        "email": "mohammed.althani@qatarenergy.qa",
-        "company": "QatarEnergy"
-      },
-      "subject": "Quote Request – MIA-GRU | QAT-2026-0084",
-      "receivedAt": "2026-02-10T18:01:38.484Z",
-      "classification": "QUOTE_REQUEST",
-      "intent": "REQUEST_QUOTE",
-      "priority": "LOW",
-      "status": "NEW",
-      "assignedRep": "Elena Garcia",
-      "linkedShipment": "SHP-MIA-2026-002155",
-      "tags": [
-        "AEROSPACE",
-        "AOG"
+        "FOOD",
+        "REEFER",
+        "TEMP_ISSUE"
       ],
       "read": true,
       "highlight": false
     },
     {
-      "emailId": "EMAIL-100",
-      "threadId": "THREAD-UNI-2026-0100",
+      "emailId": "EMAIL-GROUND-050",
+      "threadId": "THREAD-FER-2026-007",
       "from": {
-        "name": "Budi Santoso",
-        "email": "budi.santoso@unilever.com",
-        "company": "Unilever Indonesia"
+        "name": "Giulia Conti",
+        "email": "giulia.conti@ferrari.com",
+        "company": "Ferrari"
       },
-      "subject": "Where is my shipment? 827-1784 8481",
-      "receivedAt": "2026-02-10T15:57:35.382Z",
-      "classification": "STATUS_INQUIRY",
-      "intent": "TRACK_SHIPMENT",
-      "priority": "URGENT",
-      "status": "NEW",
-      "assignedRep": "David Lim",
-      "linkedShipment": "SHP-SFO-2026-007876",
-      "tags": [
-        "AEROSPACE",
-        "AOG"
-      ],
-      "read": true,
-      "highlight": true
-    },
-    {
-      "emailId": "EMAIL-064",
-      "threadId": "THREAD-FER-2026-0064",
-      "from": {
-        "name": "Marco Rossi",
-        "email": "marco.rossi@ferrari.com",
-        "company": "Ferrari S.p.A."
-      },
-      "subject": "RE: Please proceed with booking – FER-2026-0064",
-      "receivedAt": "2026-02-10T12:57:05.954Z",
-      "classification": "BOOKING_CONFIRMATION",
-      "intent": "CONFIRM_BOOKING",
-      "priority": "LOW",
-      "status": "ESCALATED",
-      "assignedRep": null,
-      "linkedShipment": "SHP-LHR-2026-002981",
-      "tags": [
-        "INDUSTRIAL",
-        "HEAVY"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-105",
-      "threadId": "THREAD-CP -2026-0105",
-      "from": {
-        "name": "Somchai Prasert",
-        "email": "somchai.prasert@cpall.co.th",
-        "company": "CP ALL"
-      },
-      "subject": "GO for Booking – 572-5285 7025",
-      "receivedAt": "2026-02-10T12:18:05.792Z",
+      "subject": "Pickup Schedule Change - Miami Warehouse",
+      "receivedAt": "2026-02-03T16:00:00-05:00",
       "classification": "BOOKING_CONFIRMATION",
       "intent": "BOOKING_AMENDMENT",
       "priority": "MEDIUM",
       "status": "COMPLETED",
-      "assignedRep": "Yuki Tanaka",
-      "linkedShipment": null,
+      "assignedRep": "Mike Johnson",
+      "linkedShipment": "BOL-FER-2026-0765",
       "tags": [
         "AUTO",
-        "AOG"
-      ],
-      "read": false,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-069",
-      "threadId": "THREAD-FER-2026-0069",
-      "from": {
-        "name": "Marco Rossi",
-        "email": "marco.rossi@ferrari.com",
-        "company": "Ferrari S.p.A."
-      },
-      "subject": "Urgent Quote Needed – Fashion Goods Shipment",
-      "receivedAt": "2026-02-10T03:05:20.610Z",
-      "classification": "QUOTE_REQUEST",
-      "intent": "QUOTE_FOLLOWUP",
-      "priority": "MEDIUM",
-      "status": "NEW",
-      "assignedRep": "Elena Garcia",
-      "linkedShipment": null,
-      "tags": [
-        "MEDICAL",
-        "DEVICES"
-      ],
-      "read": true,
-      "highlight": false,
-      "missingInfo": []
-    },
-    {
-      "emailId": "EMAIL-098",
-      "threadId": "THREAD-TOY-2026-0098",
-      "from": {
-        "name": "Takeshi Yamamoto",
-        "email": "takeshi.yamamoto@toyota.co.jp",
-        "company": "Toyota Motor Corporation"
-      },
-      "subject": "Booking Confirmation – TOY-2026-0098",
-      "receivedAt": "2026-02-10T01:57:02.014Z",
-      "classification": "BOOKING_CONFIRMATION",
-      "intent": "BOOKING_CANCELLATION",
-      "priority": "MEDIUM",
-      "status": "COMPLETED",
-      "assignedRep": "Carlos Santos",
-      "linkedShipment": null,
-      "tags": [
-        "PHARMA",
-        "FROZEN"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-043",
-      "threadId": "THREAD-AMA-2026-0043",
-      "from": {
-        "name": "Lisa Thompson",
-        "email": "lisa.thompson@amazon.com",
-        "company": "Amazon.com Inc."
-      },
-      "subject": "Service Quality Concern – AMA-2026-0043",
-      "receivedAt": "2026-02-10T01:54:57.853Z",
-      "classification": "COMPLAINT",
-      "intent": "DAMAGE_CLAIM",
-      "priority": "MEDIUM",
-      "status": "NEW",
-      "assignedRep": null,
-      "linkedShipment": "SHP-BRU-2026-005189",
-      "tags": [
-        "DG",
-        "BATTERY"
-      ],
-      "read": false,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-016",
-      "threadId": "THREAD-PLI-2026-0016",
-      "from": {
-        "name": "Ivan Horvat",
-        "email": "ivan.horvat@pliva.com",
-        "company": "PLIVA Croatia"
-      },
-      "subject": "RE: Shipment Status – PLI-2026-0016",
-      "receivedAt": "2026-02-09T20:07:36.972Z",
-      "classification": "STATUS_INQUIRY",
-      "intent": "ETA_REQUEST",
-      "priority": "LOW",
-      "status": "ESCALATED",
-      "assignedRep": "Sophie Dubois",
-      "linkedShipment": null,
-      "tags": [
-        "FASHION",
-        "LUXURY"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-115",
-      "threadId": "THREAD-HEN-2026-0115",
-      "from": {
-        "name": "Michael Braun",
-        "email": "michael.braun@henkel.com",
-        "company": "Henkel AG"
-      },
-      "subject": "Commercial Invoice Amendment – HEN-2026-0115",
-      "receivedAt": "2026-02-09T18:50:41.527Z",
-      "classification": "DOCUMENTATION",
-      "intent": "DOCUMENT_CORRECTION",
-      "priority": "MEDIUM",
-      "status": "PENDING",
-      "assignedRep": "Kim Soo-jin",
-      "linkedShipment": null,
-      "tags": [
-        "PERISHABLE",
-        "FOOD"
-      ],
-      "read": false,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-023",
-      "threadId": "THREAD-HEN-2026-0023",
-      "from": {
-        "name": "Michael Braun",
-        "email": "michael.braun@henkel.com",
-        "company": "Henkel AG"
-      },
-      "subject": "Commercial Invoice Amendment – HEN-2026-0023",
-      "receivedAt": "2026-02-09T17:05:38.859Z",
-      "classification": "DOCUMENTATION",
-      "intent": "REQUEST_DOCUMENTS",
-      "priority": "URGENT",
-      "status": "IN_PROGRESS",
-      "assignedRep": "Pierre Laurent",
-      "linkedShipment": null,
-      "tags": [
-        "ELECTRONICS",
-        "HIGH_VALUE"
-      ],
-      "read": false,
-      "highlight": false,
-      "attachments": [
-        "Document_23.pdf"
-      ]
-    },
-    {
-      "emailId": "EMAIL-103",
-      "threadId": "THREAD-BOM-2026-0103",
-      "from": {
-        "name": "Pierre Tremblay",
-        "email": "pierre.tremblay@bombardier.com",
-        "company": "Bombardier Inc."
-      },
-      "subject": "Approval to Book – BOM-2026-0103",
-      "receivedAt": "2026-02-09T17:00:15.038Z",
-      "classification": "BOOKING_CONFIRMATION",
-      "intent": "CONFIRM_BOOKING",
-      "priority": "HIGH",
-      "status": "COMPLETED",
-      "assignedRep": "Thomas Müller",
-      "linkedShipment": null,
-      "tags": [
-        "AUTO",
-        "PARTS"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-042",
-      "threadId": "THREAD-LG -2026-0042",
-      "from": {
-        "name": "Park Ji-sung",
-        "email": "jisung.park@lge.com",
-        "company": "LG Electronics"
-      },
-      "subject": "RE: Partnership Discussion",
-      "receivedAt": "2026-02-09T14:38:05.070Z",
-      "classification": "GENERAL",
-      "intent": "ACCOUNT_UPDATE",
-      "priority": "HIGH",
-      "status": "IN_PROGRESS",
-      "assignedRep": "David Lim",
-      "linkedShipment": "SHP-MEL-2026-003419",
-      "tags": [
-        "PHARMA",
-        "TEMPERATURE_CONTROLLED"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-018",
-      "threadId": "THREAD-BOM-2026-0018",
-      "from": {
-        "name": "Pierre Tremblay",
-        "email": "pierre.tremblay@bombardier.com",
-        "company": "Bombardier Inc."
-      },
-      "subject": "Damage Report – 425-1233 8263",
-      "receivedAt": "2026-02-09T13:30:55.496Z",
-      "classification": "COMPLAINT",
-      "intent": "SERVICE_COMPLAINT",
-      "priority": "MEDIUM",
-      "status": "ESCALATED",
-      "assignedRep": null,
-      "linkedShipment": null,
-      "tags": [
-        "PHARMA",
-        "TEMPERATURE_CONTROLLED"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-107",
-      "threadId": "THREAD-BOM-2026-0107",
-      "from": {
-        "name": "Pierre Tremblay",
-        "email": "pierre.tremblay@bombardier.com",
-        "company": "Bombardier Inc."
-      },
-      "subject": "AWB Copy Needed – BOM-2026-0107",
-      "receivedAt": "2026-02-09T10:53:58.226Z",
-      "classification": "DOCUMENTATION",
-      "intent": "DOCUMENT_CORRECTION",
-      "priority": "HIGH",
-      "status": "IN_PROGRESS",
-      "assignedRep": "Priya Patel",
-      "linkedShipment": "SHP-CPH-2026-001757",
-      "tags": [
-        "PERISHABLE",
-        "FOOD"
-      ],
-      "read": true,
-      "highlight": false,
-      "attachments": [
-        "Document_107.pdf"
-      ]
-    },
-    {
-      "emailId": "EMAIL-088",
-      "threadId": "THREAD-QAT-2026-0088",
-      "from": {
-        "name": "Mohammed Al-Thani",
-        "email": "mohammed.althani@qatarenergy.qa",
-        "company": "QatarEnergy"
-      },
-      "subject": "RE: Action Required – 323-7485 2715",
-      "receivedAt": "2026-02-09T05:57:08.653Z",
-      "classification": "ALERT_RESPONSE",
-      "intent": "ACKNOWLEDGE_ALERT",
-      "priority": "URGENT",
-      "status": "IN_PROGRESS",
-      "assignedRep": null,
-      "linkedShipment": "SHP-MUC-2026-001425",
-      "tags": [
-        "PHARMA",
-        "TEMPERATURE_CONTROLLED"
-      ],
-      "read": false,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-124",
-      "threadId": "THREAD-UNI-2026-0124",
-      "from": {
-        "name": "Budi Santoso",
-        "email": "budi.santoso@unilever.com",
-        "company": "Unilever Indonesia"
-      },
-      "subject": "Documentation Request – UNI-2026-0124",
-      "receivedAt": "2026-02-09T05:40:18.669Z",
-      "classification": "DOCUMENTATION",
-      "intent": "SUBMIT_DOCUMENTS",
-      "priority": "LOW",
-      "status": "PENDING",
-      "assignedRep": "Kim Soo-jin",
-      "linkedShipment": "SHP-ATL-2026-008678",
-      "tags": [
-        "AUTO",
-        "PARTS"
-      ],
-      "read": false,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-005",
-      "threadId": "THREAD-SIE-2026-0005",
-      "from": {
-        "name": "Martina Schmidt",
-        "email": "martina.schmidt@siemens.com",
-        "company": "Siemens AG"
-      },
-      "subject": "RE: Customs Hold – SIE-2026-0005",
-      "receivedAt": "2026-02-08T22:28:26.286Z",
-      "classification": "ALERT_RESPONSE",
-      "intent": "ACKNOWLEDGE_ALERT",
-      "priority": "LOW",
-      "status": "ESCALATED",
-      "assignedRep": null,
-      "linkedShipment": "SHP-SFO-2026-008003",
-      "tags": [
-        "PHARMA",
-        "FROZEN"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-041",
-      "threadId": "THREAD-TAT-2026-0041",
-      "from": {
-        "name": "Rajesh Sharma",
-        "email": "rajesh.sharma@tatamotors.com",
-        "company": "Tata Motors"
-      },
-      "subject": "Status Check – 626-4730 4503",
-      "receivedAt": "2026-02-08T18:53:50.725Z",
-      "classification": "STATUS_INQUIRY",
-      "intent": "POD_REQUEST",
-      "priority": "LOW",
-      "status": "ESCALATED",
-      "assignedRep": "Pierre Laurent",
-      "linkedShipment": "SHP-ZRH-2026-006040",
-      "tags": [
-        "AUTO",
-        "AOG"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-117",
-      "threadId": "THREAD-NOV-2026-0117",
-      "from": {
-        "name": "Dr. Helena Müller",
-        "email": "helena.mueller@novartis.com",
-        "company": "Novartis Pharma AG"
-      },
-      "subject": "RE: URGENT – Temperature Alert 952-4313 4787",
-      "receivedAt": "2026-02-08T13:31:41.812Z",
-      "classification": "ALERT_RESPONSE",
-      "intent": "ACKNOWLEDGE_ALERT",
-      "priority": "HIGH",
-      "status": "ESCALATED",
-      "assignedRep": "Giovanni Bianchi",
-      "linkedShipment": "SHP-NRT-2026-001169",
-      "tags": [
-        "AUTO",
-        "AOG"
-      ],
-      "read": false,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-113",
-      "threadId": "THREAD-HUA-2026-0113",
-      "from": {
-        "name": "Li Wei",
-        "email": "li.wei@huawei.com",
-        "company": "Huawei Technologies"
-      },
-      "subject": "RE: Please proceed with booking – HUA-2026-0113",
-      "receivedAt": "2026-02-08T08:44:05.443Z",
-      "classification": "BOOKING_CONFIRMATION",
-      "intent": "BOOKING_CANCELLATION",
-      "priority": "HIGH",
-      "status": "COMPLETED",
-      "assignedRep": "Pierre Laurent",
-      "linkedShipment": "SHP-DXB-2026-007862",
-      "tags": [
-        "PERISHABLE",
-        "FOOD"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-031",
-      "threadId": "THREAD-INT-2026-0031",
-      "from": {
-        "name": "Ahmad Razak",
-        "email": "ahmad.razak@intel.com",
-        "company": "Intel Malaysia"
-      },
-      "subject": "Service Quality Concern – INT-2026-0031",
-      "receivedAt": "2026-02-08T05:53:55.836Z",
-      "classification": "COMPLAINT",
-      "intent": "BILLING_DISPUTE",
-      "priority": "HIGH",
-      "status": "COMPLETED",
-      "assignedRep": "Michael Chen",
-      "linkedShipment": "SHP-HKG-2026-007474",
-      "tags": [
-        "ELECTRONICS",
-        "HIGH_VALUE"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-073",
-      "threadId": "THREAD-ALI-2026-0073",
-      "from": {
-        "name": "Chen Wei",
-        "email": "chen.wei@alibaba.com",
-        "company": "Alibaba Group"
-      },
-      "subject": "Documentation Request – ALI-2026-0073",
-      "receivedAt": "2026-02-08T02:53:24.290Z",
-      "classification": "DOCUMENTATION",
-      "intent": "DOCUMENT_CORRECTION",
-      "priority": "URGENT",
-      "status": "NEW",
-      "assignedRep": "David Lim",
-      "linkedShipment": null,
-      "tags": [
-        "FASHION",
-        "LUXURY"
-      ],
-      "read": true,
-      "highlight": true
-    },
-    {
-      "emailId": "EMAIL-012",
-      "threadId": "THREAD-LVM-2026-0012",
-      "from": {
-        "name": "Marie Dubois",
-        "email": "marie.dubois@lvmh.com",
-        "company": "LVMH"
-      },
-      "subject": "RFQ: Air Freight DXB to ICN",
-      "receivedAt": "2026-02-07T15:02:07.331Z",
-      "classification": "QUOTE_REQUEST",
-      "intent": "QUOTE_FOLLOWUP",
-      "priority": "HIGH",
-      "status": "IN_PROGRESS",
-      "assignedRep": "Carlos Santos",
-      "linkedShipment": "SHP-DXB-2026-001342",
-      "tags": [
-        "AUTO",
-        "PARTS"
-      ],
-      "read": false,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-075",
-      "threadId": "THREAD-ROC-2026-0075",
-      "from": {
-        "name": "Dr. Sophie Martin",
-        "email": "sophie.martin@roche.com",
-        "company": "Roche Holding AG"
-      },
-      "subject": "RE: Customs Hold – ROC-2026-0075",
-      "receivedAt": "2026-02-07T14:58:17.918Z",
-      "classification": "ALERT_RESPONSE",
-      "intent": "ACKNOWLEDGE_ALERT",
-      "priority": "LOW",
-      "status": "COMPLETED",
-      "assignedRep": "Marco Jansen",
-      "linkedShipment": "SHP-ZRH-2026-007824",
-      "tags": [
-        "PHARMA",
-        "CLINICAL_TRIAL"
-      ],
-      "read": false,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-058",
-      "threadId": "THREAD-CSL-2026-0058",
-      "from": {
-        "name": "Dr. Sarah Mitchell",
-        "email": "sarah.mitchell@csl.com.au",
-        "company": "CSL Behring"
-      },
-      "subject": "Issue with Invoice – CSL-2026-0058",
-      "receivedAt": "2026-02-07T12:42:09.709Z",
-      "classification": "COMPLAINT",
-      "intent": "DAMAGE_CLAIM",
-      "priority": "HIGH",
-      "status": "ESCALATED",
-      "assignedRep": "Thomas Müller",
-      "linkedShipment": null,
-      "tags": [
-        "INDUSTRIAL",
-        "HEAVY"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-076",
-      "threadId": "THREAD-AST-2026-0076",
-      "from": {
-        "name": "Sarah Thompson",
-        "email": "sarah.thompson@astrazeneca.com",
-        "company": "AstraZeneca UK Ltd"
-      },
-      "subject": "Question about Services",
-      "receivedAt": "2026-02-07T11:08:29.403Z",
-      "classification": "GENERAL",
-      "intent": "FEEDBACK",
-      "priority": "LOW",
-      "status": "NEW",
-      "assignedRep": "Priya Patel",
-      "linkedShipment": null,
-      "tags": [
-        "ELECTRONICS",
-        "HIGH_VALUE"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-071",
-      "threadId": "THREAD-CSL-2026-0071",
-      "from": {
-        "name": "Dr. Sarah Mitchell",
-        "email": "sarah.mitchell@csl.com.au",
-        "company": "CSL Behring"
-      },
-      "subject": "Approval to Book – CSL-2026-0071",
-      "receivedAt": "2026-02-07T04:00:32.227Z",
-      "classification": "BOOKING_CONFIRMATION",
-      "intent": "BOOKING_CANCELLATION",
-      "priority": "HIGH",
-      "status": "COMPLETED",
-      "assignedRep": null,
-      "linkedShipment": "SHP-MIA-2026-001171",
-      "tags": [
-        "FASHION",
-        "LUXURY"
-      ],
-      "read": false,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-089",
-      "threadId": "THREAD-UNI-2026-0089",
-      "from": {
-        "name": "Budi Santoso",
-        "email": "budi.santoso@unilever.com",
-        "company": "Unilever Indonesia"
-      },
-      "subject": "Billing Discrepancy – UNI-2026-0089",
-      "receivedAt": "2026-02-06T21:44:46.674Z",
-      "classification": "COMPLAINT",
-      "intent": "DAMAGE_CLAIM",
-      "priority": "LOW",
-      "status": "NEW",
-      "assignedRep": "Giovanni Bianchi",
-      "linkedShipment": "SHP-CDG-2026-009991",
-      "tags": [
-        "PHARMA",
-        "CLINICAL_TRIAL"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-099",
-      "threadId": "THREAD-PFI-2026-0099",
-      "from": {
-        "name": "Robert Johnson",
-        "email": "robert.johnson@pfizer.com",
-        "company": "Pfizer Inc."
-      },
-      "subject": "Pricing Request – Pfizer Inc. Weekly Shipment",
-      "receivedAt": "2026-02-06T20:40:24.285Z",
-      "classification": "QUOTE_REQUEST",
-      "intent": "REQUEST_QUOTE",
-      "priority": "LOW",
-      "status": "COMPLETED",
-      "assignedRep": "Chen Ming",
-      "linkedShipment": null,
-      "tags": [
-        "DG",
-        "BATTERY"
-      ],
-      "read": true,
-      "highlight": false,
-      "missingInfo": [
-        "pickupDate",
-        "insurance"
-      ]
-    },
-    {
-      "emailId": "EMAIL-001",
-      "threadId": "THREAD-THE-2026-0001",
-      "from": {
-        "name": "Mark Williams",
-        "email": "mark.williams@coca-cola.com",
-        "company": "The Coca-Cola Company"
-      },
-      "subject": "Meeting Request – The Coca-Cola Company",
-      "receivedAt": "2026-02-06T20:16:07.833Z",
-      "classification": "GENERAL",
-      "intent": "ACCOUNT_UPDATE",
-      "priority": "URGENT",
-      "status": "PENDING",
-      "assignedRep": "Priya Patel",
-      "linkedShipment": null,
-      "tags": [
-        "AEROSPACE",
-        "AOG"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-009",
-      "threadId": "THREAD-HEN-2026-0009",
-      "from": {
-        "name": "Michael Braun",
-        "email": "michael.braun@henkel.com",
-        "company": "Henkel AG"
-      },
-      "subject": "Meeting Request – Henkel AG",
-      "receivedAt": "2026-02-06T14:09:51.684Z",
-      "classification": "GENERAL",
-      "intent": "FEEDBACK",
-      "priority": "HIGH",
-      "status": "PENDING",
-      "assignedRep": "Fatima Hassan",
-      "linkedShipment": "SHP-ZRH-2026-002863",
-      "tags": [
-        "PHARMA",
-        "TEMPERATURE_CONTROLLED"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-052",
-      "threadId": "THREAD-IND-2026-0052",
-      "from": {
-        "name": "Carlos Rodriguez",
-        "email": "carlos.rodriguez@inditex.com",
-        "company": "Inditex (Zara)"
-      },
-      "subject": "Quote Request – DOH-NRT | IND-2026-0052",
-      "receivedAt": "2026-02-06T13:22:08.221Z",
-      "classification": "QUOTE_REQUEST",
-      "intent": "QUOTE_FOLLOWUP",
-      "priority": "LOW",
-      "status": "ESCALATED",
-      "assignedRep": "Erik Nielsen",
-      "linkedShipment": "SHP-DOH-2026-002568",
-      "tags": [
-        "AUTO",
-        "AOG"
-      ],
-      "read": true,
-      "highlight": false,
-      "missingInfo": [
-        "pickupDate",
-        "insurance"
-      ]
-    },
-    {
-      "emailId": "EMAIL-030",
-      "threadId": "THREAD-SAU-2026-0030",
-      "from": {
-        "name": "Ahmed Al-Rashid",
-        "email": "ahmed.alrashid@aramco.com",
-        "company": "Saudi Aramco"
-      },
-      "subject": "Booking Confirmation – SAU-2026-0030",
-      "receivedAt": "2026-02-06T09:05:23.702Z",
-      "classification": "BOOKING_CONFIRMATION",
-      "intent": "BOOKING_CANCELLATION",
-      "priority": "URGENT",
-      "status": "ESCALATED",
-      "assignedRep": "Elena Garcia",
-      "linkedShipment": null,
-      "tags": [
-        "DG",
-        "BATTERY"
-      ],
-      "read": false,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-081",
-      "threadId": "THREAD-GUC-2026-0081",
-      "from": {
-        "name": "Alessandro Bianchi",
-        "email": "alessandro.bianchi@gucci.com",
-        "company": "Gucci"
-      },
-      "subject": "Meeting Request – Gucci",
-      "receivedAt": "2026-02-06T07:50:40.548Z",
-      "classification": "GENERAL",
-      "intent": "ACCOUNT_UPDATE",
-      "priority": "URGENT",
-      "status": "PENDING",
-      "assignedRep": "Chen Ming",
-      "linkedShipment": "SHP-NRT-2026-009358",
-      "tags": [
-        "INDUSTRIAL",
-        "HEAVY"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-110",
-      "threadId": "THREAD-EXX-2026-0110",
-      "from": {
-        "name": "John Anderson",
-        "email": "john.anderson@exxonmobil.com",
-        "company": "ExxonMobil"
-      },
-      "subject": "Question about Services",
-      "receivedAt": "2026-02-06T07:22:18.802Z",
-      "classification": "GENERAL",
-      "intent": "FEEDBACK",
-      "priority": "URGENT",
-      "status": "IN_PROGRESS",
-      "assignedRep": "Anna van der Berg",
-      "linkedShipment": "SHP-DOH-2026-004217",
-      "tags": [
-        "MEDICAL",
-        "DEVICES"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-022",
-      "threadId": "THREAD-APP-2026-0022",
-      "from": {
-        "name": "David Chen",
-        "email": "david.chen@apple.com",
-        "company": "Apple Inc."
-      },
-      "subject": "Documentation Request – APP-2026-0022",
-      "receivedAt": "2026-02-06T03:55:51.897Z",
-      "classification": "DOCUMENTATION",
-      "intent": "REQUEST_DOCUMENTS",
-      "priority": "URGENT",
-      "status": "NEW",
-      "assignedRep": "Pierre Laurent",
-      "linkedShipment": null,
-      "tags": [
-        "AUTO",
-        "PARTS"
-      ],
-      "read": false,
-      "highlight": true,
-      "attachments": [
-        "Document_22.pdf"
-      ]
-    },
-    {
-      "emailId": "EMAIL-027",
-      "threadId": "THREAD-ROC-2026-0027",
-      "from": {
-        "name": "Dr. Sophie Martin",
-        "email": "sophie.martin@roche.com",
-        "company": "Roche Holding AG"
-      },
-      "subject": "RE: Customs Hold – ROC-2026-0027",
-      "receivedAt": "2026-02-06T03:30:33.051Z",
-      "classification": "ALERT_RESPONSE",
-      "intent": "ACKNOWLEDGE_ALERT",
-      "priority": "HIGH",
-      "status": "ESCALATED",
-      "assignedRep": "Anna van der Berg",
-      "linkedShipment": "SHP-DOH-2026-003792",
-      "tags": [
-        "PHARMA",
-        "CLINICAL_TRIAL"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-002",
-      "threadId": "THREAD-APP-2026-0002",
-      "from": {
-        "name": "David Chen",
-        "email": "david.chen@apple.com",
-        "company": "Apple Inc."
-      },
-      "subject": "Damage Report – 772-6416 2455",
-      "receivedAt": "2026-02-06T02:18:26.976Z",
-      "classification": "COMPLAINT",
-      "intent": "DAMAGE_CLAIM",
-      "priority": "HIGH",
-      "status": "IN_PROGRESS",
-      "assignedRep": null,
-      "linkedShipment": "SHP-DOH-2026-003073",
-      "tags": [
-        "AUTO",
-        "AOG"
-      ],
-      "read": false,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-014",
-      "threadId": "THREAD-THE-2026-0014",
-      "from": {
-        "name": "Mark Williams",
-        "email": "mark.williams@coca-cola.com",
-        "company": "The Coca-Cola Company"
-      },
-      "subject": "Documentation Request – THE-2026-0014",
-      "receivedAt": "2026-02-05T23:09:27.755Z",
-      "classification": "DOCUMENTATION",
-      "intent": "DOCUMENT_CORRECTION",
-      "priority": "MEDIUM",
-      "status": "IN_PROGRESS",
-      "assignedRep": "Yuki Tanaka",
-      "linkedShipment": "SHP-HKG-2026-001007",
-      "tags": [
-        "AEROSPACE",
-        "AOG"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-082",
-      "threadId": "THREAD-GUC-2026-0082",
-      "from": {
-        "name": "Alessandro Bianchi",
-        "email": "alessandro.bianchi@gucci.com",
-        "company": "Gucci"
-      },
-      "subject": "New Quote Request – Temperature Controlled ATL-JNB",
-      "receivedAt": "2026-02-05T17:27:34.532Z",
-      "classification": "QUOTE_REQUEST",
-      "intent": "REQUEST_QUOTE",
-      "priority": "HIGH",
-      "status": "COMPLETED",
-      "assignedRep": "James Wilson",
-      "linkedShipment": "SHP-ATL-2026-002914",
-      "tags": [
-        "PHARMA",
-        "CLINICAL_TRIAL"
-      ],
-      "read": true,
-      "highlight": false,
-      "missingInfo": [
-        "pickupDate"
-      ]
-    },
-    {
-      "emailId": "EMAIL-015",
-      "threadId": "THREAD-TAT-2026-0015",
-      "from": {
-        "name": "Rajesh Sharma",
-        "email": "rajesh.sharma@tatamotors.com",
-        "company": "Tata Motors"
-      },
-      "subject": "Regarding Shipment Exception – TAT-2026-0015",
-      "receivedAt": "2026-02-05T15:58:12.833Z",
-      "classification": "ALERT_RESPONSE",
-      "intent": "ESCALATION",
-      "priority": "HIGH",
-      "status": "IN_PROGRESS",
-      "assignedRep": "Yuki Tanaka",
-      "linkedShipment": null,
-      "tags": [
-        "MEDICAL",
-        "DEVICES"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-046",
-      "threadId": "THREAD-BOM-2026-0046",
-      "from": {
-        "name": "Pierre Tremblay",
-        "email": "pierre.tremblay@bombardier.com",
-        "company": "Bombardier Inc."
-      },
-      "subject": "RE: Shipment Status – BOM-2026-0046",
-      "receivedAt": "2026-02-05T10:11:08.924Z",
-      "classification": "STATUS_INQUIRY",
-      "intent": "TRACK_SHIPMENT",
-      "priority": "HIGH",
-      "status": "NEW",
-      "assignedRep": "Pierre Laurent",
-      "linkedShipment": "SHP-DXB-2026-007292",
-      "tags": [
-        "FASHION",
-        "LUXURY"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-011",
-      "threadId": "THREAD-BIA-2026-0011",
-      "from": {
-        "name": "Maria Santos",
-        "email": "maria.santos@bial.com",
-        "company": "BIAL Pharmaceuticals"
-      },
-      "subject": "Quote Request – BRU-MEX | BIA-2026-0011",
-      "receivedAt": "2026-02-05T08:36:38.764Z",
-      "classification": "QUOTE_REQUEST",
-      "intent": "REQUEST_QUOTE",
-      "priority": "URGENT",
-      "status": "NEW",
-      "assignedRep": "Michael Chen",
-      "linkedShipment": null,
-      "tags": [
-        "INDUSTRIAL",
-        "HEAVY"
-      ],
-      "read": true,
-      "highlight": true
-    },
-    {
-      "emailId": "EMAIL-045",
-      "threadId": "THREAD-ŠKO-2026-0045",
-      "from": {
-        "name": "Jan Novak",
-        "email": "jan.novak@skoda-auto.cz",
-        "company": "Škoda Auto"
-      },
-      "subject": "Pricing Request – Škoda Auto Weekly Shipment",
-      "receivedAt": "2026-02-05T04:16:51.578Z",
-      "classification": "QUOTE_REQUEST",
-      "intent": "REQUEST_QUOTE",
-      "priority": "MEDIUM",
-      "status": "PENDING",
-      "assignedRep": "Hans Gruber",
-      "linkedShipment": null,
-      "tags": [
-        "ELECTRONICS",
-        "HIGH_VALUE"
-      ],
-      "read": true,
-      "highlight": false,
-      "missingInfo": []
-    },
-    {
-      "emailId": "EMAIL-040",
-      "threadId": "THREAD-CP -2026-0040",
-      "from": {
-        "name": "Somchai Prasert",
-        "email": "somchai.prasert@cpall.co.th",
-        "company": "CP ALL"
-      },
-      "subject": "RFQ: Air Freight CDG to HKG",
-      "receivedAt": "2026-02-05T04:16:39.397Z",
-      "classification": "QUOTE_REQUEST",
-      "intent": "QUOTE_REVISION",
-      "priority": "URGENT",
-      "status": "NEW",
-      "assignedRep": "Pierre Laurent",
-      "linkedShipment": "SHP-CDG-2026-003241",
-      "tags": [
-        "INDUSTRIAL",
-        "HEAVY"
-      ],
-      "read": true,
-      "highlight": true
-    },
-    {
-      "emailId": "EMAIL-056",
-      "threadId": "THREAD-AUD-2026-0056",
-      "from": {
-        "name": "Werner Schmidt",
-        "email": "werner.schmidt@audi.de",
-        "company": "Audi AG"
-      },
-      "subject": "New Quote Request – Temperature Controlled BRU-MEX",
-      "receivedAt": "2026-02-05T03:30:21.540Z",
-      "classification": "QUOTE_REQUEST",
-      "intent": "QUOTE_FOLLOWUP",
-      "priority": "MEDIUM",
-      "status": "PENDING",
-      "assignedRep": "Priya Patel",
-      "linkedShipment": "SHP-BRU-2026-006086",
-      "tags": [
-        "FASHION",
-        "LUXURY"
-      ],
-      "read": false,
-      "highlight": false,
-      "missingInfo": [
-        "pickupDate"
-      ]
-    },
-    {
-      "emailId": "EMAIL-055",
-      "threadId": "THREAD-PET-2026-0055",
-      "from": {
-        "name": "Miguel Santos",
-        "email": "miguel.santos@petrobras.com.br",
-        "company": "Petrobras"
-      },
-      "subject": "Meeting Request – Petrobras",
-      "receivedAt": "2026-02-04T18:47:00.777Z",
-      "classification": "GENERAL",
-      "intent": "INQUIRY",
-      "priority": "MEDIUM",
-      "status": "COMPLETED",
-      "assignedRep": "Carlos Santos",
-      "linkedShipment": "SHP-FRA-2026-002377",
-      "tags": [
-        "PHARMA",
-        "CLINICAL_TRIAL"
-      ],
-      "read": false,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-077",
-      "threadId": "THREAD-VAL-2026-0077",
-      "from": {
-        "name": "Ricardo Silva",
-        "email": "ricardo.silva@vale.com",
-        "company": "Vale S.A."
-      },
-      "subject": "Billing Discrepancy – VAL-2026-0077",
-      "receivedAt": "2026-02-04T16:56:28.130Z",
-      "classification": "COMPLAINT",
-      "intent": "BILLING_DISPUTE",
-      "priority": "URGENT",
-      "status": "COMPLETED",
-      "assignedRep": "Priya Patel",
-      "linkedShipment": "SHP-CPH-2026-007967",
-      "tags": [
-        "FASHION",
-        "LUXURY"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-079",
-      "threadId": "THREAD-AST-2026-0079",
-      "from": {
-        "name": "Sarah Thompson",
-        "email": "sarah.thompson@astrazeneca.com",
-        "company": "AstraZeneca UK Ltd"
-      },
-      "subject": "AWB Copy Needed – AST-2026-0079",
-      "receivedAt": "2026-02-04T11:10:09.931Z",
-      "classification": "DOCUMENTATION",
-      "intent": "REQUEST_DOCUMENTS",
-      "priority": "HIGH",
-      "status": "COMPLETED",
-      "assignedRep": "Yuki Tanaka",
-      "linkedShipment": "SHP-FRA-2026-006472",
-      "tags": [
-        "INDUSTRIAL",
-        "HEAVY"
-      ],
-      "read": true,
-      "highlight": false,
-      "attachments": [
-        "Document_79.pdf"
-      ]
-    },
-    {
-      "emailId": "EMAIL-006",
-      "threadId": "THREAD-AUD-2026-0006",
-      "from": {
-        "name": "Werner Schmidt",
-        "email": "werner.schmidt@audi.de",
-        "company": "Audi AG"
-      },
-      "subject": "Where is my shipment? 274-1828 6072",
-      "receivedAt": "2026-02-04T06:09:57.678Z",
-      "classification": "STATUS_INQUIRY",
-      "intent": "POD_REQUEST",
-      "priority": "HIGH",
-      "status": "COMPLETED",
-      "assignedRep": null,
-      "linkedShipment": null,
-      "tags": [
-        "INDUSTRIAL",
-        "HEAVY"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-028",
-      "threadId": "THREAD-AUD-2026-0028",
-      "from": {
-        "name": "Werner Schmidt",
-        "email": "werner.schmidt@audi.de",
-        "company": "Audi AG"
-      },
-      "subject": "Where is my shipment? 413-4584 2764",
-      "receivedAt": "2026-02-04T05:12:42.740Z",
-      "classification": "STATUS_INQUIRY",
-      "intent": "TRACK_SHIPMENT",
-      "priority": "LOW",
-      "status": "ESCALATED",
-      "assignedRep": null,
-      "linkedShipment": "SHP-HKG-2026-008379",
-      "tags": [
-        "AUTO",
-        "PARTS"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-094",
-      "threadId": "THREAD-ROC-2026-0094",
-      "from": {
-        "name": "Dr. Sophie Martin",
-        "email": "sophie.martin@roche.com",
-        "company": "Roche Holding AG"
-      },
-      "subject": "Certificate of Origin Required – 898-1132 7970",
-      "receivedAt": "2026-02-04T03:24:28.494Z",
-      "classification": "DOCUMENTATION",
-      "intent": "DOCUMENT_CORRECTION",
-      "priority": "HIGH",
-      "status": "ESCALATED",
-      "assignedRep": "Yuki Tanaka",
-      "linkedShipment": "SHP-HKG-2026-001372",
-      "tags": [
-        "DG",
-        "BATTERY"
-      ],
-      "read": true,
-      "highlight": false,
-      "attachments": [
-        "Document_94.pdf"
-      ]
-    },
-    {
-      "emailId": "EMAIL-108",
-      "threadId": "THREAD-ADN-2026-0108",
-      "from": {
-        "name": "Fatima Al-Hassan",
-        "email": "fatima.alhassan@adnoc.ae",
-        "company": "ADNOC"
-      },
-      "subject": "Documentation Request – ADN-2026-0108",
-      "receivedAt": "2026-02-04T03:02:21.678Z",
-      "classification": "DOCUMENTATION",
-      "intent": "DOCUMENT_CORRECTION",
-      "priority": "URGENT",
-      "status": "PENDING",
-      "assignedRep": "Anna van der Berg",
-      "linkedShipment": "SHP-MXP-2026-008135",
-      "tags": [
-        "PHARMA",
-        "FROZEN"
-      ],
-      "read": true,
-      "highlight": false,
-      "attachments": [
-        "Document_108.pdf"
-      ]
-    },
-    {
-      "emailId": "EMAIL-122",
-      "threadId": "THREAD-AMA-2026-0122",
-      "from": {
-        "name": "Lisa Thompson",
-        "email": "lisa.thompson@amazon.com",
-        "company": "Amazon.com Inc."
-      },
-      "subject": "Urgent Quote Needed – Automotive Parts Shipment",
-      "receivedAt": "2026-02-04T00:49:48.778Z",
-      "classification": "QUOTE_REQUEST",
-      "intent": "REQUEST_QUOTE",
-      "priority": "LOW",
-      "status": "IN_PROGRESS",
-      "assignedRep": "Sophie Dubois",
-      "linkedShipment": null,
-      "tags": [
-        "INDUSTRIAL",
-        "HEAVY"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-047",
-      "threadId": "THREAD-PET-2026-0047",
-      "from": {
-        "name": "Miguel Santos",
-        "email": "miguel.santos@petrobras.com.br",
-        "company": "Petrobras"
-      },
-      "subject": "Urgent Quote Needed – Aerospace Components Shipment",
-      "receivedAt": "2026-02-03T15:40:51.562Z",
-      "classification": "QUOTE_REQUEST",
-      "intent": "QUOTE_REVISION",
-      "priority": "URGENT",
-      "status": "ESCALATED",
-      "assignedRep": "Elena Garcia",
-      "linkedShipment": "SHP-SEA-2026-004002",
-      "tags": [
-        "PERISHABLE",
-        "FOOD"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-101",
-      "threadId": "THREAD-THE-2026-0101",
-      "from": {
-        "name": "Mark Williams",
-        "email": "mark.williams@coca-cola.com",
-        "company": "The Coca-Cola Company"
-      },
-      "subject": "Commercial Invoice Amendment – THE-2026-0101",
-      "receivedAt": "2026-02-03T10:34:23.147Z",
-      "classification": "DOCUMENTATION",
-      "intent": "SUBMIT_DOCUMENTS",
-      "priority": "HIGH",
-      "status": "NEW",
-      "assignedRep": "Pierre Laurent",
-      "linkedShipment": null,
-      "tags": [
-        "PHARMA",
-        "TEMPERATURE_CONTROLLED"
-      ],
-      "read": false,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-065",
-      "threadId": "THREAD-NOV-2026-0065",
-      "from": {
-        "name": "Dr. Helena Müller",
-        "email": "helena.mueller@novartis.com",
-        "company": "Novartis Pharma AG"
-      },
-      "subject": "RE: Partnership Discussion",
-      "receivedAt": "2026-02-02T20:31:19.554Z",
-      "classification": "GENERAL",
-      "intent": "INQUIRY",
-      "priority": "LOW",
-      "status": "PENDING",
-      "assignedRep": "Priya Patel",
-      "linkedShipment": "SHP-SFO-2026-007243",
-      "tags": [
-        "INDUSTRIAL",
-        "HEAVY"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-050",
-      "threadId": "THREAD-CP -2026-0050",
-      "from": {
-        "name": "Somchai Prasert",
-        "email": "somchai.prasert@cpall.co.th",
-        "company": "CP ALL"
-      },
-      "subject": "Damage Report – 776-6455 3423",
-      "receivedAt": "2026-02-02T00:42:07.676Z",
-      "classification": "COMPLAINT",
-      "intent": "DAMAGE_CLAIM",
-      "priority": "MEDIUM",
-      "status": "PENDING",
-      "assignedRep": null,
-      "linkedShipment": "SHP-MIA-2026-008388",
-      "tags": [
-        "AUTO",
-        "PARTS"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-114",
-      "threadId": "THREAD-FER-2026-0114",
-      "from": {
-        "name": "Marco Rossi",
-        "email": "marco.rossi@ferrari.com",
-        "company": "Ferrari S.p.A."
-      },
-      "subject": "RFQ: Air Freight NRT to LAX",
-      "receivedAt": "2026-02-02T00:13:13.798Z",
-      "classification": "QUOTE_REQUEST",
-      "intent": "QUOTE_FOLLOWUP",
-      "priority": "LOW",
-      "status": "COMPLETED",
-      "assignedRep": "Sophie Dubois",
-      "linkedShipment": "SHP-NRT-2026-004086",
-      "tags": [
-        "ELECTRONICS",
-        "HIGH_VALUE"
-      ],
-      "read": true,
-      "highlight": false,
-      "missingInfo": []
-    },
-    {
-      "emailId": "EMAIL-004",
-      "threadId": "THREAD-ALL-2026-0004",
-      "from": {
-        "name": "Anna Kowalczyk",
-        "email": "anna.kowalczyk@allegro.pl",
-        "company": "Allegro"
-      },
-      "subject": "Billing Discrepancy – ALL-2026-0004",
-      "receivedAt": "2026-02-01T20:34:08.624Z",
-      "classification": "COMPLAINT",
-      "intent": "DAMAGE_CLAIM",
-      "priority": "URGENT",
-      "status": "COMPLETED",
-      "assignedRep": "Kim Soo-jin",
-      "linkedShipment": "SHP-FRA-2026-003991",
-      "tags": [
-        "PHARMA",
-        "CLINICAL_TRIAL"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-037",
-      "threadId": "THREAD-GUC-2026-0037",
-      "from": {
-        "name": "Alessandro Bianchi",
-        "email": "alessandro.bianchi@gucci.com",
-        "company": "Gucci"
-      },
-      "subject": "Quote Request – SIN-FRA | GUC-2026-0037",
-      "receivedAt": "2026-02-01T18:20:27.911Z",
-      "classification": "QUOTE_REQUEST",
-      "intent": "QUOTE_REVISION",
-      "priority": "MEDIUM",
-      "status": "IN_PROGRESS",
-      "assignedRep": "Pierre Laurent",
-      "linkedShipment": null,
-      "tags": [
-        "INDUSTRIAL",
-        "HEAVY"
-      ],
-      "read": false,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-033",
-      "threadId": "THREAD-JAN-2026-0033",
-      "from": {
-        "name": "Dr. Luc Verhoeven",
-        "email": "luc.verhoeven@janssen.com",
-        "company": "Janssen Pharmaceutica"
-      },
-      "subject": "Pricing Request – Janssen Pharmaceutica Weekly Shipment",
-      "receivedAt": "2026-02-01T17:41:33.646Z",
-      "classification": "QUOTE_REQUEST",
-      "intent": "QUOTE_REVISION",
-      "priority": "HIGH",
-      "status": "NEW",
-      "assignedRep": "David Lim",
-      "linkedShipment": "SHP-MXP-2026-009976",
-      "tags": [
-        "DG",
-        "BATTERY"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-093",
-      "threadId": "THREAD-MER-2026-0093",
-      "from": {
-        "name": "Thomas Anderson",
-        "email": "thomas.anderson@merck.com",
-        "company": "Merck & Co."
-      },
-      "subject": "RE: URGENT – Temperature Alert 605-2673 1937",
-      "receivedAt": "2026-02-01T16:04:03.335Z",
-      "classification": "ALERT_RESPONSE",
-      "intent": "RESOLVE_ISSUE",
-      "priority": "LOW",
-      "status": "NEW",
-      "assignedRep": "Fatima Hassan",
-      "linkedShipment": "SHP-SIN-2026-004360",
-      "tags": [
-        "ELECTRONICS",
-        "HIGH_VALUE"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-034",
-      "threadId": "THREAD-QAT-2026-0034",
-      "from": {
-        "name": "Mohammed Al-Thani",
-        "email": "mohammed.althani@qatarenergy.qa",
-        "company": "QatarEnergy"
-      },
-      "subject": "Account Update Request",
-      "receivedAt": "2026-02-01T15:10:19.634Z",
-      "classification": "GENERAL",
-      "intent": "ACCOUNT_UPDATE",
-      "priority": "HIGH",
-      "status": "COMPLETED",
-      "assignedRep": null,
-      "linkedShipment": "SHP-DOH-2026-003312",
-      "tags": [
-        "PHARMA",
-        "TEMPERATURE_CONTROLLED"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-086",
-      "threadId": "THREAD-NOV-2026-0086",
-      "from": {
-        "name": "Lars Andersen",
-        "email": "lars.andersen@novonordisk.com",
-        "company": "Novo Nordisk A/S"
-      },
-      "subject": "RE: URGENT – Temperature Alert 475-9254 1338",
-      "receivedAt": "2026-02-01T14:11:52.113Z",
-      "classification": "ALERT_RESPONSE",
-      "intent": "ESCALATION",
-      "priority": "LOW",
-      "status": "PENDING",
-      "assignedRep": "Pierre Laurent",
-      "linkedShipment": "SHP-BRU-2026-006050",
-      "tags": [
-        "FASHION",
-        "LUXURY"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-080",
-      "threadId": "THREAD-VAL-2026-0080",
-      "from": {
-        "name": "Ricardo Silva",
-        "email": "ricardo.silva@vale.com",
-        "company": "Vale S.A."
-      },
-      "subject": "Confirmed: FRA-ORD Shipment",
-      "receivedAt": "2026-02-01T12:38:15.635Z",
-      "classification": "BOOKING_CONFIRMATION",
-      "intent": "BOOKING_CANCELLATION",
-      "priority": "HIGH",
-      "status": "NEW",
-      "assignedRep": "Priya Patel",
-      "linkedShipment": null,
-      "tags": [
-        "PHARMA",
-        "FROZEN"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-039",
-      "threadId": "THREAD-DR.-2026-0039",
-      "from": {
-        "name": "Anil Kumar",
-        "email": "anil.kumar@drreddys.com",
-        "company": "Dr. Reddy's Laboratories"
-      },
-      "subject": "Question about Services",
-      "receivedAt": "2026-02-01T06:40:18.260Z",
-      "classification": "GENERAL",
-      "intent": "ACCOUNT_UPDATE",
-      "priority": "LOW",
-      "status": "IN_PROGRESS",
-      "assignedRep": "Anna van der Berg",
-      "linkedShipment": "SHP-ATL-2026-006018",
-      "tags": [
-        "PHARMA",
-        "CLINICAL_TRIAL"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-036",
-      "threadId": "THREAD-CSL-2026-0036",
-      "from": {
-        "name": "Dr. Sarah Mitchell",
-        "email": "sarah.mitchell@csl.com.au",
-        "company": "CSL Behring"
-      },
-      "subject": "Damage Report – 841-6850 2380",
-      "receivedAt": "2026-02-01T05:19:09.132Z",
-      "classification": "COMPLAINT",
-      "intent": "BILLING_DISPUTE",
-      "priority": "HIGH",
-      "status": "PENDING",
-      "assignedRep": "David Lim",
-      "linkedShipment": null,
-      "tags": [
-        "PHARMA",
-        "FROZEN"
-      ],
-      "read": false,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-072",
-      "threadId": "THREAD-LG -2026-0072",
-      "from": {
-        "name": "Park Ji-sung",
-        "email": "jisung.park@lge.com",
-        "company": "LG Electronics"
-      },
-      "subject": "Urgent Quote Needed – Aerospace Components Shipment",
-      "receivedAt": "2026-02-01T02:32:12.367Z",
-      "classification": "QUOTE_REQUEST",
-      "intent": "REQUEST_QUOTE",
-      "priority": "MEDIUM",
-      "status": "COMPLETED",
-      "assignedRep": "Hans Gruber",
-      "linkedShipment": "SHP-SIN-2026-002982",
-      "tags": [
-        "AUTO",
-        "PARTS"
-      ],
-      "read": true,
-      "highlight": false,
-      "missingInfo": []
-    },
-    {
-      "emailId": "EMAIL-092",
-      "threadId": "THREAD-BIA-2026-0092",
-      "from": {
-        "name": "Maria Santos",
-        "email": "maria.santos@bial.com",
-        "company": "BIAL Pharmaceuticals"
-      },
-      "subject": "RE: Please proceed with booking – BIA-2026-0092",
-      "receivedAt": "2026-02-01T00:55:47.438Z",
-      "classification": "BOOKING_CONFIRMATION",
-      "intent": "BOOKING_AMENDMENT",
-      "priority": "LOW",
-      "status": "NEW",
-      "assignedRep": "Erik Nielsen",
-      "linkedShipment": "SHP-ORD-2026-001634",
-      "tags": [
-        "PERISHABLE",
-        "FOOD"
-      ],
-      "read": true,
-      "highlight": false
-    },
-    {
-      "emailId": "EMAIL-061",
-      "threadId": "THREAD-CSL-2026-0061",
-      "from": {
-        "name": "Dr. Sarah Mitchell",
-        "email": "sarah.mitchell@csl.com.au",
-        "company": "CSL Behring"
-      },
-      "subject": "Tracking Request – SEA-LHR",
-      "receivedAt": "2026-02-01T00:20:42.122Z",
-      "classification": "STATUS_INQUIRY",
-      "intent": "ETA_REQUEST",
-      "priority": "MEDIUM",
-      "status": "NEW",
-      "assignedRep": "Priya Patel",
-      "linkedShipment": "SHP-SEA-2026-006762",
-      "tags": [
-        "AEROSPACE",
-        "AOG"
+        "PICKUP",
+        "SCHEDULE"
       ],
       "read": true,
       "highlight": false
@@ -3159,182 +1285,74 @@
       {
         "actionId": "ACT-2026-02-01",
         "type": "RESPOND_TO_QUOTE",
-        "emailId": "EMAIL-KEY-004",
+        "emailId": "EMAIL-GROUND-001",
         "priority": "URGENT",
-        "description": "QUOTE REQUEST from Roche Holding AG",
-        "suggestedAction": "Collect missing info: pickupDate, exactWeight, insurance, consigneeAddress",
-        "dueBy": "2026-01-27T09:05:14.834Z"
+        "description": "QUOTE REQUEST from Ferrari - Enclosed Auto Transport",
+        "suggestedAction": "Collect missing info: pickupDate, vehicleCount",
+        "dueBy": "2026-02-11T14:00:00.000Z"
       },
       {
         "actionId": "ACT-2026-02-02",
-        "type": "PROCESS_REQUEST",
-        "emailId": "EMAIL-KEY-005",
-        "priority": "HIGH",
-        "description": "ALERT RESPONSE from Ferrari S.p.A.",
-        "suggestedAction": "Review and respond",
-        "dueBy": "2026-01-28T07:24:36.622Z"
+        "type": "RESPOND_TO_QUOTE",
+        "emailId": "EMAIL-GROUND-004",
+        "priority": "URGENT",
+        "description": "QUOTE REQUEST from Caterpillar - Oversized Load",
+        "suggestedAction": "Collect missing info: exactDimensions, permitStatus",
+        "dueBy": "2026-02-11T14:00:00.000Z"
       },
       {
         "actionId": "ACT-2026-02-03",
         "type": "PROCESS_REQUEST",
-        "emailId": "EMAIL-127",
-        "priority": "HIGH",
-        "description": "GENERAL from CSL Behring",
-        "suggestedAction": "Review and respond",
-        "dueBy": "2026-01-26T13:56:36.406Z"
+        "emailId": "EMAIL-GROUND-005",
+        "priority": "URGENT",
+        "description": "ALERT RESPONSE from Sysco - Temperature Excursion",
+        "suggestedAction": "Investigate and resolve temperature issue",
+        "dueBy": "2026-02-11T12:00:00.000Z"
       },
       {
         "actionId": "ACT-2026-02-04",
-        "type": "RESPOND_TO_QUOTE",
-        "emailId": "EMAIL-035",
-        "priority": "URGENT",
-        "description": "QUOTE REQUEST from LVMH",
-        "suggestedAction": "Review and respond",
-        "dueBy": "2026-01-26T22:55:20.544Z"
+        "type": "PROCESS_REQUEST",
+        "emailId": "EMAIL-GROUND-006",
+        "priority": "HIGH",
+        "description": "COMPLAINT from Home Depot - Detention Issue",
+        "suggestedAction": "Review detention charges and respond to customer",
+        "dueBy": "2026-02-11T16:00:00.000Z"
       },
       {
         "actionId": "ACT-2026-02-05",
-        "type": "PROVIDE_STATUS",
-        "emailId": "EMAIL-032",
+        "type": "PROCESS_REQUEST",
+        "emailId": "EMAIL-GROUND-007",
         "priority": "URGENT",
-        "description": "STATUS INQUIRY from Bombardier Inc.",
-        "suggestedAction": "Review and respond",
-        "dueBy": "2026-01-27T10:12:49.687Z"
+        "description": "ALERT from General Motors - JIT Delay Risk",
+        "suggestedAction": "Expedite shipment and update customer",
+        "dueBy": "2026-02-11T10:00:00.000Z"
       },
       {
         "actionId": "ACT-2026-02-06",
-        "type": "PROCESS_REQUEST",
-        "emailId": "EMAIL-104",
+        "type": "RESPOND_TO_QUOTE",
+        "emailId": "EMAIL-GROUND-008",
         "priority": "HIGH",
-        "description": "BOOKING CONFIRMATION from Toyota Motor Corporation",
-        "suggestedAction": "Review and respond",
-        "dueBy": "2026-01-27T00:30:38.184Z"
+        "description": "QUOTE REQUEST from Amazon - Prime Day Capacity",
+        "suggestedAction": "Prepare capacity commitment proposal",
+        "dueBy": "2026-02-12T17:00:00.000Z"
       },
       {
         "actionId": "ACT-2026-02-07",
         "type": "PROCESS_REQUEST",
-        "emailId": "EMAIL-125",
-        "priority": "MEDIUM",
-        "description": "ALERT RESPONSE from Sony Corporation",
-        "suggestedAction": "Review and respond",
-        "dueBy": "2026-01-27T09:17:51.863Z"
+        "emailId": "EMAIL-GROUND-009",
+        "priority": "HIGH",
+        "description": "DOCUMENTATION from Tyson - USDA Audit Prep",
+        "suggestedAction": "Compile compliance documentation",
+        "dueBy": "2026-02-12T12:00:00.000Z"
       },
       {
         "actionId": "ACT-2026-02-08",
-        "type": "PROCESS_REQUEST",
-        "emailId": "EMAIL-059",
-        "priority": "MEDIUM",
-        "description": "ALERT RESPONSE from GlaxoSmithKline",
-        "suggestedAction": "Review and respond",
-        "dueBy": "2026-01-27T14:42:05.638Z"
-      },
-      {
-        "actionId": "ACT-2026-02-09",
-        "type": "PROCESS_REQUEST",
-        "emailId": "EMAIL-090",
-        "priority": "URGENT",
-        "description": "ALERT RESPONSE from Saudi Aramco",
-        "suggestedAction": "Review and respond",
-        "dueBy": "2026-01-27T10:41:45.320Z"
-      },
-      {
-        "actionId": "ACT-2026-02-10",
-        "type": "PROVIDE_STATUS",
-        "emailId": "EMAIL-020",
-        "priority": "LOW",
-        "description": "STATUS INQUIRY from Vale S.A.",
-        "suggestedAction": "Review and respond",
-        "dueBy": "2026-01-27T16:14:44.550Z"
-      },
-      {
-        "actionId": "ACT-2026-02-11",
-        "type": "PROCESS_REQUEST",
-        "emailId": "EMAIL-003",
-        "priority": "MEDIUM",
-        "description": "BOOKING CONFIRMATION from Medtronic Ireland",
-        "suggestedAction": "Review and respond",
-        "dueBy": "2026-01-27T00:00:39.754Z"
-      },
-      {
-        "actionId": "ACT-2026-02-12",
-        "type": "PROCESS_REQUEST",
-        "emailId": "EMAIL-025",
-        "priority": "URGENT",
-        "description": "BOOKING CONFIRMATION from Intel Malaysia",
-        "suggestedAction": "Review and respond",
-        "dueBy": "2026-01-26T15:59:27.321Z"
-      },
-      {
-        "actionId": "ACT-2026-02-13",
-        "type": "PROCESS_REQUEST",
-        "emailId": "EMAIL-051",
-        "priority": "LOW",
-        "description": "COMPLAINT from Red Bull GmbH",
-        "suggestedAction": "Review and respond",
-        "dueBy": "2026-01-26T22:16:20.633Z"
-      },
-      {
-        "actionId": "ACT-2026-02-14",
         "type": "RESPOND_TO_QUOTE",
-        "emailId": "EMAIL-074",
-        "priority": "URGENT",
-        "description": "QUOTE REQUEST from BMW AG",
-        "suggestedAction": "Review and respond",
-        "dueBy": "2026-01-28T05:28:55.406Z"
-      },
-      {
-        "actionId": "ACT-2026-02-15",
-        "type": "PROCESS_REQUEST",
-        "emailId": "EMAIL-053",
-        "priority": "URGENT",
-        "description": "DOCUMENTATION from Janssen Pharmaceutica",
-        "suggestedAction": "Review and respond",
-        "dueBy": "2026-01-26T11:25:49.705Z"
-      },
-      {
-        "actionId": "ACT-2026-02-16",
-        "type": "PROCESS_REQUEST",
-        "emailId": "EMAIL-121",
-        "priority": "URGENT",
-        "description": "GENERAL from Petrobras",
-        "suggestedAction": "Review and respond",
-        "dueBy": "2026-01-26T10:51:28.332Z"
-      },
-      {
-        "actionId": "ACT-2026-02-17",
-        "type": "PROCESS_REQUEST",
-        "emailId": "EMAIL-019",
-        "priority": "URGENT",
-        "description": "BOOKING CONFIRMATION from Audi AG",
-        "suggestedAction": "Review and respond",
-        "dueBy": "2026-01-26T18:34:38.571Z"
-      },
-      {
-        "actionId": "ACT-2026-02-18",
-        "type": "PROCESS_REQUEST",
-        "emailId": "EMAIL-091",
-        "priority": "LOW",
-        "description": "BOOKING CONFIRMATION from Johnson & Johnson",
-        "suggestedAction": "Review and respond",
-        "dueBy": "2026-01-27T19:34:35.556Z"
-      },
-      {
-        "actionId": "ACT-2026-02-19",
-        "type": "PROCESS_REQUEST",
-        "emailId": "EMAIL-066",
-        "priority": "URGENT",
-        "description": "COMPLAINT from Inditex (Zara)",
-        "suggestedAction": "Review and respond",
-        "dueBy": "2026-01-27T09:29:15.178Z"
-      },
-      {
-        "actionId": "ACT-2026-02-20",
-        "type": "PROCESS_REQUEST",
-        "emailId": "EMAIL-010",
-        "priority": "URGENT",
-        "description": "DOCUMENTATION from Unilever Indonesia",
-        "suggestedAction": "Review and respond",
-        "dueBy": "2026-01-27T22:12:49.813Z"
+        "emailId": "EMAIL-GROUND-003",
+        "priority": "HIGH",
+        "description": "QUOTE REQUEST from Target - Weekly FTL Loads",
+        "suggestedAction": "Prepare weekly rate proposal",
+        "dueBy": "2026-02-12T15:00:00.000Z"
       }
     ]
   }

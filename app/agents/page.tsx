@@ -63,13 +63,26 @@ interface OrderData {
   } | null;
 }
 
-// HappyRobot Platform configuration (from env)
-const HAPPYROBOT_ORG = process.env.NEXT_PUBLIC_HAPPYROBOT_ORG || "globallogisticspod";
-const HAPPYROBOT_WORKFLOW_ID = process.env.NEXT_PUBLIC_HAPPYROBOT_WORKFLOW_ID || "oazff9guhfgb";
+// HappyRobot Platform configuration for CEVA Logistics
+const HAPPYROBOT_ORG = "ceva-logistics";
+const HAPPYROBOT_WORKFLOW_ID = "sx7pzejlsqrw";
 
 // HappyRobot run URL helper - links to individual run in platform
 const getRunUrl = (runId: string) =>
-  `https://v2.platform.happyrobot.ai/${HAPPYROBOT_ORG}/workflow/${HAPPYROBOT_WORKFLOW_ID}/runs?run_id=${runId}`;
+  `https://platform.happyrobot.ai/${HAPPYROBOT_ORG}/workflow/${HAPPYROBOT_WORKFLOW_ID}/runs?run_id=${runId}`;
+
+// Agent names for display - running agents always use "Josh"
+const AGENT_NAMES = ["Sarah", "Michael", "Emma", "David", "Lisa", "James", "Anna", "Robert", "Maria", "Daniel"];
+
+// Get agent display name based on status and index
+const getAgentDisplayName = (status: string, index: number): string => {
+  // Running agents are always "Josh"
+  if (status === "RUNNING" || status === "ACTIVE") {
+    return "Josh";
+  }
+  // Completed/other agents get rotating names
+  return AGENT_NAMES[index % AGENT_NAMES.length];
+};
 
 export default function AgentsPage() {
   const { pusher } = usePusher();
@@ -85,10 +98,11 @@ export default function AgentsPage() {
   const [showWarRoom, setShowWarRoom] = useState(false);
   const [loadingIncident, setLoadingIncident] = useState<string | null>(null);
 
-  // Use SWR hook with HappyRobot polling enabled
+  // Use SWR hook with HappyRobot polling enabled and auto-refresh every 10 seconds
   const { agents, isLoading, refetch, stats } = useAgents({
     pollRunning: true,
     pollInterval: 5000,
+    refreshInterval: 10000, // Refresh every 10 seconds to catch new runs
     debug: true,
   });
 
@@ -226,7 +240,7 @@ export default function AgentsPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-[var(--sysco-bg)]">
+      <div className="flex items-center justify-center h-screen bg-white dark:bg-[#1A1D29]">
         <div className="flex items-center gap-3 text-zinc-500">
           <div className="w-5 h-5 border-2 border-zinc-700 border-t-blue-500 rounded-full animate-spin" />
           <span className="font-mono text-sm">LOADING AGENTS...</span>
@@ -236,12 +250,12 @@ export default function AgentsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--sysco-bg)]">
+    <div className="min-h-screen bg-white dark:bg-[#1A1D29]">
       {/* Header */}
-      <header className="sticky top-0 z-30 bg-[var(--sysco-bg)]/80 backdrop-blur-xl border-b border-[var(--sysco-border)]">
+      <header className="sticky top-0 z-30 bg-[#FAFBFC]/80 dark:bg-[#24273A]/80 backdrop-blur-xl border-b border-[#E8EAED] dark:border-[#3A3F52]">
         <div className="px-8 py-5 flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-semibold text-zinc-900 dark:text-white tracking-tight">
+            <h1 className="text-2xl font-semibold text-[#003366] dark:text-white tracking-tight">
               AI Agents
             </h1>
             <div className="flex items-center gap-1.5 mt-0.5">
@@ -252,7 +266,7 @@ export default function AgentsPage() {
                 height={14}
                 className="object-contain"
               />
-              <span className="text-sm text-zinc-500 font-mono">
+              <span className="text-sm text-zinc-500 dark:text-zinc-400 font-mono">
                 HAPPYROBOT AI ORCHESTRATION
               </span>
             </div>
@@ -261,9 +275,9 @@ export default function AgentsPage() {
             onClick={handleRefresh}
             className={cn(
               "px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200",
-              "bg-[var(--sysco-surface)] hover:bg-zinc-200 dark:hover:bg-zinc-800",
+              "bg-[#FAFBFC] dark:bg-[#24273A] hover:bg-zinc-200 dark:hover:bg-zinc-700",
               "text-zinc-700 dark:text-zinc-300",
-              "border border-[var(--sysco-border)]",
+              "border border-[#E8EAED] dark:border-[#3A3F52]",
               "flex items-center gap-2"
             )}
           >
@@ -278,10 +292,10 @@ export default function AgentsPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className={cn(
             "relative overflow-hidden rounded-xl p-4",
-            "bg-[var(--sysco-card)] border border-[var(--sysco-border)]"
+            "bg-white dark:bg-[#24273A] border border-[#E8EAED] dark:border-[#3A3F52]"
           )}>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-[var(--sysco-surface)] border border-[var(--sysco-border)] flex items-center justify-center">
+              <div className="w-10 h-10 rounded-lg bg-[#FAFBFC] dark:bg-[#2A2E42] border border-[#E8EAED] dark:border-[#3A3F52] flex items-center justify-center">
                 <Image
                   src={getHappyRobotLogo()}
                   alt="HappyRobot"
@@ -303,7 +317,7 @@ export default function AgentsPage() {
           </div>
           <div className={cn(
             "relative overflow-hidden rounded-xl p-4",
-            "bg-[var(--sysco-card)] border border-[var(--sysco-border)]"
+            "bg-white dark:bg-[#24273A] border border-[#E8EAED] dark:border-[#3A3F52]"
           )}>
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
@@ -322,7 +336,7 @@ export default function AgentsPage() {
           </div>
           <div className={cn(
             "relative overflow-hidden rounded-xl p-4",
-            "bg-[var(--sysco-card)] border border-[var(--sysco-border)]"
+            "bg-white dark:bg-[#24273A] border border-[#E8EAED] dark:border-[#3A3F52]"
           )}>
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
@@ -341,7 +355,7 @@ export default function AgentsPage() {
           </div>
           <div className={cn(
             "relative overflow-hidden rounded-xl p-4",
-            "bg-[var(--sysco-card)] border border-[var(--sysco-border)]"
+            "bg-white dark:bg-[#24273A] border border-[#E8EAED] dark:border-[#3A3F52]"
           )}>
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center justify-center">
@@ -371,7 +385,7 @@ export default function AgentsPage() {
               onChange={(e) => setSearchQuery(e.target.value)}
               className={cn(
                 "w-full pl-10 pr-4 py-2.5 rounded-lg text-sm",
-                "bg-[var(--sysco-card)] border border-[var(--sysco-border)]",
+                "bg-white dark:bg-[#24273A] border border-[#E8EAED] dark:border-[#3A3F52]",
                 "text-zinc-900 dark:text-white placeholder-zinc-500",
                 "focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
               )}
@@ -384,7 +398,7 @@ export default function AgentsPage() {
               onChange={(e) => setStatusFilter(e.target.value)}
               className={cn(
                 "pl-10 pr-8 py-2.5 rounded-lg text-sm appearance-none",
-                "bg-[var(--sysco-card)] border border-[var(--sysco-border)]",
+                "bg-white dark:bg-[#24273A] border border-[#E8EAED] dark:border-[#3A3F52]",
                 "text-zinc-900 dark:text-white",
                 "focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
               )}
@@ -402,10 +416,10 @@ export default function AgentsPage() {
         {/* Agents Table */}
         <div className={cn(
           "rounded-xl overflow-hidden",
-          "bg-[var(--sysco-card)] border border-[var(--sysco-border)]",
+          "bg-white dark:bg-[#24273A] border border-[#E8EAED] dark:border-[#3A3F52]",
           "shadow-sm"
         )}>
-          <div className="px-6 py-4 border-b border-[var(--sysco-border)] flex items-center justify-between bg-[var(--sysco-surface)]">
+          <div className="px-6 py-4 border-b border-[#E8EAED] dark:border-[#3A3F52] flex items-center justify-between bg-[#FAFBFC] dark:bg-[#2A2E42]">
             <div>
               <h2 className="text-base font-semibold text-zinc-900 dark:text-white">
                 Agent Runs
@@ -422,7 +436,7 @@ export default function AgentsPage() {
 
           {filteredAgents.length === 0 ? (
             <div className="px-6 py-16 text-center">
-              <div className="w-12 h-12 rounded-full bg-[var(--sysco-surface)] flex items-center justify-center mx-auto mb-3">
+              <div className="w-12 h-12 rounded-full bg-[#FAFBFC] dark:bg-[#2A2E42] flex items-center justify-center mx-auto mb-3">
                 <Image
                   src={getHappyRobotLogo()}
                   alt="HappyRobot"
@@ -441,30 +455,32 @@ export default function AgentsPage() {
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
-                <thead className="border-b border-[var(--sysco-border)] bg-[var(--sysco-surface)] text-xs font-medium uppercase text-zinc-500 tracking-wider">
+                <thead className="border-b border-[#E8EAED] dark:border-[#3A3F52] bg-[#FAFBFC] dark:bg-[#2A2E42] text-xs font-medium uppercase text-zinc-500 tracking-wider">
                   <tr>
                     <th className="px-6 py-3">Agent</th>
                     <th className="px-6 py-3">Status</th>
+                    <th className="px-6 py-3">Customer</th>
+                    <th className="px-6 py-3">Contact</th>
                     <th className="px-6 py-3">Summary</th>
-                    <th className="px-6 py-3">Run ID</th>
                     <th className="px-6 py-3">Created</th>
                     <th className="px-6 py-3">Link</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[var(--sysco-border)]">
-                  {filteredAgents.map((agent) => {
+                <tbody className="divide-y divide-[#E8EAED] dark:divide-[#3A3F52]">
+                  {filteredAgents.map((agent, agentIndex) => {
                     const config = getStatusConfig(agent.status);
                     const StatusIcon = config.icon;
                     const hasIncident = !!agent.incidentId;
                     const isLoadingThisIncident =
                       loadingIncident === agent.incidentId;
+                    const displayName = getAgentDisplayName(agent.status, agentIndex);
 
                     return (
                       <tr
                         key={agent.id}
                         onClick={() => hasIncident && handleAgentClick(agent)}
                         className={cn(
-                          "group hover:bg-[var(--sysco-surface)] transition-colors",
+                          "group hover:bg-[#FAFBFC] dark:bg-[#2A2E42] transition-colors",
                           hasIncident && "cursor-pointer",
                           isLoadingThisIncident && "opacity-70"
                         )}
@@ -487,7 +503,7 @@ export default function AgentsPage() {
                             </div>
                             <div>
                               <span className="font-medium text-zinc-900 dark:text-zinc-200">
-                                {agent.agentName}
+                                {displayName}
                               </span>
                               {/* Incident Badge */}
                               {hasIncident && (
@@ -498,9 +514,9 @@ export default function AgentsPage() {
                                   </span>
                                 </div>
                               )}
-                              {agent.agentRole && !hasIncident && (
-                                <p className="text-xs text-zinc-500 font-mono">
-                                  {agent.agentRole}
+                              {!hasIncident && (
+                                <p className="text-xs text-zinc-500">
+                                  AI Agent
                                 </p>
                               )}
                             </div>
@@ -524,14 +540,19 @@ export default function AgentsPage() {
                             {agent.status}
                           </span>
                         </td>
-                        <td className="px-6 py-4 max-w-xs">
-                          <span className="text-zinc-600 dark:text-zinc-400 line-clamp-2">
-                            {agent.summary}
+                        <td className="px-6 py-4">
+                          <span className="text-zinc-900 dark:text-zinc-200 font-medium">
+                            {agent.customer || "—"}
                           </span>
                         </td>
                         <td className="px-6 py-4">
-                          <span className="text-zinc-500 font-mono text-xs">
-                            {agent.runId.slice(0, 8)}...
+                          <span className="text-zinc-600 dark:text-zinc-400">
+                            {agent.contact || "—"}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 max-w-xs">
+                          <span className="text-zinc-600 dark:text-zinc-400 line-clamp-2">
+                            {agent.summary}
                           </span>
                         </td>
                         <td className="px-6 py-4 text-zinc-500 font-mono text-xs">

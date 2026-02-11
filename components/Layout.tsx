@@ -1,318 +1,22 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, ChevronRight, LucideIcon, RotateCcw, Settings, X, Phone, Play, Loader2, AlertTriangle, Mail, MessageSquare, Users } from "lucide-react";
+import { ChevronRight, LucideIcon, MessageSquare, Users, Map } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
 import { ThemeToggle } from "./ThemeToggle";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 
-// Demo Config Modal Component
-function DemoConfigModal({
-  isOpen,
-  onClose,
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-}) {
-  const [centerPhone, setCenterPhone] = useState("");
-  const [truckerPhone, setTruckerPhone] = useState("");
-
-  // Demo trigger state
-  const [orderId, setOrderId] = useState("ORD-8128");
-  const [description, setDescription] = useState(
-    "Samsara reports truck came to a stop on Highway 287. Driver confirmed engine failure with smoke coming out of the truck"
-  );
-  const [isTriggering, setIsTriggering] = useState(false);
-  const [triggerError, setTriggerError] = useState<string | null>(null);
-  const [triggerSuccess, setTriggerSuccess] = useState(false);
-
-  // Load saved values from localStorage on mount
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      setCenterPhone(localStorage.getItem("demo_center_phone") || "");
-      setTruckerPhone(localStorage.getItem("demo_trucker_phone") || "");
-    }
-  }, [isOpen]);
-
-  // Reset trigger state when modal opens
-  useEffect(() => {
-    if (isOpen) {
-      setTriggerError(null);
-      setTriggerSuccess(false);
-    }
-  }, [isOpen]);
-
-  const handleSave = () => {
-    localStorage.setItem("demo_center_phone", centerPhone);
-    localStorage.setItem("demo_trucker_phone", truckerPhone);
-  };
-
-  const handleTriggerDemo = async () => {
-    // Validate all required fields
-    const errors: string[] = [];
-
-    if (!orderId.trim()) {
-      errors.push("Order ID");
-    }
-    if (!description.trim()) {
-      errors.push("Incident Description");
-    }
-    if (!centerPhone.trim()) {
-      errors.push("Service Centers Phone");
-    }
-    if (!truckerPhone.trim()) {
-      errors.push("Drivers Phone");
-    }
-
-    if (errors.length > 0) {
-      setTriggerError(`Required: ${errors.join(", ")}`);
-      return;
-    }
-
-    setIsTriggering(true);
-    setTriggerError(null);
-    setTriggerSuccess(false);
-
-    // Save phone config first
-    handleSave();
-
-    try {
-      const response = await fetch("/api/demo/trigger", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          orderId: orderId.trim(),
-          description: description.trim(),
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `Failed to trigger demo: ${response.status}`);
-      }
-
-      setTriggerSuccess(true);
-      // Close modal immediately after success
-      setTimeout(() => {
-        onClose();
-      }, 500);
-    } catch (error) {
-      console.error("Error triggering demo:", error);
-      setTriggerError(error instanceof Error ? error.message : "Failed to trigger demo");
-    } finally {
-      setIsTriggering(false);
-    }
-  };
-
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
-      />
-
-      {/* Modal */}
-      <div className="relative bg-white dark:bg-zinc-900 rounded-xl shadow-2xl border border-zinc-200 dark:border-zinc-700 w-full max-w-lg mx-4 overflow-hidden">
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-200 dark:border-zinc-700">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
-              <Settings className="h-5 w-5 text-blue-500" />
-            </div>
-            <div>
-              <h2 className="text-lg font-semibold text-zinc-900 dark:text-white">
-                Demo Configuration
-              </h2>
-              <p className="text-sm text-zinc-500">
-                Configure and launch the demo
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            className="h-8 w-8 rounded-lg flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-          >
-            <X className="h-4 w-4 text-zinc-500" />
-          </button>
-        </div>
-
-        {/* Content */}
-        <div className="px-6 py-5 space-y-5 max-h-[60vh] overflow-y-auto">
-          {/* Demo Trigger Section */}
-          <div className="space-y-4 pb-5 border-b border-zinc-200 dark:border-zinc-700">
-            <div className="flex items-center gap-2">
-              <AlertTriangle className="h-4 w-4 text-red-500" />
-              <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                Incident Simulation
-              </span>
-            </div>
-
-            {/* Order ID */}
-            <div className="space-y-1.5">
-              <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
-                Order ID
-              </label>
-              <input
-                type="text"
-                value={orderId}
-                onChange={(e) => setOrderId(e.target.value)}
-                placeholder="ORD-XXXX"
-                className="w-full px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm"
-              />
-            </div>
-
-            {/* Description */}
-            <div className="space-y-1.5">
-              <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
-                Incident Description
-              </label>
-              <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Describe the incident..."
-                rows={3}
-                className="w-full px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm resize-none"
-              />
-            </div>
-
-            {/* Trigger Button */}
-            <button
-              onClick={handleTriggerDemo}
-              disabled={isTriggering || triggerSuccess}
-              className={cn(
-                "w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all",
-                triggerSuccess
-                  ? "bg-emerald-500 text-white"
-                  : "bg-red-500 hover:bg-red-600 text-white",
-                (isTriggering || triggerSuccess) && "opacity-80 cursor-not-allowed"
-              )}
-            >
-              {isTriggering ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Triggering Incident...
-                </>
-              ) : triggerSuccess ? (
-                <>
-                  <AlertTriangle className="h-4 w-4" />
-                  Incident Triggered!
-                </>
-              ) : (
-                <>
-                  <Play className="h-4 w-4" />
-                  Launch Demo
-                </>
-              )}
-            </button>
-
-            {/* Error Message */}
-            {triggerError && (
-              <p className="text-xs text-red-500 text-center">{triggerError}</p>
-            )}
-          </div>
-
-          {/* Phone Configuration Section */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <Phone className="h-4 w-4 text-blue-500" />
-              <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                Roleplay Phone Numbers
-              </span>
-            </div>
-
-            {/* Service Centers Phone */}
-            <div className="space-y-1.5">
-              <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
-                Service Centers & Warehouses Phone
-              </label>
-              <p className="text-[10px] text-zinc-500 dark:text-zinc-500">
-                Assigned to all 3 discovered facilities
-              </p>
-              <div className="relative">
-                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
-                <input
-                  type="tel"
-                  value={centerPhone}
-                  onChange={(e) => setCenterPhone(e.target.value)}
-                  placeholder="+1 (555) 123-4567"
-                  className="w-full pl-10 pr-4 py-2 rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                />
-              </div>
-            </div>
-
-            {/* Truckers Phone */}
-            <div className="space-y-1.5">
-              <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
-                Available Drivers Phone
-              </label>
-              <p className="text-[10px] text-zinc-500 dark:text-zinc-500">
-                Assigned to all 3 discovered drivers
-              </p>
-              <div className="relative">
-                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
-                <input
-                  type="tel"
-                  value={truckerPhone}
-                  onChange={(e) => setTruckerPhone(e.target.value)}
-                  placeholder="+1 (555) 987-6543"
-                  className="w-full pl-10 pr-4 py-2 rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="px-6 py-4 border-t border-zinc-200 dark:border-zinc-700 flex justify-end gap-3">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-          >
-            Close
-          </button>
-          <button
-            onClick={handleSave}
-            className="px-4 py-2 rounded-lg text-sm font-medium bg-blue-500 text-white hover:bg-blue-600 transition-colors"
-          >
-            Save Phone Config
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export function Layout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { theme } = useTheme();
   const [isHovered, setIsHovered] = useState(false);
-  const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
 
   const isCollapsed = !isHovered;
-
-  // Manhattan icon for Orders nav item
-  const getManhattanIcon = () => {
-    return theme === "dark"
-      ? "/manhattan/manhattan_tms_white.png"
-      : "/manhattan/mahnattan_tms_black.svg";
-  };
-
-  // Samsara icon for Fleet nav item
-  const getSamsaraIcon = () => {
-    return theme === "dark"
-      ? "/samsara/Samsara_logo_primary_vertical_wht.png"
-      : "/samsara/Samsara_logo_primary_vertical_blk.png";
-  };
 
   // HappyRobot icon for Agents nav item
   const getHappyRobotIcon = () => {
@@ -341,14 +45,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
       subtitle: "Receptionist",
     },
     {
-      href: "/shipments",
-      icon: LayoutDashboard,
-      label: "Shipments",
-      subtitle: "Air Freight",
-    },
-    {
       href: "/map",
-      icon: LayoutDashboard,
+      icon: Map,
       label: "Map View",
       subtitle: "Live Tracking",
     },
@@ -368,8 +66,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
         onMouseLeave={() => setIsHovered(false)}
         className={cn(
           "fixed left-0 top-0 h-screen z-40",
-          "bg-[#FAFBFC]/95 dark:bg-[#24273A]/95 backdrop-blur-xl",
-          "border-r border-[#E8EAED] dark:border-[#3A3F52]",
+          "bg-[#FAFBFC] dark:bg-[#3A4055] backdrop-blur-xl",
+          "border-r border-[#E8EAED] dark:border-[#4A5068]",
           "flex flex-col transition-all duration-300 ease-out",
           isCollapsed ? "w-[72px]" : "w-[260px]"
         )}
@@ -377,7 +75,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         {/* Logo */}
         <div
           className={cn(
-            "h-16 flex items-center border-b border-[#E8EAED] dark:border-[#3A3F52]",
+            "h-16 flex items-center border-b border-[#E8EAED] dark:border-[#4A5068]",
             "transition-all duration-300",
             isCollapsed ? "px-4 justify-center" : "px-5"
           )}
@@ -385,24 +83,20 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <div className="relative flex items-center">
             {isCollapsed ? (
               <Image
-                src="/happyrobot/hr-icon-black.png"
-                alt="HappyRobot Forwarding"
+                src="/ceva/ceva-logo.png"
+                alt="CEVA"
                 width={32}
                 height={32}
-                className={cn("object-contain", theme === "dark" && "invert")}
+                className="object-contain"
               />
             ) : (
-              <div className="flex items-center gap-3">
-                <Image
-                  src="/happyrobot/hr-icon-black.png"
-                  alt="HappyRobot Forwarding"
-                  width={32}
-                  height={32}
-                  className={cn("object-contain", theme === "dark" && "invert")}
-                />
-                <span className="text-lg font-semibold text-zinc-900 dark:text-white">HappyRobot</span>
-                <span className="text-sm text-zinc-500 dark:text-zinc-400">Forwarding</span>
-              </div>
+              <Image
+                src="/ceva/ceva-logo.png"
+                alt="CEVA Logistics"
+                width={140}
+                height={40}
+                className="object-contain"
+              />
             )}
           </div>
         </div>
@@ -496,52 +190,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
           })}
         </nav>
 
-        {/* Config & Reset Buttons - Hidden until hovered */}
-        {!isCollapsed && (
-          <div className="px-3 py-2 border-t border-transparent hover:border-gray-200/60 dark:hover:border-white/[0.08] transition-all duration-300 group space-y-1">
-            {/* Config Button - Above Reset */}
-            <button
-              onClick={() => setIsConfigModalOpen(true)}
-              className={cn(
-                "w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg",
-                "text-sm font-medium transition-all duration-300",
-                "opacity-0 group-hover:opacity-100",
-                "bg-transparent hover:bg-blue-100 dark:hover:bg-blue-900/30",
-                "text-transparent group-hover:text-zinc-600 dark:group-hover:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400",
-                "border border-transparent hover:border-blue-200 dark:hover:border-blue-800"
-              )}
-            >
-              <Settings className="h-4 w-4" />
-              Configure Demo
-            </button>
-            {/* Reset Button */}
-            <button
-              onClick={async () => {
-                try {
-                  await fetch("/api/demo/reset", { method: "POST" });
-                } catch (error) {
-                  console.error("Error resetting demo:", error);
-                }
-              }}
-              className={cn(
-                "w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg",
-                "text-sm font-medium transition-all duration-300",
-                "opacity-0 group-hover:opacity-100",
-                "bg-transparent hover:bg-zinc-200 dark:hover:bg-zinc-700",
-                "text-transparent group-hover:text-zinc-600 dark:group-hover:text-zinc-400 hover:text-zinc-900 dark:hover:text-white",
-                "border border-transparent hover:border-zinc-200 dark:hover:border-zinc-700"
-              )}
-            >
-              <RotateCcw className="h-4 w-4" />
-              Reset Demo
-            </button>
-          </div>
-        )}
-
         {/* Theme Toggle */}
         <div
           className={cn(
-            "px-3 py-3 border-t border-gray-200/60 dark:border-white/[0.08]",
+            "px-3 py-3 border-t border-[#E8EAED] dark:border-[#4A5068]",
             isCollapsed && "px-2"
           )}
         >
@@ -554,10 +206,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
           )}
         </div>
 
-        {/* Powered by Footer */}
+        {/* Powered by Footer - CEVA + HappyRobot co-branding */}
         <div
           className={cn(
-            "px-4 py-4 border-t border-gray-200/60 dark:border-white/[0.08]",
+            "px-4 py-4 border-t border-[#E8EAED] dark:border-[#4A5068]",
             isCollapsed && "px-3"
           )}
         >
@@ -565,26 +217,34 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <div className="flex justify-center">
               <Image
                 src="/happyrobot/hr-icon-black.png"
-                alt="HappyRobot Forwarding"
-                width={32}
-                height={32}
+                alt="HappyRobot"
+                width={24}
+                height={24}
                 className={cn("object-contain", theme === "dark" && "invert")}
               />
             </div>
           ) : (
-            <div className="flex flex-col items-center gap-1">
+            <div className="flex flex-col items-center gap-1.5">
               <div className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-gray-500">
                 Powered by
               </div>
               <div className="flex items-center gap-2">
                 <Image
+                  src="/ceva/ceva-logo.png"
+                  alt="CEVA"
+                  width={60}
+                  height={20}
+                  className="object-contain"
+                />
+                <span className="text-xs text-zinc-400 dark:text-zinc-500">+</span>
+                <Image
                   src="/happyrobot/hr-icon-black.png"
-                  alt="HappyRobot Forwarding"
-                  width={24}
-                  height={24}
+                  alt="HappyRobot"
+                  width={18}
+                  height={18}
                   className={cn("object-contain", theme === "dark" && "invert")}
                 />
-                <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">HappyRobot</span>
+                <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400">HappyRobot</span>
               </div>
             </div>
           )}
@@ -602,11 +262,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
         {children}
       </main>
 
-      {/* Demo Configuration Modal */}
-      <DemoConfigModal
-        isOpen={isConfigModalOpen}
-        onClose={() => setIsConfigModalOpen(false)}
-      />
     </div>
   );
 }

@@ -1,23 +1,71 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/db';
+import emailSeedData from '@/lib/seed-data/email-inbox.json';
 
-// Get all emails
+// Define the email type for better type safety
+interface SeedEmail {
+  emailId: string;
+  threadId: string;
+  from: { name: string; email: string; company: string };
+  subject: string;
+  receivedAt: string;
+  classification: string;
+  intent: string;
+  priority: string;
+  status: string;
+  assignedRep: string | null;
+  linkedShipment: string | null;
+  missingInfo?: string[];
+  tags: string[];
+  read?: boolean;
+  highlight?: boolean;
+  isKeyDemo?: boolean;
+  attachments?: string[];
+  bodyHtml?: string;
+}
+
+// Transform seed data email to API format
+function transformSeedEmail(email: SeedEmail, index: number) {
+  return {
+    id: email.emailId,
+    emailId: email.emailId,
+    fromName: email.from.name,
+    fromEmail: email.from.email,
+    fromCompany: email.from.company,
+    subject: email.subject,
+    receivedAt: email.receivedAt,
+    classification: email.classification,
+    intent: email.intent,
+    priority: email.priority,
+    status: email.status,
+    assignedRepName: email.assignedRep || null,
+    linkedShipment: email.linkedShipment || null,
+    summary: email.subject, // Use subject as summary for demo
+    missingInfo: email.missingInfo || [],
+    tags: email.tags,
+    highlight: email.highlight || false,
+    isKeyDemo: email.isKeyDemo || false,
+    originalIndex: index, // Preserve original order for demo items
+    bodyHtml: email.bodyHtml || null, // HTML email body for display
+  };
+}
+
+// Get all emails - uses seed data for demo (no database required)
 export async function GET() {
   try {
-    // Add timeout protection
-    const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Database query timeout')), 10000);
-    });
+    // Use seed data directly for demo purposes
+    const emails = (emailSeedData.emails as SeedEmail[]).map(transformSeedEmail);
 
-    const emailsPromise = prisma.email.findMany({
-      orderBy: { receivedAt: 'desc' },
-    });
-
-    const emails = await Promise.race([emailsPromise, timeoutPromise]) as any[];
-
-    // Sort highlighted/urgent emails first
+    // Sort with key demo items first (preserving their original order),
+    // then highlighted/urgent emails
     const sorted = emails.sort((a, b) => {
-      // Highlighted emails first
+      // Key demo items first, preserving their original order (first 2 items)
+      if (a.isKeyDemo && a.originalIndex < 2 && (!b.isKeyDemo || b.originalIndex >= 2)) return -1;
+      if (b.isKeyDemo && b.originalIndex < 2 && (!a.isKeyDemo || a.originalIndex >= 2)) return 1;
+      if (a.isKeyDemo && b.isKeyDemo && a.originalIndex < 2 && b.originalIndex < 2) {
+        return a.originalIndex - b.originalIndex;
+      }
+
+      // Highlighted emails next
       if (a.highlight && !b.highlight) return -1;
       if (!a.highlight && b.highlight) return 1;
 
